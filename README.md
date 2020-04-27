@@ -16,7 +16,7 @@ pip install git+https://github.com/henriasv/molecular-builder
 Simple use case for carving out a cylinder from a bulk alpha-quartz crystal. 
 ```python 
 atoms = create_bulk_system("alpha_quartz", [100,100,100])
-carved_atoms = atoms.carve(CylinderGeometry(...))
+carved_atoms = carve_geometry(CylinderGeometry(...), side="in")
 atoms.save("output.data")
 ```
 
