@@ -59,11 +59,35 @@ def create_bulk_crystal(name, size, round="up"):
     ##################################################################################
     return myCrystal
 
-def carve_geometry(atoms, geometry, side="in"):
-    out_atoms = atoms.copy()
-    delete_indices = geometry(out_atoms)
+def carve_geometry(atoms, geometry, side="in", return_carved=False):
+    """Delete atoms according to geometry.
+
+    Arguments: 
+        atoms -- The ase Atoms object containing the molecular system 
+        geometry -- A molecular_builder.geometry.Geometry object defining the region to be carved
+        side -- Whether to carve out the inside or the outside of geometry
+
+    Returns:  
+        Number of deleted atoms 
+        Optionally an atoms object containing the atoms that were carved away
+    """
+
+    if return_carved:
+        atoms_copy = atoms.copy()
+    
+    geometry_indices = geometry(atoms)
+    
     if side == "in":
-        del out_atoms[delete_indices] 
+        delete_indices = geometry_indices
     elif side == "out":
-        del out_atoms[np.logical_not(delete_indices)]
-    return out_atoms
+        delete_indices = np.logical_not(geometry_indices)
+    else: 
+        raise ValueError
+
+    del atoms[delete_indices] 
+    
+    if not return_carved:
+        return len(delete_indices)
+    else: 
+        del atoms_copy[np.logical_not(delete_indices)]
+        return len(delete_indices), atoms_copy

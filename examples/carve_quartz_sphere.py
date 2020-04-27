@@ -5,8 +5,7 @@ atoms = create_bulk_crystal("alpha_quartz", [120, 120, 120])
 
 geometry = SphereGeometry([60,90,60], 40, periodic_boundary_condition=(True, True, True))
 
-block_with_hole = carve_geometry(atoms, geometry, side="in")
-carved = carve_geometry(atoms, geometry, side="out")
+num_carved, carved = carve_geometry(atoms, geometry, side="in", return_carved=True)
 
-block_with_hole.write("block_with_hole.data", format="lammps-data")
+atoms.write("block_with_hole.data", format="lammps-data")
 carved.write("carved.data", format="lammps-data")
