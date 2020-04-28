@@ -12,32 +12,25 @@ class Geometry:
         return np.zeros(len(atoms), dtype=np.bool) 
         
     @staticmethod
-    def distancePointLine(P1, P2, p):
-        """ Returns the (shortest) distance between a line spanned by the 
-        points P1 and P2, and a point p.
+    def distancePointLine(N, q, p):
+        """ Returns the (shortest) distance between a line parallel to
+        a normal vector N through point q and a point p.
         
         Parameters
         ----------
-        P1 : ndarray
-            single point on line
-        P2 : ndarray
-            single point on line
+        N : ndarray
+            normal vector parallel to line
+        q : ndarray
+            point on line
         p : ndarray
             external points
-        
-        >>> P1 = np.array([0,4,0])
-        >>> P2 = np.array([3,0,0])
-        >>> p = np.array([[0,0,0],[3,4,0]])
-        >> CylinderGeometry.distancePointLine(P1, P2, p)
-        [2.4, 2.4]
         """
-        l = P2 - P1
-        return np.linalg.norm(np.cross(l, P1-p), axis=1)/np.linalg.norm(l)
+        return np.linalg.norm(np.cross(N, p - q), axis=1)
         
     @staticmethod
     def distancePointPlane(N, q, p):
         """ Returns the (shortest) distance between a plane with normal vector 
-        N and a point p.
+        N  through point q and a point p.
         
         Parameters
         ----------
@@ -105,7 +98,7 @@ class CylinderGeometry(Geometry):
     Parameters
     ----------
     center : array_like
-        the center point of the block
+        the center point of the cylinder
     radius : float
         cylinder radius
     length : float
@@ -121,14 +114,10 @@ class CylinderGeometry(Geometry):
         self.radius = radius
         self.length = length / 2
         if orientation is None:
-            self.orientation = np.zeros(len(center))
+            self.orientation = np.zeros_like(center)
             self.orientation[0] = 1
         else:
             self.orientation = np.array(orientation) / np.linalg.norm(np.array(orientation))
-        
-        # Define points along cylinder core
-        self.A = self.center + self.length * self.orientation
-        self.B = self.center - self.length * self.orientation
             
             
     def __call__(self, atoms):
@@ -136,7 +125,7 @@ class CylinderGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc)
-        indices = (self.distancePointLine(self.A, self.B, positions) <= self.radius) & \
+        indices = (self.distancePointLine(self.orientation, self.center, positions) <= self.radius) & \
                   (self.distancePointPlane(self.orientation, self.center, positions) <= self.length)
         return indices
 
