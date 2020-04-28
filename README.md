@@ -13,31 +13,40 @@ pip install git+https://github.com/henriasv/molecular-builder
 ```
 
 ## Usage
-Simple use case for carving out a cylinder from a bulk alpha-quartz crystal. 
+Simple use case for creating a bulk alpha-quartz crystal. 
 ```python 
-atoms = create_bulk_system("alpha_quartz", [100,100,100])
-carved_atoms = carve_geometry(CylinderGeometry(...), side="in")
-atoms.save("output.data")
+from molecular_builder import create_bulk_crystal
+atoms = create_bulk_crystal("alpha_quartz", [50,100,200])
+atoms.write("alpha_quartz.data", format="lammps-data")
 ```
 
-More advanced use case for carving out randomly placed and saving the carved out atoms and the resulting system in different files. 
+More advanced use case for carving out randomly placed and saving the carved out atoms and the resulting system in different files. In this example, the bulk system is retrieved from a repository. 
 ```python 
-atoms = create_bulk_system("beta_quartz", [200,200,200])
-num_spheres = 10
-pos_scaling = 30
-r_scaling = 3
+from molecular_builder import create_bulk_crystal, carve_geometry, fetch_prepared_system
+from molecular_builder.geometry import SphereGeometry
+import numpy as np 
 
-geometries = [SphereGeometry(np.asarray([i,j,k])**pos_scaling, r*r_scaling) for i,j,k,r in np.random.randn(num_spheres,4)] 
+atoms = fetch_prepared_system("amorphous_silica_1")
 
-carved_atoms = Atoms()
+num_spheres = 20
+
+geometries = [SphereGeometry(np.asarray([i*357,j*143,k*143]), 
+                                r*30,
+                                periodic_boundary_condition=(True, True, True)) for i,j,k,r in np.random.uniform(size=(num_spheres,4))] 
+
+num_carved = 0
 for geometry in geometries:
-    carved_atoms.append(atoms.carve(geometry))
+    tmp_carved = carve_geometry(atoms, geometry, side="in")
+    print(f"tmp carved: {tmp_carved}")
+    num_carved += tmp_carved
 
-atoms.save("system.data")
-carved_atoms.save("carved_atoms.data")
+print(f"Carved out {num_carved} atoms")
+
+atoms.write("block_with_holes.data", format="lammps-data")
+
 ```
 
-Use case for setting up a system with a diamond indenter above a slab of beta quartz. 
+@NotYetImplemented Use case for setting up a system with a diamond indenter above a slab of beta quartz. 
 ```python 
 quartz_atoms = create_bulk_system("beta_quartz", [200,200,200])
 diamond_atoms = create_bulk_system("diamond", [180, 180, 200])
@@ -51,9 +60,9 @@ atoms = quartz_atoms+diamond_atoms
 atoms.save("indenter_and_slab.data")
 ```
 
-Use case for getting a particular input bulk structure. The name of the structure contains an identifier, in this case `p3754` that can be traced back to the procedure for creating the structure. For amorphous silica, this will typically be the melting and annealing process. 
+Use case for retrieving a particular input structure from a repository. The name of the structure contains an identifier, in this case `p3754` that can be traced back to the procedure for creating the structure. For amorphous silica, this will typically be the melting and annealing process. 
 ```python 
-atoms = fetch_bulk_system("amorphous_silica_p3754", [100,100,100])
+atoms = fetch_prepared_system("amorphous_silica_p3754", [100,100,100])
 atoms.save("my_amorphous_silica.data")
 ```
 
