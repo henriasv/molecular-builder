@@ -10,6 +10,45 @@ class Geometry:
     def __call__(self, atoms):
         """The empty geometry. False because we define no particle to be in the dummy geometry"""
         return np.zeros(len(atoms), dtype=np.bool) 
+        
+    @staticmethod
+    def distancePointLine(P1, P2, p):
+        """ Returns the (shortest) distance between a line spanned by the 
+        points P1 and P2, and a point p.
+        
+        Parameters
+        ----------
+        P1 : ndarray
+            single point on line
+        P2 : ndarray
+            single point on line
+        p : ndarray
+            external points
+        
+        >>> P1 = np.array([0,4,0])
+        >>> P2 = np.array([3,0,0])
+        >>> p = np.array([[0,0,0],[3,4,0]])
+        >> CylinderGeometry.distancePointLine(P1, P2, p)
+        [2.4, 2.4]
+        """
+        l = P2 - P1
+        return np.linalg.norm(np.cross(l, P1-p), axis=1)/np.linalg.norm(l)
+        
+    @staticmethod
+    def distancePointPlane(N, q, p):
+        """ Returns the (shortest) distance between a plane with normal vector 
+        N and a point p.
+        
+        Parameters
+        ----------
+        N : ndarray
+            normal vector of plane
+        q : ndarray
+            point in plane
+        p : ndarray
+            external points
+        """
+        return np.abs((p - q).dot(N))
 
 class SphereGeometry(Geometry):
     def __init__(self, center, radius, **kwargs):
@@ -29,13 +68,12 @@ class SphereGeometry(Geometry):
         return indices
         
 class BlockGeometry(Geometry):
-    """ Block geometry gives the indices of a given block.
+    """ Block object.
     
     Parameters
     ----------
     center : array_like
-        the center point of the block (size needs to be equal to number of 
-        spatial dimensions)
+        the center point of the block
     length : array_like
         the spatial extent of the block in each direction. 
     kwargs : 
@@ -59,5 +97,46 @@ class BlockGeometry(Geometry):
         atoms.set_pbc(tmp_pbc)
         indices = np.all((self.llcorner <= positions) & 
                          (positions <= self.urcorner), axis=1)
+        return indices
+        
+class CylinderGeometry(Geometry):
+    """ Cylinder object.
+    
+    Parameters
+    ----------
+    center : array_like
+        the center point of the block
+    radius : float
+        cylinder radius
+    length : float
+        cylinder length
+    orientation : array_like
+        orientation of cylinder, given as a vector pointing along the cylinder
+        Pointing in x-direction by default.
+    """
+    
+    def __init__(self, center, radius, length, orientation=None, **kwargs):
+        super().__init__(**kwargs)
+        self.center = np.array(center)
+        self.radius = radius
+        self.length = length / 2
+        if orientation is None:
+            self.orientation = np.zeros(len(center))
+            self.orientation[0] = 1
+        else:
+            self.orientation = np.array(orientation) / np.linalg.norm(np.array(orientation))
+        
+        # Define points along cylinder core
+        self.A = self.center + self.length * self.orientation
+        self.B = self.center - self.length * self.orientation
+            
+            
+    def __call__(self, atoms):
+        tmp_pbc = atoms.get_pbc()
+        atoms.set_pbc(self.periodic_boundary_condition)
+        positions = atoms.get_positions()
+        atoms.set_pbc(tmp_pbc)
+        indices = (self.distancePointLine(self.A, self.B, positions) <= self.radius) & \
+                  (self.distancePointPlane(self.orientation, self.center, positions) <= self.length)
         return indices
 
