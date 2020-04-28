@@ -12,36 +12,36 @@ class Geometry:
         return np.zeros(len(atoms), dtype=np.bool) 
         
     @staticmethod
-    def distancePointLine(N, q, p):
+    def distancePointLine(n, q, p):
         """ Returns the (shortest) distance between a line parallel to
-        a normal vector N through point q and a point p.
+        a normal vector n through point q and a point p.
         
         Parameters
         ----------
-        N : ndarray
-            normal vector parallel to line
+        n : ndarray
+            unit vector parallel to line
         q : ndarray
             point on line
         p : ndarray
             external points
         """
-        return np.linalg.norm(np.cross(N, p - q), axis=1)
+        return np.linalg.norm(np.cross(n, p - q), axis=1)
         
     @staticmethod
-    def distancePointPlane(N, q, p):
+    def distancePointPlane(n, q, p):
         """ Returns the (shortest) distance between a plane with normal vector 
-        N  through point q and a point p.
+        n through point q and a point p.
         
         Parameters
         ----------
-        N : ndarray
-            normal vector of plane
+        n : ndarray
+            unit vector normal to plane
         q : ndarray
             point in plane
         p : ndarray
             external points
         """
-        return np.abs((p - q).dot(N))
+        return np.abs((p - q).dot(n))
 
 class SphereGeometry(Geometry):
     def __init__(self, center, radius, **kwargs):
