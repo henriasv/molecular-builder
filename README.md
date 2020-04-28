@@ -2,6 +2,8 @@
 
 This builder relies heavily on the atomic simulation environment (ase). I particular we use ase to generate crystals from space group descriptions. 
 
+This molecular builder is made with LAMMPS in mind. Usually, saving to input files for other simulators will work just fine, but anywhere a choice has to be made, convenience when preparing systems for LAMMPS will be prioritized. 
+
 ## Description
 This package facilitates building molecular systems. It has functions for creating bulk crystals and for fetching periodic boxes of non-crystalline systems from the internet. After generating bulk crystals, the user may carve out specific geometries, and combine several elements to create a system. 
 
