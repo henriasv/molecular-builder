@@ -45,7 +45,10 @@ print(f"Carved out {num_carved} atoms")
 atoms.write("block_with_holes.data", format="lammps-data")
 
 ```
+This script should output a structure resembling this:  
+![silica slab with holes in it](docs/figures/carved_spheres.png)
 
+### Indentation
 @NotYetImplemented Use case for setting up a system with a diamond indenter above a slab of beta quartz. 
 ```python 
 quartz_atoms = create_bulk_system("beta_quartz", [200,200,200])
