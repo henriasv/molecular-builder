@@ -23,12 +23,9 @@ class SphereGeometry(Geometry):
         tmp_pbc = atoms.get_pbc()
         atoms.set_pbc(self.periodic_boundary_condition)
         distances = atoms.get_distances(-1, list(range(len(atoms)-1)), mic=self.minimum_image_convention)
-        print(len(distances))
         atoms.pop()
         atoms.set_pbc(tmp_pbc)
         indices = distances**2 < self.radius_squared
-        print(indices)
-        print(len(indices))
         return indices
         
 class BlockGeometry(Geometry):
