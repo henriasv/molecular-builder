@@ -12,6 +12,19 @@ crystals = {
         "positions" : [(0.000000,  0.477285,  0.833333), (0.160738,  0.745706,  0.037343)],
         "citation" : "N/A"
     },
+    "beta_cristobalite" :
+    {
+        "a" : 7.12,
+        "b" : 7.12,
+        "c" : 7.12,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 90,
+        "spacegroup" : 227,
+        "elements" : ["Si", "O"],
+        "positions" : [(0.0,  0.0,  0.0), (0.125,  0.125,  0.125)],
+        "citation" : "Wyckoff R, Zeitschrift fur Kristallographie 62 (1925) 189-200 Die Kristallstruktur von $-beta-Crystobalit Si O2 (bei hohen Temperaturen stabile Form)."
+    },
     "diamond" : 
     {
         "a" : 3.57,

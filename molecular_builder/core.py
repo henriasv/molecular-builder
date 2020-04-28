@@ -1,8 +1,12 @@
 import ase.spacegroup
 from ase.calculators.lammps import Prism, convert
+import ase.io
 import numpy as np
 from .crystals import crystals 
-
+import requests 
+import requests_cache
+import tempfile
+from clint.textui import progress
 
 def create_bulk_crystal(name, size, round="up"):
     """Create a bulk crystal from a spacegroup description.
@@ -87,7 +91,37 @@ def carve_geometry(atoms, geometry, side="in", return_carved=False):
     del atoms[delete_indices] 
     
     if not return_carved:
-        return len(delete_indices)
+        return np.sum(delete_indices)
     else: 
         del atoms_copy[np.logical_not(delete_indices)]
-        return len(delete_indices), atoms_copy
+        return np.sum(delete_indices), atoms_copy
+
+
+
+def fetch_prepared_system(name):
+    """Retrieves molecular system from an online repository. Caches data locally with requests-cache, which creates a sqlite database locally. 
+
+    args: 
+    Name -- name of system to be retrieved
+
+    Returns 
+        atoms -- ase.Atoms object with the system 
+    """
+    requests_cache.install_cache('python_molecular_builder_cache')
+    f = tempfile.TemporaryFile(mode="w+t")
+    url = f"https://zenodo.org/record/3770804/files/{name}.data"
+    print("URI: ", url)
+    r = requests.get(url, stream=True)
+    print(r.encoding)
+    r.encoding="utf-8"
+    total_length = int(r.headers.get('content-length'))
+    print(f"Downloading data file {name}")
+    chunk_size = 4096
+    for chunk in progress.bar(r.iter_content(chunk_size=chunk_size, decode_unicode=True), expected_size=(total_length/chunk_size) + 1): 
+        if chunk:
+            f.write(chunk)
+            f.flush()
+    f.seek(0)
+
+    atoms = ase.io.read(f, format="lammps-data", style="atomic")
+    return atoms 
