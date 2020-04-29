@@ -12,7 +12,7 @@ class Geometry:
         return np.zeros(len(atoms), dtype=np.bool) 
         
     @staticmethod
-    def distancePointLine(n, q, p):
+    def distance_point_line(n, q, p):
         """ Returns the (shortest) distance between a line parallel to
         a normal vector n through point q and a point p.
         
@@ -28,7 +28,7 @@ class Geometry:
         return np.linalg.norm(np.cross(n, p - q), axis=1)
         
     @staticmethod
-    def distancePointPlane(n, q, p):
+    def distance_point_plane(n, q, p):
         """ Returns the (shortest) distance between a plane with normal vector 
         n through point q and a point p.
         
@@ -41,7 +41,8 @@ class Geometry:
         p : ndarray
             external points
         """
-        return np.abs((p - q).dot(n))
+        rel_pq = p - q
+        return np.abs(np.einsum('ik,jk->ij',rel_pq,n))
 
 class SphereGeometry(Geometry):
     def __init__(self, center, radius, **kwargs):
@@ -69,27 +70,40 @@ class BlockGeometry(Geometry):
         the center point of the block
     length : array_like
         the spatial extent of the block in each direction. 
+    orientation : nested list / ndarray_like
+        orientation of cylinder, given as a vector pointing along the cylinder
+        Random orientation by default
     kwargs : 
         properties
     """
     
-    def __init__(self, center, length, **kwargs):
+    def __init__(self, center, length, orientation=[], **kwargs):
         super().__init__(**kwargs)
         assert len(center) == len(length), \
                  ("center and length need to have equal shapes")
         self.center = np.array(center)
-        self.length = np.array(length)
-        self.llcorner = self.center - self.length/2   # Lower left corner
-        self.urcorner = self.center + self.length/2   # Upper right corner
-
+        self.length = np.array(length) / 2
+        
+        # Set coordinate according to orientation
+        if len(orientation) == 0:
+            #orientation.append(np.random.randn(len(center)))
+            orientation = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        if len(orientation) == 1:
+            n_x = np.array(orientation[0])
+            n_y = np.random.randn(len(center))
+            n_y -= n_y.dot(n_x) * n_x
+            orientation.append(n_y)
+        if len(orientation) == 2:
+            orientation.append(np.cross(orientation[0], orientation[1]))
+        orientation = np.array(orientation) 
+        self.orientation = orientation / np.linalg.norm(orientation, axis=1)
          
     def __call__(self, atoms):
         tmp_pbc = atoms.get_pbc()
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
-        indices = np.all((self.llcorner <= positions) & 
-                         (positions <= self.urcorner), axis=1)
+        atoms.set_pbc(tmp_pbc) 
+        indices = np.all((self.distance_point_plane(self.orientation, self.center, positions) <= self.length), axis=1)
         return indices
         
 class CylinderGeometry(Geometry):
@@ -117,15 +131,15 @@ class CylinderGeometry(Geometry):
             self.orientation = np.zeros_like(center)
             self.orientation[0] = 1
         else:
-            self.orientation = np.array(orientation) / np.linalg.norm(np.array(orientation))
-            
+            self.orientation = np.array(orientation)
+            self.orientation /= np.linalg.norm(self.orientation)
             
     def __call__(self, atoms):
         tmp_pbc = atoms.get_pbc()
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc)
-        indices = (self.distancePointLine(self.orientation, self.center, positions) <= self.radius) & \
-                  (self.distancePointPlane(self.orientation, self.center, positions) <= self.length)
+        indices = (self.distance_point_line(self.orientation, self.center, positions) <= self.radius) & \
+                  (self.distance_point_plane(self.orientation, self.center, positions) <= self.length)
         return indices
 
