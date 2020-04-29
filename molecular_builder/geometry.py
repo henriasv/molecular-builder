@@ -41,8 +41,8 @@ class Geometry:
         p : ndarray
             external points
         """
-        rel_pq = p - q
-        return np.abs(np.einsum('ik,jk->ij',rel_pq,n))
+        n = np.atleast_2d(n)    # Ensure n is 2d
+        return np.abs(np.einsum('ik,jk->ij', p - q, n))
 
 class SphereGeometry(Geometry):
     def __init__(self, center, radius, **kwargs):
@@ -139,8 +139,9 @@ class CylinderGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc)
+        
         indices = (self.distance_point_line(self.orientation, self.center, positions) <= self.radius) & \
-                  (self.distance_point_plane(self.orientation, self.center, positions) <= self.length)
+                  (self.distance_point_plane(self.orientation, self.center, positions).flatten() <= self.length)
         return indices
 
 class BerkovichGeometry(Geometry):
