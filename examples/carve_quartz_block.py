@@ -3,7 +3,10 @@ from molecular_builder.geometry import BlockGeometry
 
 atoms = create_bulk_crystal("alpha_quartz", [120, 120, 120])
 
-geometry = BlockGeometry([60,90,60], [80,80,80], periodic_boundary_condition=(True, True, True))
+geometry = BlockGeometry(center=[60,60,60], 
+                         length=[40,50,60], 
+                         orientation=[[0,0,1],[1,0,0],[0,1,0]],
+                         periodic_boundary_condition=(True, True, True))
 
 num_carved, carved = carve_geometry(atoms, geometry, side="in", return_carved=True)
 
