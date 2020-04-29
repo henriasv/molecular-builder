@@ -129,3 +129,30 @@ class CylinderGeometry(Geometry):
                   (self.distancePointPlane(self.orientation, self.center, positions) <= self.length)
         return indices
 
+class BerkovichGeometry(Geometry):
+    def __init__(self, tip, axis=[0,0,-1], angle=np.radians(65.27)):
+        self.indenter_angle = angle
+        self.tip = np.asarray(tip)
+        self.axis = np.asarray(axis)
+        self.plane_directions = []
+        self._create_plane_directions()
+
+    def _create_plane_directions(self):
+        xy_angles = [0, np.radians(120), np.radians(240)]
+        for xy_angle in xy_angles:
+            z_component = np.cos(np.pi/2-self.indenter_angle)
+            xy_component = np.sin(np.pi/2-self.indenter_angle)
+            self.plane_directions.append(np.asarray([
+                                          xy_component*np.cos(xy_angle),
+                                          xy_component*np.sin(xy_angle),
+                                          z_component
+                                          ]))
+
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        rel_pos = positions-self.tip
+        is_inside_candidate1 = np.dot(rel_pos, self.plane_directions[0]) > 0
+        is_inside_candidate2 = np.dot(rel_pos, self.plane_directions[1]) > 0
+        is_inside_candidate3 = np.dot(rel_pos, self.plane_directions[2]) > 0
+        is_inside = np.logical_and(np.logical_and(is_inside_candidate1, is_inside_candidate2), is_inside_candidate3)
+        return is_inside

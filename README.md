@@ -51,19 +51,25 @@ This script should output a structure resembling this:
 ![silica slab with holes in it](docs/figures/carved_spheres.png)
 
 ### Indentation
-@NotYetImplemented Use case for setting up a system with a diamond indenter above a slab of beta quartz. 
+Use case for setting up a system with a Berkovich indenter with atoms in a diamond structure, above a slab of amorphous silica. 
 ```python 
-quartz_atoms = create_bulk_system("beta_quartz", [200,200,200])
-diamond_atoms = create_bulk_system("diamond", [180, 180, 200])
+from molecular_builder import create_bulk_crystal, carve_geometry, fetch_prepared_system
+from molecular_builder.geometry import BerkovichGeometry, CylinderGeometry
 
-carved_atoms_quartz = quarts_atoms.carve(PlaneGeometry([0,0,1], [0,0,20]))
-carved_atoms_diamond = diamond.carve(BerkovitzGeometry([0,0,-1], [0,0,30]))
+slab = fetch_prepared_system("vashishta_1990_like_amorphous_silica/quench_950K")
+slab.cell[2,2] = 80 # Expand cell in z direction to fit indenter 
 
-diamond_atoms.center_on(quartz_atoms, "xy")
-atoms = quartz_atoms+diamond_atoms
+indenter = create_bulk_crystal("diamond", (144, 144, 80), round="down")
+carve_geometry(indenter, BerkovichGeometry((75, 75, 40)), side="out")
+carve_geometry(indenter, CylinderGeometry((75, 75, 50), 60, 200, orientation=(0,0,1)), side="out")
 
-atoms.save("indenter_and_slab.data")
+atoms = slab+indenter
+
+atoms.write("indenter_and_glass.data", format="lammps-data")
+
 ```
+This results in the following system:
+![indenter over silica](docs/figures/indenter_over_silica.png)
 
 Use case for retrieving a particular input structure from a repository. The name of the structure contains an identifier, in this case `p3754` that can be traced back to the procedure for creating the structure. For amorphous silica, this will typically be the melting and annealing process. 
 ```python 
