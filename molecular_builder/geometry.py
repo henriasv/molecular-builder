@@ -44,6 +44,7 @@ class Geometry:
         n = np.atleast_2d(n)    # Ensure n is 2d
         return np.abs(np.einsum('ik,jk->ij', p - q, n))
 
+
 class SphereGeometry(Geometry):
     def __init__(self, center, radius, **kwargs):
         super().__init__(**kwargs)
@@ -103,8 +104,33 @@ class BlockGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc) 
-        indices = np.all((self.distance_point_plane(self.orientation, self.center, positions) <= self.length), axis=1)
+        indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length), axis=1)
         return indices
+        
+class PlaneGeometry(Geometry):
+    """ Remove all particles on one side of a plane.
+    
+    Parameters
+    ----------
+    point : array_like
+        point on plane
+    normal : array_like
+        vector normal to plane
+    """
+    def __init__(self, point, normal, **kwargs):
+        super().__init__(**kwargs)
+        self.point = np.array(point, dtype=float)
+        normal = np.array(normal, dtype=float)
+        self.normal = normal / np.linalg.norm(normal)
+        
+    def __call__(self, atoms):
+        tmp_pbc = atoms.get_pbc()
+        atoms.set_pbc(self.periodic_boundary_condition)
+        positions = atoms.get_positions()
+        atoms.set_pbc(tmp_pbc) 
+        indices = np.einsum('ik,k->i', self.point - positions, self.normal) > 0
+        return indices
+        
         
 class CylinderGeometry(Geometry):
     """ Cylinder object.
