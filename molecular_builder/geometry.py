@@ -95,7 +95,7 @@ class BlockGeometry(Geometry):
             orientation.append(n_y)
         if len(orientation) == 2:
             orientation.append(np.cross(orientation[0], orientation[1]))
-        orientation = np.array(orientation) 
+        orientation = np.array(orientation, dtype=float) 
         self.orientation = orientation / np.linalg.norm(orientation, axis=1)
          
     def __call__(self, atoms):
@@ -131,8 +131,8 @@ class CylinderGeometry(Geometry):
             self.orientation = np.zeros_like(center)
             self.orientation[0] = 1
         else:
-            self.orientation = np.array(orientation)
-            self.orientation /= np.linalg.norm(self.orientation)
+            orientation = np.array(orientation, dtype=float)
+            self.orientation = orientation / np.linalg.norm(orientation)
             
     def __call__(self, atoms):
         tmp_pbc = atoms.get_pbc()
