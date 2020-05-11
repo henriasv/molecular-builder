@@ -17,6 +17,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    install_requires=["ase", "requests"],
+    install_requires=["ase", "requests", "requests-cache", "clint", "werkzeug"],
     python_requires='>=3.6',
 )
