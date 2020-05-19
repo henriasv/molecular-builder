@@ -2,6 +2,7 @@ import numpy as np
 from ase import Atom
 
 class Geometry:
+    """Base class for geometries."""
     def __init__(self, periodic_boundary_condition = (False, False, False), minimum_image_convention=True):
         self.minimum_image_convention = minimum_image_convention
         self.periodic_boundary_condition = periodic_boundary_condition
@@ -18,12 +19,13 @@ class Geometry:
         
         Parameters
         ----------
-        n : ndarray
-            unit vector parallel to line
-        q : ndarray
-            point on line
-        p : ndarray
-            external points
+        :param n: unit vector parallel to line
+        :type n: ndarray   
+        :param q: point on line
+        :type q: ndarray   
+        :param p: external points
+        :type p: ndarray
+
         """
         return np.linalg.norm(np.cross(n, p - q), axis=1)
         
@@ -65,17 +67,15 @@ class SphereGeometry(Geometry):
 class BlockGeometry(Geometry):
     """ Block object.
     
-    Parameters
-    ----------
-    center : array_like
-        the center point of the block
-    length : array_like
-        the spatial extent of the block in each direction. 
-    orientation : nested list / ndarray_like
-        orientation of cylinder, given as a vector pointing along the cylinder
-        Random orientation by default
-    kwargs : 
+    :param center: the center point of the block
+    :type center: array_like
+    :param length: the spatial extent of the block in each direction. 
+    :type length: array_like
+    :param orientation: orientation of cylinder, given as a vector pointing along the cylinder. Random orientation by default
+    :type orientation: nested list / ndarray_like
+    :param kwargs: 
         properties
+
     """
     
     def __init__(self, center, length, orientation=[], **kwargs):
@@ -110,12 +110,10 @@ class BlockGeometry(Geometry):
 class PlaneGeometry(Geometry):
     """ Remove all particles on one side of a plane.
     
-    Parameters
-    ----------
-    point : array_like
-        point on plane
-    normal : array_like
-        vector normal to plane
+    :param point: point on plane
+    :type point: array_like 
+    :param normal: vector normal to plane
+    :type normal: array_like
     """
     def __init__(self, point, normal, **kwargs):
         super().__init__(**kwargs)
