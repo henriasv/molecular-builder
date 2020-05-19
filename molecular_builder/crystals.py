@@ -12,6 +12,20 @@ crystals = {
         "positions" : [(0.000000,  0.477285,  0.833333), (0.160738,  0.745706,  0.037343)],
         "citation" : "N/A"
     },
+    "beta_quartz" :
+    {
+        	
+        "a" : 5.013,
+        "b" : 5.013, 
+        "c" : 5.47,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 120,
+        "spacegroup" : "P6222",
+        "elements" : ["Si", "O"],
+        "positions" : [(0.5,0.5,1.0/3), (0.197, -0.197, .8333)],
+        "citation" : "Wyckoff R, Zeitschrift fur Kristallographie 63 (1926) 507-537"
+    },
     "beta_cristobalite" :
     {
         "a" : 7.12,
