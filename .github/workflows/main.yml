@@ -21,6 +21,8 @@ jobs:
           FOLDER: docs/_build/html
       run: | 
         cd $GITHUB_WORKSPACE
+        ls
+        pwd
         git init 
         git config user.name "Github Actions"
         git config user.email "github-actions-bot@users.noreply.github.com"
