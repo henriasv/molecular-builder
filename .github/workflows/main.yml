@@ -29,7 +29,7 @@ jobs:
         git config user.email "github-actions-bot@users.noreply.github.com"
         REPOSITORY_PATH="https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-        touch ${FOLDER}/.nojekyll
+        sudo touch ${FOLDER}/.nojekyll
 
         git add -f $FOLDER
         git commit -m "Deploying to gh-pages from master" --quiet && \
