@@ -15,11 +15,19 @@ jobs:
     - uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "docs/"
-    - name: addnojekyll
-      run: cd docs && touch .nojekyll
-    - uses: JamesIves/github-pages-deploy-action@releases/v3
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH: gh-pages # The branch the action should deploy to.
-        FOLDER: docs/_build/html # The folder the action should deploy.
-        SINGLE_COMMIT: true
+    - name: build 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FOLDER: docs/
+        run: | 
+          cd $GITHUB_WORKSPACE
+          git init 
+          git config user.name "Github Actions"
+          git config user.email "github-actions-bot@users.noreply.github.com"
+          REPOSITORY_PATH="https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          touch ${FOLDER}/.nojekyll
+          
+          git add -f $FOLDER
+          git commit -m "Deploying to gh-pages from master" --quiet && \
+          git push $REPOSITORY_PATH `git subtree split --prefix $FOLDER master`:gh-pages --force
