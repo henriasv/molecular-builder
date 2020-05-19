@@ -16,18 +16,18 @@ jobs:
       with:
         docs-folder: "docs/"
     - name: build 
-        env:
+      env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FOLDER: docs/
-        run: | 
-          cd $GITHUB_WORKSPACE
-          git init 
-          git config user.name "Github Actions"
-          git config user.email "github-actions-bot@users.noreply.github.com"
-          REPOSITORY_PATH="https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+      run: | 
+        cd $GITHUB_WORKSPACE
+        git init 
+        git config user.name "Github Actions"
+        git config user.email "github-actions-bot@users.noreply.github.com"
+        REPOSITORY_PATH="https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-          touch ${FOLDER}/.nojekyll
-          
-          git add -f $FOLDER
-          git commit -m "Deploying to gh-pages from master" --quiet && \
-          git push $REPOSITORY_PATH `git subtree split --prefix $FOLDER master`:gh-pages --force
+        touch ${FOLDER}/.nojekyll
+
+        git add -f $FOLDER
+        git commit -m "Deploying to gh-pages from master" --quiet && \
+        git push $REPOSITORY_PATH `git subtree split --prefix $FOLDER master`:gh-pages --force
