@@ -1,3 +1,5 @@
+![build docs](https://github.com/henriasv/molecular-builder/workflows/build%20docs/badge.svg)
+
 # Molecular builder 
 
 This builder relies heavily on the atomic simulation environment (ase). I particular we use ase to generate crystals from space group descriptions. 
