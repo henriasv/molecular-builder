@@ -12,10 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: ammaraskar/sphinx-action@master
-      with:
-        docs-folder: "docs/"
-        build-command: "sphinx-build -b html . _build"
+    - name: install 
+      run: | 
+        cd docs 
+        sudo pip3 install -r requirements.txt
+    - name: build 
+      run: | 
+        pwd
+        sphinx-build -b html . _build
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
