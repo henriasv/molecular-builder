@@ -9,6 +9,9 @@ on:
 
 jobs:
   docs:
+    strategy: 
+      matrix:
+        python: [3.8]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -18,7 +21,7 @@ jobs:
         sudo pip3 install -r requirements.txt
     - name: build 
       run: | 
-        pwd
+        cd docs
         sphinx-build -b html . _build
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
