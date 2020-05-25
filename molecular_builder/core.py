@@ -132,7 +132,7 @@ def fetch_prepared_system(name):
     
 
 
-def pack_water(atoms, number, geometry, side='in', pbc=None, tolerance=2.0):
+def pack_water(atoms, number, geometry, side='inside', pbc=None, tolerance=2.0):
     """Pack water molecules into voids at a given volume defined by a geometry.
     
     :param atoms: ase Atom object that specifies where the solid is
@@ -152,6 +152,12 @@ def pack_water(atoms, number, geometry, side='in', pbc=None, tolerance=2.0):
         # Write solid structure to pdb-file
         atoms.write("atoms.pdb", format="proteindatabank")
         
+        # ...
+        from shutil import copyfile
+        this_dir, this_filename = os.path.split(__file__)
+        water_data = this_dir + "/data_files/water.pdb"
+        copyfile(water_data, "water.pdb")
+        
         # Generate packmol input script
         with open("input.inp", "w") as f:
             f.write(f"tolerance {tolerance}\n")
@@ -165,7 +171,6 @@ def pack_water(atoms, number, geometry, side='in', pbc=None, tolerance=2.0):
             f.write(geometry.packmol_structure(number, side))
         
         # Run packmol input script
-        os.system("ls")
         try:
             os.system("packmol < input.inp")
         except:

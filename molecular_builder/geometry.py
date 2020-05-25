@@ -6,10 +6,6 @@ class Geometry:
     def __init__(self, periodic_boundary_condition = (False, False, False), minimum_image_convention=True):
         self.minimum_image_convention = minimum_image_convention
         self.periodic_boundary_condition = periodic_boundary_condition
-        
-        import os
-        this_dir, this_filename = os.path.split(__file__)
-        self.structure_data = this_dir + "/data_files/water.pdb"
         pass
     
     def __call__(self, atoms):
@@ -59,7 +55,7 @@ class Geometry:
         :type side: str
         :returns: String with information of structure
         """
-        structure = f"structure {self.structure_data}\n"
+        structure = f"structure water.pdb\n"
         structure += f"  number {number}\n"
         structure += f"  {side} {self.__repr__()} "
         for param in self.params:

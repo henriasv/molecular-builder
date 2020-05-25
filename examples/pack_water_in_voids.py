@@ -13,3 +13,4 @@ for sphere in range(num_spheres):
     print(f"tmp carved: {tmp_carved}")
 
 water = pack_water(atoms, 1000, CubeGeometry([60,60,60], 130))
+water.write("out.data", format="lammps-data")
