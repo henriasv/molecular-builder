@@ -1,6 +1,8 @@
 import ase.spacegroup
 from ase.calculators.lammps import Prism, convert
 import ase.io
+import sys
+import os
 import numpy as np
 from .crystals import crystals 
 import requests 
@@ -127,3 +129,49 @@ def fetch_prepared_system(name):
 
     atoms = ase.io.read(f, format="lammps-data", style="atomic")
     return atoms 
+    
+
+
+def pack_water(atoms, number, geometry, side='in', pbc=None, tolerance=2.0):
+    """Pack water molecules into voids at a given volume defined by a geometry.
+    
+    :param atoms: ase Atom object that specifies where the solid is
+    :type atoms: Atom object
+    :param number: Number of water molecules
+    :type number: int
+    :param geometry: Geometry object specifying where to pack water
+    :type geometry: Geometry object
+    
+    :returns: Coordinates of the packed water
+    """
+    
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        os.chdir(tmp_dir)
+        sys.path.append(tmp_dir)
+        
+        # Write solid structure to pdb-file
+        atoms.write("atoms.pdb", format="proteindatabank")
+        
+        # Generate packmol input script
+        with open("input.inp", "w") as f:
+            f.write(f"tolerance {tolerance}\n")
+            f.write("filetype pdb\n")
+            f.write("output out.pdb\n")
+            f.write("structure atoms.pdb\n")
+            f.write("  number 1\n")
+            f.write("  center\n")
+            f.write("  fixed 0 0 0 0 0 0\n")
+            f.write("end structure\n\n")
+            f.write(geometry.packmol_structure(number, side))
+        
+        # Run packmol input script
+        os.system("ls")
+        try:
+            os.system("packmol < input.inp")
+        except:
+            raise OSError("packmol is not found. For installation instructions, see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
+        
+        # Read packmol outfile
+        solid_and_water = ase.io.read("out.pdb", format="proteindatabank")
+    return solid_and_water
+

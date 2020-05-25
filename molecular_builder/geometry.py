@@ -6,6 +6,10 @@ class Geometry:
     def __init__(self, periodic_boundary_condition = (False, False, False), minimum_image_convention=True):
         self.minimum_image_convention = minimum_image_convention
         self.periodic_boundary_condition = periodic_boundary_condition
+        
+        import os
+        this_dir, this_filename = os.path.split(__file__)
+        self.structure_data = this_dir + "/data_files/water.pdb"
         pass
     
     def __call__(self, atoms):
@@ -45,6 +49,23 @@ class Geometry:
         """
         n = np.atleast_2d(n)    # Ensure n is 2d
         return np.abs(np.einsum('ik,jk->ij', p - q, n))
+        
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        
+        :param number: Number of water molecules
+        :type number: int
+        :param side: Pack water on inside/outside of geometry
+        :type side: str
+        :returns: String with information of structure
+        """
+        structure = f"structure {self.structure_data}\n"
+        structure += f"  number {number}\n"
+        structure += f"  {side} {self.__repr__()} "
+        for param in self.params:
+            structure += f"{param} "
+        structure += "\nend structure\n"
+        return structure
 
 
 class SphereGeometry(Geometry):
@@ -53,6 +74,10 @@ class SphereGeometry(Geometry):
         self.center = center
         self.radius = radius 
         self.radius_squared = radius**2
+        self.params = list(center).append(radius)
+        
+    def __repr__(self):
+        return 'sphere'
          
     def __call__(self, atoms):
         atoms.append(Atom(position=self.center))
@@ -64,6 +89,59 @@ class SphereGeometry(Geometry):
         indices = distances**2 < self.radius_squared
         return indices
         
+class CubeGeometry(Geometry):
+    """ Cubic geometry.
+    
+    :param center: Center of cube
+    :type center: array_like
+    :param length: length of each side
+    :type length: float
+    """
+    def __init__(self, center, length, **kwargs):
+        super().__init__(**kwargs)
+        self.center = np.array(center)
+        self.orientation = np.array([[1,0,0], [0,1,0], [0,0,1]])
+        self.length_half = length / 2
+        self.params = list(self.center - self.length_half) + [length]
+        print(self.params)
+        
+    def __repr__(self):
+        return 'cube'
+        
+    def __call__(self, atoms):
+        tmp_pbc = atoms.get_pbc()
+        atoms.set_pbc(self.periodic_boundary_condition)
+        positions = atoms.get_positions()
+        atoms.set_pbc(tmp_pbc) 
+        indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length_half), axis=1)
+        return indices
+        
+class BoxGeometry(Geometry):
+    """ Box geometry. 
+    
+    :param center: Center of box
+    :type center: array_like
+    :param length: Length of box in each direction
+    :type length: array_like
+    """
+    def __init__(self, center, length, **kwargs):
+        super().__init__(**kwargs)
+        self.center = np.array(center)
+        self.orientation = np.array([[1,0,0], [0,1,0], [0,0,1]])
+        self.length_half = np.array(length) / 2
+        self.params = list(self.center - self.length_half) + list(length)
+        
+    def __repr__(self):
+        return 'box'
+        
+    def __call__(self, atoms):
+        tmp_pbc = atoms.get_pbc()
+        atoms.set_pbc(self.periodic_boundary_condition)
+        positions = atoms.get_positions()
+        atoms.set_pbc(tmp_pbc) 
+        indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length_half), axis=1)
+        return indices
+        
 class BlockGeometry(Geometry):
     """ Block object.
     
@@ -71,7 +149,7 @@ class BlockGeometry(Geometry):
     :type center: array_like
     :param length: the spatial extent of the block in each direction. 
     :type length: array_like
-    :param orientation: orientation of cylinder, given as a vector pointing along the cylinder. Random orientation by default
+    :param orientation: orientation of block
     :type orientation: nested list / ndarray_like
     :param kwargs: 
         properties
@@ -98,6 +176,9 @@ class BlockGeometry(Geometry):
             orientation.append(np.cross(orientation[0], orientation[1]))
         orientation = np.array(orientation, dtype=float) 
         self.orientation = orientation / np.linalg.norm(orientation, axis=1)
+        
+    def __repr__(self):
+        return 'block'
          
     def __call__(self, atoms):
         tmp_pbc = atoms.get_pbc()
@@ -157,6 +238,10 @@ class CylinderGeometry(Geometry):
         else:
             orientation = np.array(orientation, dtype=float)
             self.orientation = orientation / np.linalg.norm(orientation)
+        self.params = list(center) + list(self.orientation) + [radius, length]
+        
+    def __repr__(self):
+        return 'cylinder'
             
     def __call__(self, atoms):
         tmp_pbc = atoms.get_pbc()
