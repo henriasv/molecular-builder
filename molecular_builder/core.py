@@ -133,7 +133,7 @@ def fetch_prepared_system(name):
     
 
 
-def pack_water(number, atoms=None, geometry=None, pbc=None, side='in', return_water=False, tolerance=2.0):
+def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, return_water=False, tolerance=2.0):
     """Pack water molecules into voids at a given volume defined by a geometry.
     
     :param number: Number of water molecules
@@ -142,10 +142,10 @@ def pack_water(number, atoms=None, geometry=None, pbc=None, side='in', return_wa
     :type atoms: Atoms object
     :param geometry: Geometry object specifying where to pack water
     :type geometry: Geometry object
-    :param pbc: Ensures that the water molecules are separated by a certain distance through periodic boundaries. If float, the same distance is applied in all directions
-    :type pbc: float or ndarray
     :param side: Pack water inside/outside of geometry
     :type side: str
+    :param pbc: Ensures that the water molecules are separated by a certain distance through periodic boundaries. If float, the same distance is applied in all directions
+    :type pbc: float or ndarray
     :param return_water: Return water as a separate object
     :type return_water: bool
     :param tolerance: minimum separation distance between molecules. 2.0 by default.
@@ -165,15 +165,16 @@ def pack_water(number, atoms=None, geometry=None, pbc=None, side='in', return_wa
         urcorner = np.max(positions, axis=0)
         center = (urcorner + llcorner) / 2
         length = urcorner - llcorner
-        if pbc is not None:
+        if pbc:
             center -= pbc / 2
             length -= pbc
         geometry = BoxGeometry(center, length)
         
     
     with tempfile.TemporaryDirectory() as tmp_dir:
-        os.chdir(tmp_dir)
-        sys.path.append(tmp_dir)
+        dirr = "/home/evenmn/"
+        os.chdir(dirr)
+        sys.path.append(dirr)
         
         if atoms is not None:
             # Write solid structure to pdb-file
@@ -205,8 +206,6 @@ def pack_water(number, atoms=None, geometry=None, pbc=None, side='in', return_wa
             os.system("packmol < input.inp")
         except:
             raise OSError("packmol is not found. For installation instructions, see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
-        
-        os.system(f"cp out.{format_s} /home/evenmn/out.{format_s}")
         
         # Read packmol outfile
         solid_and_water = ase.io.read(f"out.{format_s}", format=format_v)
