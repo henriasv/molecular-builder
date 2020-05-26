@@ -71,6 +71,8 @@ class SphereGeometry(Geometry):
         self.radius = radius 
         self.radius_squared = radius**2
         self.params = list(center).append(radius)
+        self.ll_corner = np.array(center) - radius
+        self.ur_corner = np.array(center) + radius
         
     def __repr__(self):
         return 'sphere'
@@ -99,7 +101,8 @@ class CubeGeometry(Geometry):
         self.orientation = np.array([[1,0,0], [0,1,0], [0,0,1]])
         self.length_half = length / 2
         self.params = list(self.center - self.length_half) + [length]
-        print(self.params)
+        self.ll_corner = self.center - self.length_half
+        self.ur_corner = self.center + self.length_half
         
     def __repr__(self):
         return 'cube'
@@ -125,7 +128,9 @@ class BoxGeometry(Geometry):
         self.center = np.array(center)
         self.orientation = np.array([[1,0,0], [0,1,0], [0,0,1]])
         self.length_half = np.array(length) / 2
-        self.params = list(self.center - self.length_half) + list(length)
+        self.ll_corner = self.center - self.length_half
+        self.ur_corner = self.center + self.length_half
+        self.params = list(self.ll_corner) + list(self.ur_corner)
         
     def __repr__(self):
         return 'box'

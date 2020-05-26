@@ -133,7 +133,7 @@ def fetch_prepared_system(name):
     
 
 
-def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, return_water=False, tolerance=2.0):
+def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, tolerance=2.0):
     """Pack water molecules into voids at a given volume defined by a geometry.
     
     :param number: Number of water molecules
@@ -146,8 +146,6 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, return_w
     :type side: str
     :param pbc: Ensures that the water molecules are separated by a certain distance through periodic boundaries. If float, the same distance is applied in all directions
     :type pbc: float or ndarray
-    :param return_water: Return water as a separate object
-    :type return_water: bool
     :param tolerance: minimum separation distance between molecules. 2.0 by default.
     :type tolerance: float
     
@@ -161,10 +159,14 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, return_w
         raise ValueError("Either atoms or geometry has to be given")
     elif geometry is None:
         positions = atoms.get_positions()
-        llcorner = np.min(positions, axis=0)
-        urcorner = np.max(positions, axis=0)
-        center = (urcorner + llcorner) / 2
-        length = urcorner - llcorner
+        ll_corner = np.min(positions, axis=0)
+        ur_corner = np.max(positions, axis=0)
+        print(ll_corner)
+        print(ur_corner)
+        center = (ur_corner + ll_corner) / 2
+        length = ur_corner - ll_corner
+        print(center)
+        print(length)
         if pbc:
             center -= pbc / 2
             length -= pbc
@@ -172,9 +174,8 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, return_w
         
     
     with tempfile.TemporaryDirectory() as tmp_dir:
-        dirr = "/home/evenmn/"
-        os.chdir(dirr)
-        sys.path.append(dirr)
+        os.chdir(tmp_dir)
+        sys.path.append(tmp_dir)
         
         if atoms is not None:
             # Write solid structure to pdb-file
@@ -185,8 +186,6 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, return_w
         this_dir, this_filename = os.path.split(__file__)
         water_data = this_dir + f"/data_files/water.{format_s}"
         copyfile(water_data, f"water.{format_s}")
-        
-        os.system("ls")
         
         # Generate packmol input script
         with open("input.inp", "w") as f:
@@ -208,12 +207,18 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, return_w
             raise OSError("packmol is not found. For installation instructions, see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
         
         # Read packmol outfile
-        solid_and_water = ase.io.read(f"out.{format_s}", format=format_v)
+        water = ase.io.read(f"out.{format_s}", format=format_v)
         
-    if return_water:
-        water = solid_and_water.copy()
-        del water[geometry(atoms)]
-        return solid_and_water, water
-    else:
-        return solid_and_water
+    # Remove solid
+    del water[:len(atoms)]
+    
+    # Scale water box correctly
+    water.set_cell([[357, 0, 0], [0, 143, 0], [0, 0, 143]])
+    #ll_corner = geometry.ll_corner
+    #ur_corner = geometry.ur_corner
+    #length = ur_corner - ll_corner
+    #print(length)
+    #water *= tuple(length)
+    #water += ll_corner
+    return water
 
