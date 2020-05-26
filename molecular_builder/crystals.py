@@ -39,6 +39,19 @@ crystals = {
         "positions" : [(0.0,  0.0,  0.0), (0.125,  0.125,  0.125)],
         "citation" : "Wyckoff R, Zeitschrift fur Kristallographie 62 (1925) 189-200 Die Kristallstruktur von $-beta-Crystobalit Si O2 (bei hohen Temperaturen stabile Form)."
     },
+    "brucite" : 
+    { 
+        "a" : 3.142, 
+        "b" : 3.142,
+        "c" : 4.766,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 90,
+        "spacegroup" : 164,
+        "elements" : ["Mg", "O", "H"],
+        "positions" : [(0.0, 0.0, 0.0), (1./3, 2./3, 0.2216), (1./3, 2./3, 0.4303)],
+        "citation" : "Zigan F, Rothbauer R, Neues Jahrbuch fur Mineralogie, Monatshefte 1967 (1967) 137-143, Neutronenbeugungsmessungen am Brucit"
+    },
     "diamond" : 
     {
         "a" : 3.57,

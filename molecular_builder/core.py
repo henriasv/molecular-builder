@@ -13,12 +13,13 @@ from werkzeug.utils import secure_filename
 def create_bulk_crystal(name, size, round="up"):
     """Create a bulk crystal from a spacegroup description.
 
-    Arguments: 
-        name -- name of the crystal. A list can be found by @TODO
-        size -- size of the bulk crystal. In the case of a triclinic cell, the dimensions are the ones along the diagonal of the cell matrix, and the crystal tilt decides the rest. 
+    :param name: name of the crystal. A list can be found by @TODO
+    :type name: str
+    :param size: size of the bulk crystal. In the case of a triclinic cell, the dimensions are the ones along the diagonal of the cell matrix, and the crystal tilt decides the rest.  
+    :type size: array_like with 3 elements
 
-    Returns:
-        ase.Atoms object containing the crystal
+    :return: ase.Atoms object containing the crystal
+    :rtype: ase.Atoms
     """
     crystal = crystals[name]
     a, b, c, alpha, beta, gamma = [crystal[i] for i in ["a", "b", "c", "alpha", "beta", "gamma"]]
@@ -127,3 +128,57 @@ def fetch_prepared_system(name):
 
     atoms = ase.io.read(f, format="lammps-data", style="atomic")
     return atoms 
+
+def write(atoms, filename, bond_specs = None, size=(640, 480), atom_style="molecular"):
+    """Write atoms to lammps data file 
+
+    :param atoms: The atoms object to write to file 
+    :type atoms: ase.Atoms 
+    :param filename: filename to write to. Can either have suffix `.data` or `.png`, in which case a Lammps data file or a png picture will be produced, respectively. 
+    :type filename: str 
+    :param bonds_spec: List of (element1, element2, cutoff)
+    :type bonds_spec: List of tuples
+    """
+    import os 
+    suffix = os.path.splitext(filename)[1]
+
+    if not suffix in [".data", ".png"]:
+        raise ValueError(f"Invalid file format {suffix}")
+
+    import tempfile
+    import os
+    from ase.formula import Formula 
+    # Using tempfile and write + read rather than ovito's ase_to_ovito and back because the 
+    # ordering of particle types for some (bug) reason becomes unpredictable 
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        symbols = list(Formula(atoms.get_chemical_formula()).count().keys())
+        symbols_dict = {}
+        for i, symbol in enumerate(symbols): 
+            symbols_dict[symbol] = i+1
+        atoms.write(os.path.join(tmp_dir, "tmp.data"), format="lammps-data", specorder = symbols)
+        
+        from ovito.io import import_file, export_file
+        from ovito.modifiers import CreateBondsModifier
+        
+        pipeline = import_file(os.path.join(tmp_dir, "tmp.data"))
+        
+        # Accept a single tuple not contained in a list if there is only one bond type. 
+        if not bond_specs is None: 
+            bondsmodifier = CreateBondsModifier(mode = CreateBondsModifier.Mode.Pairwise)
+            if not isinstance(bond_specs, list) and isinstance(bond_specs, tuple):
+                bond_specs = [bond_specs]
+            for element in bond_specs:
+                bondsmodifier.set_pairwise_cutoff(  symbols_dict[element[0]], 
+                                                    symbols_dict[element[1]], 
+                                                    element[2])
+            pipeline.modifiers.append(bondsmodifier)
+        pipeline.compute()
+        if suffix == ".data":
+            export_file(pipeline, filename, "lammps/data", atom_style=atoms_style)
+
+        elif suffix == ".png":
+            from ovito.vis import Viewport, TachyonRenderer, OpenGLRenderer
+            pipeline.add_to_scene()
+            vp = Viewport(type = Viewport.Type.Perspective, camera_dir = (2, 1, -1))
+            vp.zoom_all(size=size)
+            vp.render_image(filename=filename, size=size, renderer=TachyonRenderer())
