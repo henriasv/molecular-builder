@@ -155,24 +155,23 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
     format_s, format_v = "pdb", "proteindatabank"    
     side += "side"
     
+    # Geometrical properties of solid
+    positions = atoms.get_positions()
+    ll_corner = np.min(positions, axis=0)
+    ur_corner = np.max(positions, axis=0)
+    center = (ur_corner + ll_corner) / 2
+    length = ur_corner - ll_corner
+    
     if atoms is None and geometry is None:
         raise ValueError("Either atoms or geometry has to be given")
     elif geometry is None:
-        positions = atoms.get_positions()
-        ll_corner = np.min(positions, axis=0)
-        ur_corner = np.max(positions, axis=0)
-        print(ll_corner)
-        print(ur_corner)
-        center = (ur_corner + ll_corner) / 2
-        length = ur_corner - ll_corner
-        print(center)
-        print(length)
+        # The default water geometry is a box which capsules the solid
         if pbc:
             center -= pbc / 2
             length -= pbc
         geometry = BoxGeometry(center, length)
-        
     
+    cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
         sys.path.append(tmp_dir)
@@ -196,7 +195,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
                 f.write(f"structure atoms.{format_s}\n")
                 f.write("  number 1\n")
                 f.write("  center\n")
-                f.write("  fixed 0 0 0 0 0 0\n")
+                f.write(f"  fixed {center[0]} {center[1]} {center[2]} 0 0 0\n")
                 f.write("end structure\n\n")
             f.write(geometry.packmol_structure(number, side))
         
@@ -209,16 +208,20 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
         # Read packmol outfile
         water = ase.io.read(f"out.{format_s}", format=format_v)
         
+    os.chdir(cwd)
+        
     # Remove solid
     del water[:len(atoms)]
     
+    # Geometrical properties of water
+    ll_corner = geometry.ll_corner
+    ur_corner = geometry.ur_corner
+    center = (ur_corner + ll_corner) / 2
+    length = ur_corner - ll_corner
+    
     # Scale water box correctly
-    water.set_cell([[357, 0, 0], [0, 143, 0], [0, 0, 143]])
-    #ll_corner = geometry.ll_corner
-    #ur_corner = geometry.ur_corner
-    #length = ur_corner - ll_corner
-    #print(length)
-    #water *= tuple(length)
-    #water += ll_corner
+    water.set_cell(np.identity(3) * length, scale_atoms=True)
+    #water.positions *= length
+    #water.positions += center
     return water
 
