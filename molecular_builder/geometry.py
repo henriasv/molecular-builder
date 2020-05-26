@@ -51,7 +51,7 @@ class Geometry:
         
         :param number: Number of water molecules
         :type number: int
-        :param side: Pack water on inside/outside of geometry
+        :param side: Pack water inside/outside of geometry
         :type side: str
         :returns: String with information of structure
         """

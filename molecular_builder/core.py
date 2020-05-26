@@ -5,6 +5,7 @@ import sys
 import os
 import numpy as np
 from .crystals import crystals 
+from .geometry import BoxGeometry
 import requests 
 import requests_cache
 import tempfile
@@ -132,42 +133,71 @@ def fetch_prepared_system(name):
     
 
 
-def pack_water(atoms, number, geometry, side='inside', pbc=None, tolerance=2.0):
+def pack_water(number, atoms=None, geometry=None, pbc=None, side='in', return_water=False, tolerance=2.0):
     """Pack water molecules into voids at a given volume defined by a geometry.
     
-    :param atoms: ase Atom object that specifies where the solid is
-    :type atoms: Atom object
     :param number: Number of water molecules
     :type number: int
+    :param atoms: ase Atoms object that specifies where the solid is
+    :type atoms: Atoms object
     :param geometry: Geometry object specifying where to pack water
     :type geometry: Geometry object
+    :param pbc: Ensures that the water molecules are separated by a certain distance through periodic boundaries. If float, the same distance is applied in all directions
+    :type pbc: float or ndarray
+    :param side: Pack water inside/outside of geometry
+    :type side: str
+    :param return_water: Return water as a separate object
+    :type return_water: bool
+    :param tolerance: minimum separation distance between molecules. 2.0 by default.
+    :type tolerance: float
     
     :returns: Coordinates of the packed water
     """
+    
+    format_s, format_v = "pdb", "proteindatabank"    
+    side += "side"
+    
+    if atoms is None and geometry is None:
+        raise ValueError("Either atoms or geometry has to be given")
+    elif geometry is None:
+        positions = atoms.get_positions()
+        llcorner = np.min(positions, axis=0)
+        urcorner = np.max(positions, axis=0)
+        center = (urcorner + llcorner) / 2
+        length = urcorner - llcorner
+        if pbc is not None:
+            center -= pbc / 2
+            length -= pbc
+        geometry = BoxGeometry(center, length)
+        
     
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
         sys.path.append(tmp_dir)
         
-        # Write solid structure to pdb-file
-        atoms.write("atoms.pdb", format="proteindatabank")
+        if atoms is not None:
+            # Write solid structure to pdb-file
+            atoms.write(f"atoms.{format_s}", format=format_v)
         
-        # ...
+        # Copy water.pdb to templorary directory
         from shutil import copyfile
         this_dir, this_filename = os.path.split(__file__)
-        water_data = this_dir + "/data_files/water.pdb"
-        copyfile(water_data, "water.pdb")
+        water_data = this_dir + f"/data_files/water.{format_s}"
+        copyfile(water_data, f"water.{format_s}")
+        
+        os.system("ls")
         
         # Generate packmol input script
         with open("input.inp", "w") as f:
             f.write(f"tolerance {tolerance}\n")
-            f.write("filetype pdb\n")
-            f.write("output out.pdb\n")
-            f.write("structure atoms.pdb\n")
-            f.write("  number 1\n")
-            f.write("  center\n")
-            f.write("  fixed 0 0 0 0 0 0\n")
-            f.write("end structure\n\n")
+            f.write(f"filetype {format_s}\n")
+            f.write(f"output out.{format_s}\n")
+            if atoms is not None:
+                f.write(f"structure atoms.{format_s}\n")
+                f.write("  number 1\n")
+                f.write("  center\n")
+                f.write("  fixed 0 0 0 0 0 0\n")
+                f.write("end structure\n\n")
             f.write(geometry.packmol_structure(number, side))
         
         # Run packmol input script
@@ -176,7 +206,15 @@ def pack_water(atoms, number, geometry, side='inside', pbc=None, tolerance=2.0):
         except:
             raise OSError("packmol is not found. For installation instructions, see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
         
+        os.system(f"cp out.{format_s} /home/evenmn/out.{format_s}")
+        
         # Read packmol outfile
-        solid_and_water = ase.io.read("out.pdb", format="proteindatabank")
-    return solid_and_water
+        solid_and_water = ase.io.read(f"out.{format_s}", format=format_v)
+        
+    if return_water:
+        water = solid_and_water.copy()
+        del water[geometry(atoms)]
+        return solid_and_water, water
+    else:
+        return solid_and_water
 
