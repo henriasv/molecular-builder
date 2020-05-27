@@ -134,11 +134,11 @@ def fetch_prepared_system(name):
     
 
 
-def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, tolerance=2.0):
+def pack_water(atoms=None, nummol=1000, volume=None, geometry=None, side='in', pbc=False, tolerance=2.0):
     """Pack water molecules into voids at a given volume defined by a geometry.
     
-    :param number: Number of water molecules
-    :type number: int
+    :param nummol: Number of water molecules
+    :type nummol: int
     :param atoms: ase Atoms object that specifies where the solid is
     :type atoms: Atoms object
     :param geometry: Geometry object specifying where to pack water
@@ -152,6 +152,9 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
     
     :returns: Coordinates of the packed water
     """
+    if volume is not None:
+        V_per_water = 37.19 
+        nummol = int(volume/V_per_water)
     
     format_s, format_v = "pdb", "proteindatabank"    
     side += "side"
@@ -205,7 +208,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
                 f.write("  center\n")
                 f.write(f"  fixed {structure_center[0]} {structure_center[1]} {structure_center[2]} 0 0 0\n")
                 f.write("end structure\n\n")
-            f.write(geometry.packmol_structure(number, side))
+            f.write(geometry.packmol_structure(nummol, side))
         
         # Run packmol input script
         try:
@@ -215,7 +218,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
         
         # Read packmol outfile
         water = ase.io.read(f"out.{format_s}", format=format_v)
-        
+
     os.chdir(cwd)
         
     if atoms is not None:
@@ -230,6 +233,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
     
     # Scale water box correctly
     water.set_cell(np.diag(length))
+    atoms += water 
     return water
 
 
