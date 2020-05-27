@@ -70,7 +70,7 @@ class SphereGeometry(Geometry):
         self.center = center
         self.radius = radius 
         self.radius_squared = radius**2
-        self.params = list(center).append(radius)
+        self.params = list(self.center) + [radius]
         self.ll_corner = np.array(center) - radius
         self.ur_corner = np.array(center) + radius
         

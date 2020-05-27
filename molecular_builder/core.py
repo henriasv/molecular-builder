@@ -155,18 +155,21 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
     format_s, format_v = "pdb", "proteindatabank"    
     side += "side"
     
-    # Geometrical properties of solid
-    positions = atoms.get_positions()
-    ll_corner = np.min(positions, axis=0)
-    ur_corner = np.max(positions, axis=0)
-    center = (ur_corner + ll_corner) / 2
-    length = ur_corner - ll_corner
+    if atoms is not None:
+        # Geometrical properties of solid
+        positions = atoms.get_positions()
+        ll_corner = np.min(positions, axis=0)
+        ur_corner = np.max(positions, axis=0)
+        center = (ur_corner + ll_corner) / 2
+        length = ur_corner - ll_corner
     
     if atoms is None and geometry is None:
         raise ValueError("Either atoms or geometry has to be given")
     elif geometry is None:
         # The default water geometry is a box which capsules the solid
-        if pbc:
+        if type(pbc) is list or type(pbc) is tuple:
+            pbc = np.array(pbc)
+        if pbc is not False:
             center -= pbc / 2
             length -= pbc
         geometry = BoxGeometry(center, length)
@@ -210,8 +213,9 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
         
     os.chdir(cwd)
         
-    # Remove solid
-    del water[:len(atoms)]
+    if atoms is not None:
+        # Remove solid
+        del water[:len(atoms)]
     
     # Geometrical properties of water
     ll_corner = geometry.ll_corner
@@ -220,8 +224,6 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
     length = ur_corner - ll_corner
     
     # Scale water box correctly
-    water.set_cell(np.identity(3) * length, scale_atoms=True)
-    #water.positions *= length
-    #water.positions += center
+    water.set_cell(np.diag(length))
     return water
 
