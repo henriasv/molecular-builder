@@ -161,8 +161,15 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
         positions = atoms.get_positions()
         ll_corner = np.min(positions, axis=0)
         ur_corner = np.max(positions, axis=0)
-        center = (ur_corner + ll_corner) / 2
-        length = ur_corner - ll_corner
+        structure_center = (ur_corner + ll_corner) / 2
+        structure_length = ur_corner - ll_corner
+
+        L = atoms.cell.lengths()
+        ll_corner = np.asarray([pbc/2, pbc/2, pbc/2])
+        ur_corner = L-ll_corner
+        
+        box_center = (ur_corner + ll_corner) / 2
+        box_length = ur_corner - ll_corner
     
     if atoms is None and geometry is None:
         raise ValueError("Either atoms or geometry has to be given")
@@ -170,10 +177,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
         # The default water geometry is a box which capsules the solid
         if type(pbc) is list or type(pbc) is tuple:
             pbc = np.array(pbc)
-        if pbc is not False:
-            center -= pbc / 2
-            length -= pbc
-        geometry = BoxGeometry(center, length)
+        geometry = BoxGeometry(box_center, box_length-pbc)
     
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -199,7 +203,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
                 f.write(f"structure atoms.{format_s}\n")
                 f.write("  number 1\n")
                 f.write("  center\n")
-                f.write(f"  fixed {center[0]} {center[1]} {center[2]} 0 0 0\n")
+                f.write(f"  fixed {structure_center[0]} {structure_center[1]} {structure_center[2]} 0 0 0\n")
                 f.write("end structure\n\n")
             f.write(geometry.packmol_structure(number, side))
         
@@ -274,7 +278,7 @@ def write(atoms, filename, bond_specs = None, size=(640, 480), atom_style="molec
             pipeline.modifiers.append(bondsmodifier)
         pipeline.compute()
         if suffix == ".data":
-            export_file(pipeline, filename, "lammps/data", atom_style=atoms_style)
+            export_file(pipeline, filename, "lammps/data", atom_style=atom_style)
 
         elif suffix == ".png":
             from ovito.vis import Viewport, TachyonRenderer, OpenGLRenderer
