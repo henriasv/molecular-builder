@@ -16,12 +16,13 @@ from werkzeug.utils import secure_filename
 def create_bulk_crystal(name, size, round="up"):
     """Create a bulk crystal from a spacegroup description.
 
-    Arguments: 
-        name -- name of the crystal. A list can be found by @TODO
-        size -- size of the bulk crystal. In the case of a triclinic cell, the dimensions are the ones along the diagonal of the cell matrix, and the crystal tilt decides the rest. 
+    :param name: name of the crystal. A list can be found by @TODO
+    :type name: str
+    :param size: size of the bulk crystal. In the case of a triclinic cell, the dimensions are the ones along the diagonal of the cell matrix, and the crystal tilt decides the rest.  
+    :type size: array_like with 3 elements
 
-    Returns:
-        ase.Atoms object containing the crystal
+    :return: ase.Atoms object containing the crystal
+    :rtype: ase.Atoms
     """
     crystal = crystals[name]
     a, b, c, alpha, beta, gamma = [crystal[i] for i in ["a", "b", "c", "alpha", "beta", "gamma"]]
@@ -160,8 +161,15 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
         positions = atoms.get_positions()
         ll_corner = np.min(positions, axis=0)
         ur_corner = np.max(positions, axis=0)
-        center = (ur_corner + ll_corner) / 2
-        length = ur_corner - ll_corner
+        structure_center = (ur_corner + ll_corner) / 2
+        structure_length = ur_corner - ll_corner
+
+        L = atoms.cell.lengths()
+        ll_corner = np.asarray([pbc/2, pbc/2, pbc/2])
+        ur_corner = L-ll_corner
+        
+        box_center = (ur_corner + ll_corner) / 2
+        box_length = ur_corner - ll_corner
     
     if atoms is None and geometry is None:
         raise ValueError("Either atoms or geometry has to be given")
@@ -169,10 +177,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
         # The default water geometry is a box which capsules the solid
         if type(pbc) is list or type(pbc) is tuple:
             pbc = np.array(pbc)
-        if pbc is not False:
-            center -= pbc / 2
-            length -= pbc
-        geometry = BoxGeometry(center, length)
+        geometry = BoxGeometry(box_center, box_length-pbc)
     
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -198,7 +203,7 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
                 f.write(f"structure atoms.{format_s}\n")
                 f.write("  number 1\n")
                 f.write("  center\n")
-                f.write(f"  fixed {center[0]} {center[1]} {center[2]} 0 0 0\n")
+                f.write(f"  fixed {structure_center[0]} {structure_center[1]} {structure_center[2]} 0 0 0\n")
                 f.write("end structure\n\n")
             f.write(geometry.packmol_structure(number, side))
         
@@ -227,3 +232,57 @@ def pack_water(number, atoms=None, geometry=None, side='in', pbc=False, toleranc
     water.set_cell(np.diag(length))
     return water
 
+
+def write(atoms, filename, bond_specs = None, size=(640, 480), atom_style="molecular"):
+    """Write atoms to lammps data file 
+
+    :param atoms: The atoms object to write to file 
+    :type atoms: ase.Atoms 
+    :param filename: filename to write to. Can either have suffix `.data` or `.png`, in which case a Lammps data file or a png picture will be produced, respectively. 
+    :type filename: str 
+    :param bonds_spec: List of (element1, element2, cutoff)
+    :type bonds_spec: List of tuples
+    """
+    import os 
+    suffix = os.path.splitext(filename)[1]
+
+    if not suffix in [".data", ".png"]:
+        raise ValueError(f"Invalid file format {suffix}")
+
+    import tempfile
+    import os
+    from ase.formula import Formula 
+    # Using tempfile and write + read rather than ovito's ase_to_ovito and back because the 
+    # ordering of particle types for some (bug) reason becomes unpredictable 
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        symbols = list(Formula(atoms.get_chemical_formula()).count().keys())
+        symbols_dict = {}
+        for i, symbol in enumerate(symbols): 
+            symbols_dict[symbol] = i+1
+        atoms.write(os.path.join(tmp_dir, "tmp.data"), format="lammps-data", specorder = symbols)
+        
+        from ovito.io import import_file, export_file
+        from ovito.modifiers import CreateBondsModifier
+        
+        pipeline = import_file(os.path.join(tmp_dir, "tmp.data"))
+        
+        # Accept a single tuple not contained in a list if there is only one bond type. 
+        if not bond_specs is None: 
+            bondsmodifier = CreateBondsModifier(mode = CreateBondsModifier.Mode.Pairwise)
+            if not isinstance(bond_specs, list) and isinstance(bond_specs, tuple):
+                bond_specs = [bond_specs]
+            for element in bond_specs:
+                bondsmodifier.set_pairwise_cutoff(  symbols_dict[element[0]], 
+                                                    symbols_dict[element[1]], 
+                                                    element[2])
+            pipeline.modifiers.append(bondsmodifier)
+        pipeline.compute()
+        if suffix == ".data":
+            export_file(pipeline, filename, "lammps/data", atom_style=atom_style)
+
+        elif suffix == ".png":
+            from ovito.vis import Viewport, TachyonRenderer, OpenGLRenderer
+            pipeline.add_to_scene()
+            vp = Viewport(type = Viewport.Type.Perspective, camera_dir = (2, 1, -1))
+            vp.zoom_all(size=size)
+            vp.render_image(filename=filename, size=size, renderer=TachyonRenderer())
