@@ -1,11 +1,51 @@
 Brucite block in water
 ==========================
 
+We make some includes 
+
 .. literalinclude:: brucite_in_water.py
+    :lines: 1-3 
 
-This script generates a lammps data file as well as two images of the system, one with a perspective projection and one with an orthogonal projection.
+Create a (too large) block of brucite_in_water
 
-.. image:: brucite_in_water_perspective.png
+.. literalinclude:: brucite_in_water.py
+    :lines: 5-6 
+
+Since `create_bulk_crystal` makes a block of only whole unit cells, the lengths are probably not exactly `L`, therefore we update `L`
+
+.. literalinclude:: brucite_in_water.py
+    :lines: 8 
+
+We then create a geometry and carve out only part of the brucite block. 
+
+.. literalinclude:: brucite_in_water.py
+    :lines: 10-15
+
+Compute volumes and pack the right amount of water around the brucite block. 
+
+.. literalinclude:: brucite_in_water.py
+    :lines: 17-19
+
+Finally, output the system as a LAMMPS data file. 
+
+.. literalinclude:: brucite_in_water.py
+    :lines: 21
+
+In addition, we create two images of the system, one with a perspective projection and one with an orthogonal projection.
+
+.. literalinclude:: brucite_in_water.py
+    :lines: 22-23
+
+.. figure:: brucite_in_water_perspective.png
+    
+    Brucite immersed in water. Perspective projection.
 
 The same image in orthogonal 
-.. image:: brucite_in_water_orthogonal.png
+
+.. figure:: brucite_in_water_orthogonal.png
+    
+    Brucite immersed in water. Orthogonal projection.
+
+The complete script: 
+
+.. literalinclude:: brucite_in_water.py
