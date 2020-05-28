@@ -134,26 +134,36 @@ def fetch_prepared_system(name):
     
 
 
-def pack_water(atoms=None, nummol=1000, volume=None, geometry=None, side='in', pbc=False, tolerance=2.0):
-    """Pack water molecules into voids at a given volume defined by a geometry.
+def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=None, side='in', pbc=0.0, tolerance=2.0):
+    """Pack water molecules into voids at a given volume defined by a geometry. The packing is performed by packmol. 
     
+    :param atoms: ase Atoms object that specifies particles that water is to be packed around. The packed water molecules will be added to this atoms object. 
+    :type atoms: Atoms object
     :param nummol: Number of water molecules
     :type nummol: int
-    :param atoms: ase Atoms object that specifies where the solid is
-    :type atoms: Atoms object
+    :param volume: Void volume in :math:`Å^3` to be filled with water. Can only be used if `nummol=None`, since `pack_water` will compute the number of atoms based on the volume and density of water. 
+    :type volume: float 
+    :param density: Water density. Used to compute the number of water molecules to be packed if `volume` is provided. 
+    :type density: float 
     :param geometry: Geometry object specifying where to pack water
     :type geometry: Geometry object
     :param side: Pack water inside/outside of geometry
     :type side: str
-    :param pbc: Ensures that the water molecules are separated by a certain distance through periodic boundaries. If float, the same distance is applied in all directions
+    :param pbc: Inner margin to add to the simulation box to avoid overlapping atoms over periodic boundary conditions. This is necessary because packmol doesn't support periodic boundary conditions. 
     :type pbc: float or ndarray
-    :param tolerance: minimum separation distance between molecules. 2.0 by default.
+    :param tolerance: Minimum separation distance between molecules.
     :type tolerance: float
     
     :returns: Coordinates of the packed water
     """
+    if (volume is None and nummol is none):
+        raise ValueError("You need to provide either volume or the number of molecules.")
+    elif (not volume is None) and (not nummol is None): 
+        raise ValueError("Have need provide either volume OR the number of molecules.")
+        
+
     if volume is not None:
-        V_per_water = 37.19 
+        V_per_water = 37.19/density
         nummol = int(volume/V_per_water)
     
     format_s, format_v = "pdb", "proteindatabank"    
@@ -237,7 +247,7 @@ def pack_water(atoms=None, nummol=1000, volume=None, geometry=None, side='in', p
     return water
 
 
-def write(atoms, filename, bond_specs = None, size=(640, 480), atom_style="molecular"):
+def write(atoms, filename, bond_specs = None, atom_style="molecular", size=(640, 480), camera_dir = (2, 1, -1), viewport_type="perspective"):
     """Write atoms to lammps data file 
 
     :param atoms: The atoms object to write to file 
@@ -284,9 +294,17 @@ def write(atoms, filename, bond_specs = None, size=(640, 480), atom_style="molec
         if suffix == ".data":
             export_file(pipeline, filename, "lammps/data", atom_style=atom_style)
 
-        elif suffix == ".png":
+        elif suffix == ".png": 
+            
             from ovito.vis import Viewport, TachyonRenderer, OpenGLRenderer
             pipeline.add_to_scene()
-            vp = Viewport(type = Viewport.Type.Perspective, camera_dir = (2, 1, -1))
+            
+            if viewport_type =="perspective":
+                vp = Viewport(type = Viewport.Type.Perspective, camera_dir = camera_dir)
+            elif viewport_type =="orthogonal":
+                vp = Viewport(type = Viewport.Type.Ortho, camera_dir = camera_dir)
+            else: 
+                raise ValueError("viewport type has to be perspective or orthogonal")
+            
             vp.zoom_all(size=size)
             vp.render_image(filename=filename, size=size, renderer=TachyonRenderer())

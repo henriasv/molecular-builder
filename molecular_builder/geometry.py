@@ -188,6 +188,9 @@ class BlockGeometry(Geometry):
         atoms.set_pbc(tmp_pbc) 
         indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length), axis=1)
         return indices
+
+    def volume(self):
+        return self.length[0]*self.length[1]*self.length[1]*8
         
 class PlaneGeometry(Geometry):
     """ Remove all particles on one side of a plane.
