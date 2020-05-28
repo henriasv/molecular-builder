@@ -21,6 +21,6 @@ carve_geometry(atoms, geometry, side="out")
 volume=water_volume
 pack_water(atoms=atoms, volume=water_volume, pbc=2.0, tolerance=1.8)
 
-write(atoms, "brucite_block.data", bond_specs=("O", "H", 1.02))
-write(atoms, "brucite_block_perspective.png", bond_specs=("O", "H", 1.02), camera_dir=[1, 0, 0], viewport_type="perspective", size=(480, 640))
-write(atoms, "brucite_block_orthogonal.png", bond_specs=("O", "H", 1.02), camera_dir=[1, 0, 0], viewport_type="orthogonal", size=(480, 640))
+write(atoms, "brucite_in_water.data", bond_specs=("O", "H", 1.02))
+write(atoms, "brucite_in_water_perspective.png", bond_specs=("O", "H", 1.02), camera_dir=[1, 0, 0], viewport_type="perspective", size=(480, 640))
+write(atoms, "brucite_in_water_orthogonal.png", bond_specs=("O", "H", 1.02), camera_dir=[1, 0, 0], viewport_type="orthogonal", size=(480, 640))
