@@ -46,7 +46,7 @@ jobs:
           sed 's/\/usr\/bin\/gfortran/gfortran/g' Makefile > tmp.txt
           mv tmp.txt Makefile 
           make 
-          cp packmol /usr/local/bin/
+          sudo cp packmol /usr/local/bin/
 
 
       - run: |
