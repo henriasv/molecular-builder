@@ -39,6 +39,10 @@ jobs:
           python3 -m pip install -r ./docs/requirements.txt
           python3 -m pip install -r ./requirements.txt
           python3 -m pip install .
+          wget https://github.com/m3g/packmol/archive/20.010.zip
+          unzip 20.010.zip
+          cd packmol-20.010
+          make 
 
       - run: |
           cd docs && make examples && make html 
