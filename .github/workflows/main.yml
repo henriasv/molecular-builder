@@ -42,7 +42,11 @@ jobs:
           wget https://github.com/m3g/packmol/archive/20.010.zip
           unzip 20.010.zip
           cd packmol-20.010
+          sed 's/\/usr\/bin\/gfortran/gfortran/g' Makefile > tmp.txt
+          mv tmp.txt Makefile 
           make 
+          cp packmol /usr/local/bin/
+
 
       - run: |
           cd docs && make examples && make html 
