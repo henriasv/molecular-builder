@@ -18,6 +18,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    install_requires=["ase", "requests", "requests-cache", "clint", "werkzeug","cython", "recommonmark"],
+    install_requires=["ase", "requests", "requests-cache", "clint", "werkzeug","cython", "recommonmark", "ovito"],
     python_requires='>=3.6',
 )
