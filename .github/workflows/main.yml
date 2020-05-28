@@ -38,6 +38,7 @@ jobs:
         run: | 
           python3 -m pip install -r ./docs/requirements.txt
           python3 -m pip install -r ./requirements.txt
+          python3 -m pip install .
 
       - run: |
           cd docs && make examples && make html 
