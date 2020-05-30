@@ -46,6 +46,38 @@ class Geometry:
         n = np.atleast_2d(n)    # Ensure n is 2d
         return np.abs(np.einsum('ik,jk->ij', p - q, n))
         
+    @staticmethod
+    def vec_and_point_to_plane(vec, point):
+        # ax + by + cz - d = 0
+        return np.array((*vec, np.dot(vec,point)))
+
+    @staticmethod
+    def cell2planes(cell, pbc):
+        # 3 planes intersect the origin by ase design. 
+        a = cell[0]
+        b = cell[1]
+        c = cell[2]
+        
+        n1 = np.cross(a, b)
+        n2 = np.cross(c, a)
+        n3 = np.cross(b, c)
+
+        #n1 = n1/np.dot(n1, n1)
+        #n2 = n2/np.dot(n2, n2)
+        #n3 = n3/np.dot(n3, n3)
+
+        origin = np.array([0,0,0])+pbc/2
+        top = (a+b+c)-pbc/2
+
+        plane1 = Geometry.vec_and_point_to_plane(n1, origin)
+        plane2 = Geometry.vec_and_point_to_plane(n2, origin)
+        plane3 = Geometry.vec_and_point_to_plane(n3, origin)
+        plane4 = Geometry.vec_and_point_to_plane(-n1, top)
+        plane5 = Geometry.vec_and_point_to_plane(-n2, top)
+        plane6 = Geometry.vec_and_point_to_plane(-n3, top)
+
+        return [plane1, plane2, plane3, plane4, plane5, plane6]
+
     def packmol_structure(self, number, side):
         """ Make structure.
         
@@ -63,6 +95,40 @@ class Geometry:
         structure += "\nend structure\n"
         return structure
 
+class PlaneBoundTriclinicGeometry(Geometry):
+    def __init__(self, cell, pbc=0.0):
+        self.planes = self.cell2planes(cell, pbc)
+        self.ll_corner = [0,0,0]
+        a = cell[0,:]
+        b = cell[1,:]
+        c = cell[2,:]
+        self.ur_corner = a+b+c
+
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        
+        :param number: Number of water molecules
+        :type number: int
+        :param side: Pack water inside/outside of geometry
+        :type side: str
+        :returns: String with information of structure
+        """
+        if side == "inside":
+            side = "over"
+        elif side == "outside":
+            side = "below"
+        structure = f"structure water.pdb\n"
+        structure += f"  number {number}\n"
+        for plane in self.planes:
+            structure += f"  {side} plane "
+            for param in plane:
+                structure += f"{param} "
+            structure += "\n"
+        structure += "end structure\n"
+        return structure
+    
+    def __call__(self, position):
+        raise NotImplementedError
 
 class SphereGeometry(Geometry):
     def __init__(self, center, radius, **kwargs):

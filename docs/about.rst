@@ -13,3 +13,9 @@ For example, creating an :math:`\alpha`-quartz block with a cylidrical hole in i
 This simple script produces a lammps data file and an image of the created system: 
 
 .. image:: examples/alpha_quartz_cylinder_hole/alpha_quartz_cylinder_hole.png
+
+We can make a similar system with water packed in the newly created hole: 
+
+.. literalinclude:: examples/alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.py
+
+.. image:: examples/alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.png

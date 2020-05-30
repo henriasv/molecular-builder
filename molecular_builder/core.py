@@ -5,7 +5,7 @@ import sys
 import os
 import numpy as np
 from .crystals import crystals 
-from .geometry import BoxGeometry
+from .geometry import BoxGeometry, PlaneBoundTriclinicGeometry
 import requests 
 import requests_cache
 import tempfile
@@ -163,7 +163,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
         
 
     if volume is not None:
-        V_per_water = 37.19/density
+        V_per_water = 29.9796/density
         nummol = int(volume/V_per_water)
     
     format_s, format_v = "pdb", "proteindatabank"    
@@ -190,7 +190,11 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
         # The default water geometry is a box which capsules the solid
         if type(pbc) is list or type(pbc) is tuple:
             pbc = np.array(pbc)
-        geometry = BoxGeometry(box_center, box_length-pbc)
+
+        if atoms.cell.orthorhombic:
+            geometry = BoxGeometry(box_center, box_length-pbc)
+        else: 
+            geometry = PlaneBoundTriclinicGeometry(atoms.cell, pbc=pbc)
     
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -219,7 +223,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
                 f.write(f"  fixed {structure_center[0]} {structure_center[1]} {structure_center[2]} 0 0 0\n")
                 f.write("end structure\n\n")
             f.write(geometry.packmol_structure(nummol, side))
-        
+    
         # Run packmol input script
         try:
             os.system("packmol < input.inp")
@@ -228,7 +232,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
         
         # Read packmol outfile
         water = ase.io.read(f"out.{format_s}", format=format_v)
-
+        
     os.chdir(cwd)
         
     if atoms is not None:
@@ -244,6 +248,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
     # Scale water box correctly
     water.set_cell(np.diag(length))
     atoms += water 
+    
     return water
 
 
