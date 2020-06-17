@@ -164,7 +164,6 @@ class CubeGeometry(Geometry):
     def __init__(self, center, length, **kwargs):
         super().__init__(**kwargs)
         self.center = np.array(center)
-        self.orientation = np.array([[1,0,0], [0,1,0], [0,0,1]])
         self.length_half = length / 2
         self.params = list(self.center - self.length_half) + [length]
         self.ll_corner = self.center - self.length_half
@@ -178,7 +177,7 @@ class CubeGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc) 
-        indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length_half), axis=1)
+        indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
         return indices
         
 class BoxGeometry(Geometry):
@@ -189,13 +188,12 @@ class BoxGeometry(Geometry):
     :param length: Length of box in each direction
     :type length: array_like
     """
-    def __init__(self, center, length, **kwargs):
+    def __init__(self, ll_corner, length, **kwargs):
         super().__init__(**kwargs)
-        self.center = np.array(center)
-        self.orientation = np.array([[1,0,0], [0,1,0], [0,0,1]])
         self.length_half = np.array(length) / 2
-        self.ll_corner = self.center - self.length_half
-        self.ur_corner = self.center + self.length_half
+        self.ll_corner = np.array(ll_corner)
+        self.ur_corner = np.array(ll_corner) + np.array(length)
+        self.center = (self.ll_corner + self.ur_corner) / 2
         self.params = list(self.ll_corner) + list(self.ur_corner)
         
     def __repr__(self):
@@ -206,10 +204,10 @@ class BoxGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc) 
-        indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length_half), axis=1)
+        indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
         return indices
         
-class BlockGeometry(Geometry):
+class ParallelepipedGeometry(Geometry):
     """ Block object.
     
     :param center: the center point of the block
@@ -350,3 +348,5 @@ class BerkovichGeometry(Geometry):
         is_inside_candidate3 = np.dot(rel_pos, self.plane_directions[2]) > 0
         is_inside = np.logical_and(np.logical_and(is_inside_candidate1, is_inside_candidate2), is_inside_candidate3)
         return is_inside
+        
+# TODO: PrismGeometry and EllipsoidGeometry
