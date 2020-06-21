@@ -243,6 +243,11 @@ class BlockGeometry(Geometry):
         
     def __repr__(self):
         return 'block'
+        
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        """
+        raise NotImplementedError("BlockGeometry does not support pack_water")
          
     def __call__(self, atoms):
         tmp_pbc = atoms.get_pbc()
@@ -251,9 +256,6 @@ class BlockGeometry(Geometry):
         atoms.set_pbc(tmp_pbc) 
         indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length), axis=1)
         return indices
-
-    def volume(self):
-        return self.length[0]*self.length[1]*self.length[1]*8
         
 class PlaneGeometry(Geometry):
     """ Remove all particles on one side of one or more planes. Can be used to 
@@ -346,6 +348,7 @@ class CylinderGeometry(Geometry):
         return indices
 
 class BerkovichGeometry(Geometry):
+    # TODO: Implement support for packmol through plane geometry
     def __init__(self, tip, axis=[0,0,-1], angle=np.radians(65.27)):
         self.indenter_angle = angle
         self.tip = np.asarray(tip)
@@ -363,6 +366,11 @@ class BerkovichGeometry(Geometry):
                                           xy_component*np.sin(xy_angle),
                                           z_component
                                           ]))
+
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        """
+        raise NotImplementedError("BerkovichGeometry is not yet supported by pack_water")
 
     def __call__(self, atoms):
         positions = atoms.get_positions()
@@ -386,7 +394,11 @@ class EllipsoidGeometry(Geometry):
     :type length_axes: array_like
     :param d: scaling
     :type d: float
+    
     """
+    
+    # TODO: Add orientation argument
+    
     def __init__(self, center, length_axes, d, **kwargs):
         super().__init__(**kwargs)
         self.center = np.asarray(center)
@@ -405,4 +417,37 @@ class EllipsoidGeometry(Geometry):
         positions_shifted_sqrd = (positions - self.center)**2
         LHS = np.divide(positions_shifted_sqrd, self.length_sqrd).sum(axis=1)
         indices = (LHS <= self.d)
+        return indices
+        
+class EllipticalCylinderGeometry(Geometry):
+    """ Elliptical Cylinder
+    
+    NB: This geometry does not support pack_water
+    """
+    
+    # TODO: Fix orientation argument (two separate orientations)
+    
+    def __init__(self, center, a, b, length, orientation=None, **kwargs):
+        super().__init__(**kwargs)
+        self.center = np.asarray(center)
+        self.a_sqrd, self.b_sqrd = a**2, b**2
+        self.length_half = np.asarray(length) / 2
+        
+        if orientation is None:
+            self.orientation = np.zeros_like(center)
+            self.orientation[0] = 1
+        else:
+            orientation = np.array(orientation, dtype=float)
+            self.orientation = orientation / np.linalg.norm(orientation)
+        
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        """
+        raise NotImplementedError("EllipticalCylinderGeometry is not supported by pack_water")
+         
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        positions_shifted_sqrd = (positions - self.center)**2
+        ellipse = positions_shifted_sqrd[:,0]/self.a_sqrd + positions_shifted_sqrd[:,1]/self.b_sqrd
+        indices = (ellipse <= 1) & (self.distance_point_plane(self.orientation, self.center, positions).flatten() <= self.length_half)
         return indices
