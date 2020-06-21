@@ -85,7 +85,7 @@ class Geometry:
         :type number: int
         :param side: Pack water inside/outside of geometry
         :type side: str
-        :returns: String with information of structure
+        :returns: String with information about the structure
         """
         structure = f"structure water.pdb\n"
         structure += f"  number {number}\n"
@@ -207,8 +207,8 @@ class BoxGeometry(Geometry):
         indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
         return indices
         
-class ParallelepipedGeometry(Geometry):
-    """ Block object.
+class BlockGeometry(Geometry):
+    """ This is a more flexible box geometry, where the angle 
     
     :param center: the center point of the block
     :type center: array_like
@@ -216,9 +216,6 @@ class ParallelepipedGeometry(Geometry):
     :type length: array_like
     :param orientation: orientation of block
     :type orientation: nested list / ndarray_like
-    :param kwargs: 
-        properties
-
     """
     
     def __init__(self, center, length, orientation=[], **kwargs):
@@ -257,7 +254,8 @@ class ParallelepipedGeometry(Geometry):
         return self.length[0]*self.length[1]*self.length[1]*8
         
 class PlaneGeometry(Geometry):
-    """ Remove all particles on one side of a plane.
+    """ Remove all particles on one side of one or more planes. Can be used to 
+    form any 3d polygon
     
     :param point: point on plane
     :type point: array_like 
@@ -266,16 +264,40 @@ class PlaneGeometry(Geometry):
     """
     def __init__(self, point, normal, **kwargs):
         super().__init__(**kwargs)
-        self.point = np.array(point, dtype=float)
-        normal = np.array(normal, dtype=float)
-        self.normal = normal / np.linalg.norm(normal)
+        assert len(point) == len(normal), "Number of given points and normal vectors have to be equal"
+                
+        self.point = np.atleast_2d(point)
+        normal = np.atleast_2d(normal)
+        self.normal = normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
+        
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        
+        :param number: Number of water molecules
+        :type number: int
+        :param side: Pack water inside/outside of geometry
+        :type side: str
+        :returns: String with information of structure
+        """
+        if side == "inside":
+            side = "over"
+        elif side == "outside":
+            side = "below"
+            
+        ds = np.einsum('ij,ij->j', self.point, self.normal)
+            
+        structure += f"structure water.pdb\n"
+        structure += f"  number {number}\n"
+        for plane in range(len(self.normal)):
+            a, b, c = self.normal[side]
+            d = ds[side]
+            structure += f"  {side} plane {a} {b} {c} {d} \n"
+        structure += "end structure\n"
+        return structure
         
     def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc) 
-        indices = np.einsum('ik,k->i', self.point - positions, self.normal) > 0
+        indices = np.all(np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions, self.normal) > 0, axis=0)
         return indices
         
         
