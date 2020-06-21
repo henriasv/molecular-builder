@@ -111,7 +111,7 @@ class PlaneBoundTriclinicGeometry(Geometry):
         :type number: int
         :param side: Pack water inside/outside of geometry
         :type side: str
-        :returns: String with information of structure
+        :returns: String with information about the structure
         """
         if side == "inside":
             side = "over"
@@ -216,6 +216,8 @@ class BlockGeometry(Geometry):
     :type length: array_like
     :param orientation: orientation of block
     :type orientation: nested list / ndarray_like
+    
+    NB: Does not support pack_water and packmol
     """
     
     def __init__(self, center, length, orientation=[], **kwargs):
@@ -277,7 +279,7 @@ class PlaneGeometry(Geometry):
         :type number: int
         :param side: Pack water inside/outside of geometry
         :type side: str
-        :returns: String with information of structure
+        :returns: String with information about the structure
         """
         if side == "inside":
             side = "over"
@@ -371,4 +373,36 @@ class BerkovichGeometry(Geometry):
         is_inside = np.logical_and(np.logical_and(is_inside_candidate1, is_inside_candidate2), is_inside_candidate3)
         return is_inside
         
-# TODO: PrismGeometry and EllipsoidGeometry
+class EllipsoidGeometry(Geometry):
+    """ Ellipsoid geometry, satisfies the equation
+    
+    (x - x0)^2   (y - y0)^2   (z - z0)^2
+    ---------- + ---------- + ---------- = d
+        a^2          b^2          c^2
+    
+    :param center: center of ellipsoid (x0, y0, z0)
+    :type center: array_like
+    :param length_axes: length of each axis (a, b, c)
+    :type length_axes: array_like
+    :param d: scaling
+    :type d: float
+    """
+    def __init__(self, center, length_axes, d, **kwargs):
+        super().__init__(**kwargs)
+        self.center = np.asarray(center)
+        self.length = np.asarray(length_axes)
+        self.length_sqrd = self.length**2
+        self.d = d
+        self.params = list(self.center) + list(self.length) + [self.d]
+        self.ll_corner = self.center - self.length
+        self.ur_corner = self.center + self.length
+        
+    def __repr__(self):
+        return 'ellipsoid'
+         
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        positions_shifted_sqrd = (positions - self.center)**2
+        LHS = np.divide(positions_shifted_sqrd, self.length_sqrd).sum(axis=1)
+        indices = (LHS <= self.d)
+        return indices
