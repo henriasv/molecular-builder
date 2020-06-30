@@ -1,4 +1,20 @@
 crystals = {
+    "alpha_tridymite" : 
+    {
+    "a" : 8.7549, 
+    "b" : 5.0335,
+    "c" : 8.2118,
+    "alpha" : 90,
+    "beta" : 90,
+    "gamma" : 90,
+    "spacegroup" : 20,
+    "elements" : ["Si", "O", "O", "O"],
+    "positions" : [ (.1672, .5459, .1877), 
+                    (0.3315, 0.0,0.5), 
+                    (0.0,  0.5587,     0.25), 
+                    (0.2522,  0.3139,  0.2729)],
+    "citation" : "Lee S, Xu H. Acta Crystallographica B75 (2019) https://doi.org/10.1107/S2052520619000933 Using powder XRD and pair distribution function to determine anisotropic atomic displacement parameters of orthorhombic tridymite and tetragonal cristobalite"
+    },
     "alpha_quartz" :
     {
         "a" : 5.02778179,
@@ -51,6 +67,25 @@ crystals = {
         "elements" : ["Mg", "O", "H"],
         "positions" : [(0.0, 0.0, 0.0), (1./3, 2./3, 0.2216), (1./3, 2./3, 0.4303)],
         "citation" : "Zigan F, Rothbauer R, Neues Jahrbuch fur Mineralogie, Monatshefte 1967 (1967) 137-143, Neutronenbeugungsmessungen am Brucit"
+    },
+    "coesite" :
+    {
+        "a" : 7.173,
+        "b" : 12.328,
+        "c" : 7.175,
+        "alpha" : 90, 
+        "beta" : 120,
+        "gamma" : 90,
+        "spacegroup" : 15,
+        "elements" : ["Si", "Si", "O", "O", "O", "O", "O"],
+        "positions" :   [   (0.35900, 0.39160, 0.42740),
+                            (0.49340, 0.15770, 0.45960),
+                            (0.00000, 0.00000, 0.00000),
+                            (0.50000, 0.11720, 0.25000),
+                            (0.26700, 0.12380, 0.44180),
+                            (0.18910, 0.39640, 0.17550),
+                            (0.48070, 0.28820, 0.02120)],
+        "citation" :  "Araki T, Zoltai T, Zeitschrift fur Kristallographie 129 (1969) 381-387. Refinement of a coesite structure"
     },
     "diamond" : 
     {
