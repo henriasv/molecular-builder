@@ -5,5 +5,5 @@
 from molecular_builder import pack_water
 from molecular_builder.geometry import BoxGeometry
 
-water = pack_water(10000, geometry=BoxGeometry((50, 25, 25), (100, 50, 50)))
+water = pack_water(nummol=10000, geometry=BoxGeometry((50, 25, 25), (100, 50, 50)))
 water.write("water_box.data", format="lammps-data")
