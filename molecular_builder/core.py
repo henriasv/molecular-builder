@@ -156,7 +156,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
     
     :returns: Coordinates of the packed water
     """
-    if (volume is None and nummol is none):
+    if (volume is None and nummol is None):
         raise ValueError("You need to provide either volume or the number of molecules.")
     elif (not volume is None) and (not nummol is None): 
         raise ValueError("Have need provide either volume OR the number of molecules.")
@@ -247,7 +247,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
     
     # Scale water box correctly
     water.set_cell(np.diag(length))
-    atoms += water 
+    #atoms += water 
     
     return water
 
