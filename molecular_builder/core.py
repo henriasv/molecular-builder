@@ -247,7 +247,8 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
     
     # Scale water box correctly
     water.set_cell(np.diag(length))
-    #atoms += water 
+    if atoms != None:
+        atoms += water 
     
     return water
 
