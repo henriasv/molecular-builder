@@ -2,7 +2,7 @@
 We will here demonstrate the power of the ```PlaneGeometry``` class. The class takes the two arguments: ```point``` and ```normal```, where the former is a point on a plane and the latter is the normal vector of the plane. What makes the geometry powerful is that it can take an arbitrary number of planes, making it able to represent _any_ geometry with plane sides. We will here show how it can be used to carve out polygons (with a height). 
 
 ## 3d polygons
-We name polygons with a height a 3d polygon. A prism is an examples of such a geometry. To carve out such a geometry, we need to know the normal vector and a point on all the sides. For equilateral polygons, this can easily be found using the unit circle. The normal vector of any point on the unit circle is (sin(θ), cos(θ)). If we say that each side of our polygon is a tangent of the unit circle, (sin(θ), cos(θ)) is both the normal vector and a point on each of those sides. 
+We name polygons with a height - a 3d polygon. A prism is an examples of such a geometry. To carve out such a geometry, we need to know the normal vector and a point on all the sides. For equilateral polygons, this can easily be found using the unit circle. The normal vector of any point on the unit circle is (sin(θ), cos(θ)). If we say that each side of our polygon is a tangent of the unit circle, (sin(θ), cos(θ)) is both the normal vector and a point on each of those sides. 
 
 To implement this, we first need to import the required methods and create a block of some substance (here beta-cristobalite):
 ``` python

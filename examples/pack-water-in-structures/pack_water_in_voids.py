@@ -20,7 +20,7 @@ for sphere in range(num_spheres):
 amorph.write("amorph.data", format="lammps-data")
 
 # Pack water into voids
-water = pack_water(10000, atoms=amorph)
+water = pack_water(nummol=10000, atoms=amorph)
 system = water + amorph
 water.write("water.data", format="lammps-data")
 system.write("system.data", format="lammps-data")

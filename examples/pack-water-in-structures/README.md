@@ -32,7 +32,7 @@ The output is presented below:
 The voids are filled with 10000 water molecules:
 
 ``` python
-water = pack_water(10000, atoms=amorph)
+water = pack_water(nummol=10000, atoms=amorph)
 system = water + amorph
 system.write("system.data", format="lammps-data")
 water.write("water.data", format="lammps-data")
