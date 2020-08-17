@@ -16,12 +16,10 @@ help:
 
 .PHONY: examples 
 examples: 
-	$(MAKE) -C examples 
+	$(MAKE) -C examples && $(MAKE) -C getting_started
 
-.PHONY: getting_started
-getting_started: 
-	$(MAKE) -C getting_started
 	
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
