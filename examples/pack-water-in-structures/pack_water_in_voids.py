@@ -2,7 +2,7 @@
 """
 
 from molecular_builder import fetch_prepared_system, carve_geometry, pack_water
-from molecular_builder.geometry import SphereGeometry, BoxGeometry
+from molecular_builder.geometry import SphereGeometry
 import numpy as np
 
 # Amorphous silica of size (357, 143, 143)

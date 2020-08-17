@@ -199,12 +199,13 @@ class BoxGeometry(Geometry):
     :param length: Length of box in each direction
     :type length: array_like
     """
-    def __init__(self, ll_corner, length, **kwargs):
+    def __init__(self, center, length, **kwargs):
         super().__init__(**kwargs)
+        self.length = length
         self.length_half = np.array(length) / 2
-        self.ll_corner = np.array(ll_corner)
-        self.ur_corner = np.array(ll_corner) + np.array(length)
-        self.center = (self.ll_corner + self.ur_corner) / 2
+        self.center = np.array(center)
+        self.ll_corner = self.center-self.length_half
+        self.ur_corner = self.center+self.length_half
         self.params = list(self.ll_corner) + list(self.ur_corner)
 
     def __repr__(self):
@@ -217,6 +218,9 @@ class BoxGeometry(Geometry):
         atoms.set_pbc(tmp_pbc)
         indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
         return indices
+
+    def volume(self):
+        return np.prod(self.length)
 
 class BlockGeometry(Geometry):
     """This is a more flexible box geometry, where the angle
