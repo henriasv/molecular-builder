@@ -24,5 +24,5 @@ Then you install `molecular_builder` itself.
 
 .. code-block:: bash 
 
-    pip install git+https://github.com/henriasv/molecular-builder 
+    pip install molecular-builder 
 
