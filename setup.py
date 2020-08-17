@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="molecular_builder",
-    version="0.1.0",
+    version="0.2.0",
     author="Henrik Andersen Sveinsson",
     author_email="henriasv@fys.uio.no",
     description="Package for building moleular systems",
@@ -19,5 +19,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=["ase", "requests", "requests-cache", "clint", "werkzeug","cython", "recommonmark", "ovito"],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
 )
