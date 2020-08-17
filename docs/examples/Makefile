@@ -1,5 +1,5 @@
 # Første linje
-examples: brucite_in_water alpha_quartz_cylinder_hole/alpha_quartz_cylinder_hole.png alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.png wedges_and_indenters/indenter_and_glass.png:
+examples: brucite_in_water alpha_quartz_cylinder_hole/alpha_quartz_cylinder_hole.png alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.png wedges_and_indenters/indenter_and_glass.png
 
 .PHONY: brucite_in_water
 brucite_in_water: brucite_in_water/brucite_in_water_orthogonal.png brucite_in_water/brucite_in_water_perspective.png
