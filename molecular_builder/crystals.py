@@ -99,5 +99,17 @@ crystals = {
         "elements" : ["C"],
         "positions" : [(0,0,0)],
         "citation" : "N/A"
+    },
+    "silicon_carbide_3c" : 
+    {
+        "a" : 4.3596,
+        "b" : 4.3596,
+        "c" : 4.3596,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 90,
+        "spacegroup" : 216,
+        "elements" : ["Si", "C"],
+        "positions" : [(0.25, 0.25, 0.25), (0.,0.,0.)]
     }
 }
