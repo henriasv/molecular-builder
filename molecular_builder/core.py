@@ -104,11 +104,12 @@ def carve_geometry(atoms, geometry, side="in", return_carved=False):
 
 
 
-def fetch_prepared_system(name):
+def fetch_prepared_system(name, type_mapping=None):
     """Retrieves molecular system from an online repository. Caches data locally with requests-cache, which creates a sqlite database locally. 
 
-    args: 
+    Arguments: 
     Name -- name of system to be retrieved
+    type_mapping -- List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
 
     Returns 
         atoms -- ase.Atoms object with the system 
@@ -130,6 +131,11 @@ def fetch_prepared_system(name):
     f.seek(0)
 
     atoms = ase.io.read(f, format="lammps-data", style="atomic")
+    if not type_mapping is None:
+        type_copy = atoms.get_atomic_numbers()
+        for pair in type_mapping:
+            type_copy[atoms.numbers == pair[0]] = pair[1]
+        atoms.set_atomic_numbers(type_copy)        
     return atoms 
     
 
@@ -253,7 +259,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997, geometry=Non
     return water
 
 
-def write(atoms, filename, bond_specs = None, atom_style="molecular", size=(640, 480), camera_dir = (2, 1, -1), viewport_type="perspective"):
+def write(atoms, filename, bond_specs = None, atom_style="molecular", size=(640, 480), camera_dir = (2, 1, -1), viewport_type="perspective", atom_radii=None):
     """Write atoms to lammps data file 
 
     :param atoms: The atoms object to write to file 
@@ -286,6 +292,17 @@ def write(atoms, filename, bond_specs = None, atom_style="molecular", size=(640,
         
         pipeline = import_file(os.path.join(tmp_dir, "tmp.data"))
         
+        types = pipeline.source.data.particles.particle_types
+        for symbol, i in symbols_dict.items():
+            types.type_by_id(i).name = symbol
+            types.type_by_id(i).load_defaults()
+
+
+        if not atom_radii is None: 
+            types = pipeline.source.data.particles.particle_types
+            for pair in atom_radii:
+                types.type_by_id(symbols_dict[pair[0]]).radius = pair[1]
+
         # Accept a single tuple not contained in a list if there is only one bond type. 
         if not bond_specs is None: 
             bondsmodifier = CreateBondsModifier(mode = CreateBondsModifier.Mode.Pairwise)
@@ -297,6 +314,9 @@ def write(atoms, filename, bond_specs = None, atom_style="molecular", size=(640,
                                                     element[2])
             pipeline.modifiers.append(bondsmodifier)
         pipeline.compute()
+        
+
+
         if suffix == ".data":
             export_file(pipeline, filename, "lammps/data", atom_style=atom_style)
 
