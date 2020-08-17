@@ -12,5 +12,5 @@ carve_geometry(indenter, CylinderGeometry((75, 75, 50), 60, 200, orientation=(0,
 
 atoms = slab+indenter
 
-write(atoms,"indenter_and_glass.png", bond_specs=[("Si", "O", 1.9)], camera_dir=(2, 1.5, -0.4), atom_radii=[("Si", 0.2), ("O", 0.2)], size=(1280, 960))
+write(atoms,"indenter_over_silica.png", bond_specs=[("Si", "O", 1.9)], camera_dir=(2, 1.5, -0.4), atom_radii=[("Si", 0.2), ("O", 0.2)], size=(1280, 960))
 
