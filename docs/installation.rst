@@ -26,3 +26,17 @@ Then you install `molecular_builder` itself.
 
     pip install molecular-builder 
 
+
+For installing packmol, something like this should work on unix systems (This is what we use when automatically generating the documentation on GitHub Actions): 
+
+.. code-block:: bash 
+
+    wget https://github.com/m3g/packmol/archive/20.010.zip
+    unzip 20.010.zip
+    cd packmol-20.010
+    sed 's/\/usr\/bin\/gfortran/gfortran/g' Makefile > tmp.txt
+    mv tmp.txt Makefile 
+    make 
+    sudo cp packmol /usr/local/bin/
+
+The regex-replacement in the makefile may not be necessary, depending on your gfortran installation. 
