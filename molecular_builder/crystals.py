@@ -111,5 +111,18 @@ crystals = {
         "spacegroup" : 216,
         "elements" : ["Si", "C"],
         "positions" : [(0.25, 0.25, 0.25), (0.,0.,0.)]
+    },
+    "calcite" :
+    {
+        "a" : 4.9900,
+        "b" : 4.9900,
+        "c" : 17.0615,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 120,
+        "spacegroup" : 167,
+        "elements" : ["Ca","C","O"],
+        "positions" : [(0,0,0),(0,0,0.25),(0.2578,0,0.25)],
+        "citation" : "Graf DL. Crystallographic tables for the rhombohedral carbonates. American Mineralogist: Journal of Earth and Planetary Materials. 1961 Dec 1;46(11-12):1283-316."
     }
 }
