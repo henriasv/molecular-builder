@@ -116,7 +116,7 @@ def fetch_prepared_system(name, type_mapping=None):
     """
     requests_cache.install_cache('python_molecular_builder_cache')
     f = tempfile.TemporaryFile(mode="w+t")
-    url = f"https://zenodo.org/record/3774915/files/{secure_filename(name)}.data"
+    url = f"https://zenodo.org/record/3994120/files/{secure_filename(name)}.data"
     print("URI: ", url)
     r = requests.get(url, stream=True)
     print(r.encoding)
