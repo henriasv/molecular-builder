@@ -5,12 +5,14 @@ from molecular_builder import create_bulk_crystal, carve_geometry
 from molecular_builder.geometry import ProceduralSurfaceGeometry
 
 # Create bulk of beta-cristobalite
-atoms = create_bulk_crystal("beta_cristobalite", [120, 120, 120])
+atoms = create_bulk_crystal("beta_cristobalite", [50, 200, 200])
+atoms.write("system.data", format="lammps-data")
 
 # Carve out geometry from beta-cristobalite
-geometry = ProceduralSurfaceGeometry(center=(60,60,5),
-                                     normal=(1,0,0),
-                                     length=(120,120,10),
+geometry = ProceduralSurfaceGeometry(point=(40, 100, 100),
+                                     normal=(1, 0, 0),
+                                     thickness=20,
+                                     octaves=1,
                                      method='simplex')
 num_carved, carved = carve_geometry(atoms, geometry, side="in", return_carved=True)
 
