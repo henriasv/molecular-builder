@@ -111,5 +111,18 @@ crystals = {
         "spacegroup" : 216,
         "elements" : ["Si", "C"],
         "positions" : [(0.25, 0.25, 0.25), (0.,0.,0.)]
+    },
+    "sodium_chlorate" : 
+    {
+        "a" : 6.57,
+        "b" : 6.57,
+        "c" : 6.57,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 90,
+        "spacegroup" : 198,
+        "elements" : ["Na", "Cl", "O"],
+        "positions" : [(0.064, 0.064, 0.064), (0.417, 0.417, 0.417), (0.303, 0.592, 0.5)],
+        "citation" : "Zeitschrift fuer Kristallographie, Kristallgeometrie, Kristallphysik, Kristallchemie (-144,1977) (1929) 71, 517-529"
     }
 }

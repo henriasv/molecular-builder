@@ -183,14 +183,11 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
         if type(pbc) is list or type(pbc) is tuple:
             pbc = np.array(pbc)
 
-        # geometrical properties of solid
-        positions = atoms.get_positions()
-        ll_corner = np.min(positions, axis=0)
-        ur_corner = np.max(positions, axis=0)
-        box_center = (ur_corner + ll_corner) / 2
-        box_length = ur_corner - ll_corner
-
         if atoms.cell.orthorhombic:
+            ll_corner = np.array([0,0,0])
+            ur_corner = atoms.cell.lengths()
+            box_center = (ur_corner + ll_corner) / 2
+            box_length = ur_corner - ll_corner
             geometry = BoxGeometry(box_center, box_length - pbc)
         else:
             geometry = PlaneBoundTriclinicGeometry(atoms.cell, pbc=pbc)
