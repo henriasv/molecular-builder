@@ -322,3 +322,4 @@ def write(atoms, filename, bond_specs=None, atom_style="molecular", size=(640, 4
 
             vp.zoom_all(size=size)
             vp.render_image(filename=filename, size=size, renderer=TachyonRenderer())
+            pipeline.remove_from_scene()
