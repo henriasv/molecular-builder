@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.3.0",
     author="Henrik Andersen Sveinsson",
     author_email="henriasv@fys.uio.no",
-    description="Package for building moleular systems",
+    description="Package for building molecular systems",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/henriasv/molecular-builder",
