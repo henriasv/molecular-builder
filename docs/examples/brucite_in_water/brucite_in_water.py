@@ -14,7 +14,7 @@ geometry = BoxGeometry(  center=L/2,
 carve_geometry(atoms, geometry, side="out")
 
 volume = atoms.cell.volume
-water_volume = volume-geometry.volume() 
+water_volume = volume-geometry.volume()
 pack_water(atoms=atoms, volume=water_volume, pbc=2.0, tolerance=1.8)
 
 write(atoms, "brucite_in_water.data", bond_specs=("O", "H", 1.02))
