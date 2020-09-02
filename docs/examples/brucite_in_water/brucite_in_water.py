@@ -7,7 +7,7 @@ atoms = create_bulk_crystal("brucite", L)
 
 L = atoms.cell.lengths()
 
-geometry = BoxGeometry(center=L/2, 
+geometry = BoxGeometry(  center=L/2, 
                          length=[L[0], L[1]/2-3, 4*L[2]/5+2], 
                          periodic_boundary_condition=(True, True, True))
 

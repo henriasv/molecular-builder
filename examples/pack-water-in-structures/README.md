@@ -5,7 +5,7 @@ First, we need to import the required functions. The ```fetch_prepared_system```
 ``` python
 import numpy import random
 from molecular_builder import fetch_prepared_system, carve_geometry, pack_water
-from molecular_builder.geometry import SphereGeometry, BoxGeometry
+from molecular_builder.geometry import SphereGeometry
 ```
 
 ## Amorphous silica block with holes
@@ -32,7 +32,7 @@ The output is presented below:
 The voids are filled with 10000 water molecules:
 
 ``` python
-water = pack_water(10000, atoms=amorph)
+water = pack_water(nummol=10000, atoms=amorph)
 system = water + amorph
 system.write("system.data", format="lammps-data")
 water.write("water.data", format="lammps-data")

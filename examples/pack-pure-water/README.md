@@ -10,7 +10,7 @@ from molecular_builder.geometry import BoxGeometry, SphereGeometry
 ## Box geometry
 The box geometry takes the center of the box and the box length as arguments. We also print the positions out to file, such that we can visualize the water using for instance Ovito. 
 ``` python
-water = pack_water(10000, geometry=BoxGeometry((50,25,25), (100,50,50)))
+water = pack_water(nummol=10000, geometry=BoxGeometry((50,25,25), (100,50,50)))
 water.write("water_box.data", format="lammps-data")
 ```
 
@@ -21,7 +21,7 @@ The water is then packed in a box of length (100Å, 50Å, 50Å):
 ## Sphere geometry
 The sphere geometry takes the center of the sphere and the radius as arguments. We also print the positions out to file, such that we can visualize the water using for instance Ovito. 
 ``` python
-water = pack_water(10000, geometry=SphereGeometry((50,50,50), 50))
+water = pack_water(nummol=10000, geometry=SphereGeometry((50,50,50), 50))
 water.write("water_sphere.data", format="lammps-data")
 ```
 
