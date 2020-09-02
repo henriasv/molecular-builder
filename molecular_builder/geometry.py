@@ -1,35 +1,15 @@
 import numpy as np
 from ase import Atom
 
-
-def distance_point_line(vec, point_line, point_ext):
-    """Returns the (shortest) distance between a line parallel to
-    a normal vector 'vec' through point 'point_line' and an external
-    point 'point_ext'.
-
-    :param vec: unit vector parallel to line
-    :type vec: ndarray
-    :param point_line: point on line
-    :type point_line: ndarray
-    :param point_ext: external points
-    :type point_ext: ndarray
-    """
-    return np.linalg.norm(np.cross(vec, point_ext - point_line), axis=1)
-
-
 class Geometry:
     """Base class for geometries."""
-
-    def __init__(self, periodic_boundary_condition=(False, False, False),
-                 minimum_image_convention=True):
+    def __init__(self, periodic_boundary_condition = (False, False, False), minimum_image_convention=True):
         self.minimum_image_convention = minimum_image_convention
         self.periodic_boundary_condition = periodic_boundary_condition
         pass
 
     def __call__(self, atoms):
-        """The empty geometry. False because we define no particle
-        to be in the dummy geometry
-        """
+        """The empty geometry. False because we define no particle to be in the dummy geometry"""
         return np.zeros(len(atoms), dtype=np.bool)
 
     @staticmethod
@@ -44,13 +24,14 @@ class Geometry:
         :type point_line: ndarray
         :param point_ext: external points
         :type point_ext: ndarray
+
         """
         return np.linalg.norm(np.cross(vec, point_ext - point_line), axis=1)
 
     @staticmethod
     def distance_point_plane(vec, point_plane, point_ext):
         """Returns the (shortest) distance between a plane with normal vector
-        'vec' and 'point_plane' as a point in plane and a point 'point_ext'.
+        'vec' through point 'point_plane' and a point 'point_ext'.
 
         :param vec: normal vector of plane
         :type vec: ndarray
@@ -72,7 +53,7 @@ class Geometry:
         :param point: point in plane
         :type point: ndarray
         """
-        return np.array((*vec, np.dot(vec, point)))
+        return np.array((*vec, np.dot(vec,point)))
 
     @staticmethod
     def cell2planes(cell, pbc):
@@ -89,7 +70,7 @@ class Geometry:
         #n2 = n2/np.dot(n2, n2)
         #n3 = n3/np.dot(n3, n3)
 
-        origin = np.array([0, 0, 0])+pbc/2
+        origin = np.array([0,0,0])+pbc/2
         top = (a+b+c)-pbc/2
 
         plane1 = Geometry.vec_and_point_to_plane(n1, origin)
@@ -118,14 +99,13 @@ class Geometry:
         structure += "\nend structure\n"
         return structure
 
-
 class PlaneBoundTriclinicGeometry(Geometry):
     def __init__(self, cell, pbc=0.0):
         self.planes = self.cell2planes(cell, pbc)
-        self.ll_corner = [0, 0, 0]
-        a = cell[0, :]
-        b = cell[1, :]
-        c = cell[2, :]
+        self.ll_corner = [0,0,0]
+        a = cell[0,:]
+        b = cell[1,:]
+        c = cell[2,:]
         self.ur_corner = a+b+c
 
     def packmol_structure(self, number, side):
@@ -154,7 +134,6 @@ class PlaneBoundTriclinicGeometry(Geometry):
     def __call__(self, position):
         raise NotImplementedError
 
-
 class SphereGeometry(Geometry):
     """Spherical geometry.
 
@@ -163,7 +142,6 @@ class SphereGeometry(Geometry):
     :param radius: radius of sphere
     :type length: float
     """
-
     def __init__(self, center, radius, **kwargs):
         super().__init__(**kwargs)
         self.center = center
@@ -180,13 +158,11 @@ class SphereGeometry(Geometry):
         atoms.append(Atom(position=self.center))
         tmp_pbc = atoms.get_pbc()
         atoms.set_pbc(self.periodic_boundary_condition)
-        distances = atoms.get_distances(-1, list(range(len(atoms)-1)),
-                                        mic=self.minimum_image_convention)
+        distances = atoms.get_distances(-1, list(range(len(atoms)-1)), mic=self.minimum_image_convention)
         atoms.pop()
         atoms.set_pbc(tmp_pbc)
         indices = distances**2 < self.radius_squared
         return indices
-
 
 class CubeGeometry(Geometry):
     """Cubic geometry.
@@ -196,7 +172,6 @@ class CubeGeometry(Geometry):
     :param length: length of each side
     :type length: float
     """
-
     def __init__(self, center, length, **kwargs):
         super().__init__(**kwargs)
         self.center = np.array(center)
@@ -213,10 +188,8 @@ class CubeGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc)
-        indices = np.all((np.abs(self.distance_point_plane(
-            np.eye(3), self.center, positions)) <= self.length_half), axis=1)
+        indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
         return indices
-
 
 class BoxGeometry(Geometry):
     """Box geometry.
@@ -226,13 +199,13 @@ class BoxGeometry(Geometry):
     :param length: Length of box in each direction
     :type length: array_like
     """
-
-    def __init__(self, ll_corner, length, **kwargs):
+    def __init__(self, center, length, **kwargs):
         super().__init__(**kwargs)
+        self.length = length
         self.length_half = np.array(length) / 2
-        self.ll_corner = np.array(ll_corner)
-        self.ur_corner = np.array(ll_corner) + np.array(length)
-        self.center = (self.ll_corner + self.ur_corner) / 2
+        self.center = np.array(center)
+        self.ll_corner = self.center-self.length_half
+        self.ur_corner = self.center+self.length_half
         self.params = list(self.ll_corner) + list(self.ur_corner)
 
     def __repr__(self):
@@ -243,10 +216,62 @@ class BoxGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc)
-        indices = np.all((np.abs(self.distance_point_plane(
-            np.eye(3), self.center, positions)) <= self.length_half), axis=1)
+        indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
         return indices
 
+    def volume(self):
+        return np.prod(self.length)
+
+class BlockGeometry(Geometry):
+    """This is a more flexible box geometry, where the angle
+
+    :param center: the center point of the block
+    :type center: array_like
+    :param length: the spatial extent of the block in each direction.
+    :type length: array_like
+    :param orientation: orientation of block
+    :type orientation: nested list / ndarray_like
+
+    NB: Does not support pack_water and packmol
+    NB: This geometry will be deprecated
+    """
+
+    def __init__(self, center, length, orientation=[], **kwargs):
+        super().__init__(**kwargs)
+        assert len(center) == len(length), \
+                 ("center and length need to have equal shapes")
+        self.center = np.array(center)
+        self.length = np.array(length) / 2
+
+        # Set coordinate according to orientation
+        if len(orientation) == 0:
+            #orientation.append(np.random.randn(len(center)))
+            orientation = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        if len(orientation) == 1:
+            n_x = np.array(orientation[0])
+            n_y = np.random.randn(len(center))
+            n_y -= n_y.dot(n_x) * n_x
+            orientation.append(n_y)
+        if len(orientation) == 2:
+            orientation.append(np.cross(orientation[0], orientation[1]))
+        orientation = np.array(orientation, dtype=float)
+        self.orientation = orientation / np.linalg.norm(orientation, axis=1)
+
+    def __repr__(self):
+        return 'block'
+
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        """
+        raise NotImplementedError("BlockGeometry does not support pack_water")
+
+    def __call__(self, atoms):
+        tmp_pbc = atoms.get_pbc()
+        atoms.set_pbc(self.periodic_boundary_condition)
+        positions = atoms.get_positions()
+        atoms.set_pbc(tmp_pbc)
+        indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length), axis=1)
+        return indices
 
 class PlaneGeometry(Geometry):
     """Remove all particles on one side of one or more planes. Can be used to
@@ -257,11 +282,9 @@ class PlaneGeometry(Geometry):
     :param normal: vector normal to plane
     :type normal: array_like
     """
-
     def __init__(self, point, normal, **kwargs):
         super().__init__(**kwargs)
-        assert len(point) == len(
-            normal), "Number of given points and normal vectors have to be equal"
+        assert len(point) == len(normal), "Number of given points and normal vectors have to be equal"
 
         self.point = np.atleast_2d(point)
         normal = np.atleast_2d(normal)
@@ -294,8 +317,7 @@ class PlaneGeometry(Geometry):
 
     def __call__(self, atoms):
         positions = atoms.get_positions()
-        indices = np.all(
-            np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions, self.normal) > 0, axis=0)
+        indices = np.all(np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions, self.normal) > 0, axis=0)
         return indices
 
 
@@ -335,14 +357,12 @@ class CylinderGeometry(Geometry):
         atoms.set_pbc(tmp_pbc)
 
         indices = (self.distance_point_line(self.orientation, self.center, positions) <= self.radius) & \
-                  (self.distance_point_plane(self.orientation,
-                                             self.center, positions).flatten() <= self.length)
+                  (self.distance_point_plane(self.orientation, self.center, positions).flatten() <= self.length)
         return indices
-
 
 class BerkovichGeometry(Geometry):
     # TODO: Implement support for packmol through plane geometry
-    def __init__(self, tip, axis=[0, 0, -1], angle=np.radians(65.27)):
+    def __init__(self, tip, axis=[0,0,-1], angle=np.radians(65.27)):
         self.indenter_angle = angle
         self.tip = np.asarray(tip)
         self.axis = np.asarray(axis)
@@ -355,10 +375,10 @@ class BerkovichGeometry(Geometry):
             z_component = np.cos(np.pi/2-self.indenter_angle)
             xy_component = np.sin(np.pi/2-self.indenter_angle)
             self.plane_directions.append(np.asarray([
-                xy_component*np.cos(xy_angle),
-                xy_component*np.sin(xy_angle),
-                z_component
-            ]))
+                                          xy_component*np.cos(xy_angle),
+                                          xy_component*np.sin(xy_angle),
+                                          z_component
+                                          ]))
 
     def packmol_structure(self, number, side):
         """ Make structure.
@@ -371,10 +391,8 @@ class BerkovichGeometry(Geometry):
         is_inside_candidate1 = np.dot(rel_pos, self.plane_directions[0]) > 0
         is_inside_candidate2 = np.dot(rel_pos, self.plane_directions[1]) > 0
         is_inside_candidate3 = np.dot(rel_pos, self.plane_directions[2]) > 0
-        is_inside = np.logical_and(np.logical_and(
-            is_inside_candidate1, is_inside_candidate2), is_inside_candidate3)
+        is_inside = np.logical_and(np.logical_and(is_inside_candidate1, is_inside_candidate2), is_inside_candidate3)
         return is_inside
-
 
 class EllipsoidGeometry(Geometry):
     """ Ellipsoid geometry, satisfies the equation
@@ -412,7 +430,6 @@ class EllipsoidGeometry(Geometry):
         LHS = np.divide(positions_shifted_sqrd, self.length_sqrd).sum(axis=1)
         indices = (LHS <= self.d)
         return indices
-
 
 class EllipticalCylinderGeometry(Geometry):
     """ Elliptical Cylinder
@@ -454,11 +471,10 @@ class EllipticalCylinderGeometry(Geometry):
     def __call__(self, atoms):
         positions = atoms.get_positions()
         positions_shifted_sqrd = (positions - self.center)**2
-        ellipse = positions_shifted_sqrd[:, 0]/self.a_sqrd + \
-            positions_shifted_sqrd[:, 1]/self.b_sqrd
-        indices = (ellipse <= 1) & (self.distance_point_plane(
-            self.orientation, self.center, positions).flatten() <= self.length_half)
+        ellipse = positions_shifted_sqrd[:,0]/self.a_sqrd + positions_shifted_sqrd[:,1]/self.b_sqrd
+        indices = (ellipse <= 1) & (self.distance_point_plane(self.orientation, self.center, positions).flatten() <= self.length_half)
         return indices
+
 
 
 class ProceduralSurfaceGeometry(Geometry):
