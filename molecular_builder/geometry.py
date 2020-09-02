@@ -233,6 +233,7 @@ class BlockGeometry(Geometry):
     :type orientation: nested list / ndarray_like
 
     NB: Does not support pack_water and packmol
+    NB: This geometry will be deprecated
     """
 
     def __init__(self, center, length, orientation=[], **kwargs):
@@ -442,7 +443,7 @@ class EllipticalCylinderGeometry(Geometry):
     :param length: length of cylinder
     :type length: float
     :param orientation: which way the cylinder should point
-    :type orientation: ndarray 
+    :type orientation: ndarray
 
     NB: This geometry is not supported by packmol or pack_water
     """
@@ -472,4 +473,61 @@ class EllipticalCylinderGeometry(Geometry):
         positions_shifted_sqrd = (positions - self.center)**2
         ellipse = positions_shifted_sqrd[:,0]/self.a_sqrd + positions_shifted_sqrd[:,1]/self.b_sqrd
         indices = (ellipse <= 1) & (self.distance_point_plane(self.orientation, self.center, positions).flatten() <= self.length_half)
+        return indices
+
+
+
+class ProceduralSurfaceGeometry(Geometry):
+    """Creates procedural noise on a surface defined by a point, a normal
+    vector and a thickness.
+    """
+
+    def __init__(self,
+                 point,
+                 normal,
+                 thickness,
+                 scale=100,
+                 method='simplex',
+                 f=lambda x, y, z: 0,
+                 **kwargs):
+        assert len(point) == len(normal), \
+            "Number of given points and normal vectors have to be equal"
+
+        from noise import snoise3, pnoise3
+        if method == "simplex":
+            self.noise = snoise3
+        elif method == "perlin":
+            self.noise = pnoise3
+
+        self.point = np.atleast_2d(point)
+        normal = np.atleast_2d(normal)
+        self.normal = normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
+        self.thickness_half = thickness / 2
+        self.scale = scale
+        self.f = f
+        self.kwargs = kwargs
+
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        """
+        raise NotImplementedError(
+            "ProceduralNoiseSurface is not supported by pack_water")
+
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        # calculate distance from particles to plane defined by normal and center
+        distances = self.distance_point_plane(self.normal, self.point, positions)
+        # find the points on plane
+        point_plane = positions + np.einsum('ij,kl->jkl', distances, self.normal)
+        # a loop is actually faster than an all-numpy implementation
+        # since pnoise3/snoise3 are written in C++
+        noises = np.empty(distances.shape)
+        for i in range(len(self.normal)):
+            for j, point in enumerate(point_plane[i]):
+                noises[j] = self.noise(*(point/self.scale), **self.kwargs) + \
+                            self.f(*point)
+
+        dist = np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions, self.normal)
+        noises = noises.flatten() * self.thickness_half
+        indices = np.all(dist > noises, axis=0)
         return indices
