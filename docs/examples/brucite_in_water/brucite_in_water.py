@@ -1,5 +1,5 @@
 from molecular_builder import create_bulk_crystal, carve_geometry, write, pack_water
-from molecular_builder.geometry import BlockGeometry
+from molecular_builder.geometry import BoxGeometry
 import numpy as np 
 
 L = np.array([80, 60, 80])
@@ -7,15 +7,14 @@ atoms = create_bulk_crystal("brucite", L)
 
 L = atoms.cell.lengths()
 
-geometry = BlockGeometry(center=L/2, 
+geometry = BoxGeometry(center=L/2, 
                          length=[L[0], L[1]/2-3, 4*L[2]/5+2], 
-                         orientation=[[1,0,0],[0,1,0],[0,0,1]],
                          periodic_boundary_condition=(True, True, True))
 
 carve_geometry(atoms, geometry, side="out")
 
 volume = atoms.cell.volume
-water_volume = volume-geometry.volume() 
+water_volume = volume-geometry.volume()
 pack_water(atoms=atoms, volume=water_volume, pbc=2.0, tolerance=1.8)
 
 write(atoms, "brucite_in_water.data", bond_specs=("O", "H", 1.02))
