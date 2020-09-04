@@ -1,5 +1,6 @@
 import numpy as np
 from ase import Atom
+from noise import snoise3, pnoise3
 
 
 class Geometry:
@@ -553,8 +554,6 @@ class ProceduralSurfaceGeometry(Geometry):
                  f=lambda x, y, z: 0, **kwargs):
         assert len(point) == len(normal), \
             "Number of given points and normal vectors have to be equal"
-
-        from noise import snoise3, pnoise3
         if method == "simplex":
             self.noise = snoise3
         elif method == "perlin":
@@ -592,5 +591,5 @@ class ProceduralSurfaceGeometry(Geometry):
         dist = np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions,
                          self.normal)
         noises = noises.flatten() * self.thickness_half
-        indices = np.all(dist > noises, axis=0)
+        indices = np.all(dist < noises, axis=0)
         return indices
