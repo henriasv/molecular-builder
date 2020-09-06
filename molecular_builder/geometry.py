@@ -115,6 +115,38 @@ class Geometry:
 
         return [plane1, plane2, plane3, plane4, plane5, plane6]
 
+    @staticmethod
+    def extract_box_properties(center, length, lo_corner, hi_corner):
+        """Given two of the properties 'center', 'length', 'lo_corner',
+        'hi_corner', return all the properties. The properties that
+        are not given are expected to be 'None'.
+        """
+        # at least two arguments have to be non-none
+        if [center, length, lo_corner, hi_corner].count(None) == 2:
+            pass
+        else:
+            raise InputError("Exactly two arguments have to be given")
+
+        center, length = np.asarray(center), np.asarray(length)
+        lo_corner, hi_corner = np.asarray(lo_corner), np.asarray(hi_corner)
+        calc = [["lo_corner", "hi_corner - length", "center - length / 2", "hi_corner - 2 * center"],
+                ["hi_corner", "lo_corner + length", "center + length / 2", "lo_corner + 2 * center"],
+                ["length / 2", "(hi_corner - lo_corner) / 2", "hi_corner - center", "lo_corner + center"],
+                ["center", "(hi_corner + lo_corner) / 2", "hi_corner - length / 2", "lo_corner + length / 2"]]
+
+        calc_list = []
+        for calcs in calc:
+            for i in calcs:
+                try:
+                    calc_list.append(eval(i))
+                except TypeError:
+                    continue
+        # remove arrays that are None
+        for i, calc2 in enumerate(calc_list):
+            if None in calc2:
+                del calc_list[i]
+        return calc_list
+
     def packmol_structure(self, number, side):
         """Make structure to be used in PACKMOL input script
 
@@ -213,13 +245,11 @@ class CubeGeometry(Geometry):
     :type length: float
     """
 
-    def __init__(self, center, length, **kwargs):
+    def __init__(self, center=None, length=None, lo_corner=None,
+                 hi_corner=None, **kwargs):
         super().__init__(**kwargs)
-        self.center = np.array(center)
-        self.length_half = length / 2
-        self.params = list(self.center - self.length_half) + [length]
-        self.ll_corner = self.center - self.length_half
-        self.ur_corner = self.center + self.length_half
+        self.ll_corner, self.ur_corner, self.length_half, self.center = self.extract_box_properties(center, length, lo_corner, hi_corner)
+        self.params = list(self.ll_corner) + list(self.ur_corner)
 
     def __repr__(self):
         return 'cube'
@@ -593,3 +623,6 @@ class ProceduralSurfaceGeometry(Geometry):
         noises = noises.flatten() * self.thickness_half
         indices = np.all(dist < noises, axis=0)
         return indices
+
+if __name__ == "__main__":
+    geometry = CubeGeometry(center=(5,0,0), length=(10,10,10))
