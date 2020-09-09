@@ -265,10 +265,7 @@ class CubeGeometry(Geometry):
         return 'cube'
 
     def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
         dist = self.distance_point_plane(np.eye(3), self.center, positions)
         indices = np.all((np.abs(dist) <= self.length_half), axis=1)
         return indices
@@ -298,10 +295,7 @@ class BoxGeometry(Geometry):
         return 'box'
 
     def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
         dist = self.distance_point_plane(np.eye(3), self.center, positions)
         indices = np.all((np.abs(dist) <= self.length_half), axis=1)
         return indices
@@ -439,11 +433,7 @@ class CylinderGeometry(Geometry):
         return 'cylinder'
 
     def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
-
         dist_inp = (self.orientation, self.center, positions)
         dist_line = self.distance_point_line(*dist_inp)
         dist_plane = self.distance_point_plane(*dist_inp).flatten()
@@ -635,7 +625,3 @@ class ProceduralSurfaceGeometry(Geometry):
         noises = noises.flatten() * self.thickness_half
         indices = np.all(dist < noises, axis=0)
         return indices
-
-
-if __name__ == "__main__":
-    geometry = CubeGeometry(center=(5, 0, 0), length=(10, 10, 10))
