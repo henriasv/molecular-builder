@@ -121,31 +121,38 @@ class Geometry:
         'hi_corner', return all the properties. The properties that
         are not given are expected to be 'None'.
         """
-        # at least two arguments have to be non-none
+        # exactly two arguments have to be non-none
         if [center, length, lo_corner, hi_corner].count(None) == 2:
             pass
         else:
-            raise InputError("Exactly two arguments have to be given")
+            raise ValueError("Exactly two arguments have to be given")
 
+        # declare arrays to allow mathematical operations
         center, length = np.asarray(center), np.asarray(length)
         lo_corner, hi_corner = np.asarray(lo_corner), np.asarray(hi_corner)
-        calc = [["lo_corner", "hi_corner - length", "center - length / 2", "hi_corner - 2 * center"],
-                ["hi_corner", "lo_corner + length", "center + length / 2", "lo_corner + 2 * center"],
-                ["length / 2", "(hi_corner - lo_corner) / 2", "hi_corner - center", "lo_corner + center"],
-                ["center", "(hi_corner + lo_corner) / 2", "hi_corner - length / 2", "lo_corner + length / 2"]]
+        relations = [["lo_corner",              "hi_corner - length",
+                      "center - length / 2",    "2 * center - hi_corner"],
+                     ["hi_corner",              "lo_corner + length",
+                      "center + length / 2",    "2 * center - lo_corner"],
+                     ["length / 2",             "(hi_corner - lo_corner) / 2",
+                      "hi_corner - center",     "center - lo_corner"],
+                     ["center",                 "(hi_corner + lo_corner) / 2",
+                      "hi_corner - length / 2", "lo_corner + length / 2"]]
 
-        calc_list = []
-        for calcs in calc:
-            for i in calcs:
+        # compute all relations
+        relation_list = []
+        for relation in relations:
+            for i in relation:
                 try:
-                    calc_list.append(eval(i))
+                    relation_list.append(eval(i))
                 except TypeError:
                     continue
-        # remove arrays that are None
-        for i, calc2 in enumerate(calc_list):
-            if None in calc2:
-                del calc_list[i]
-        return calc_list
+
+        # keep the non-None relations
+        for i, relation in enumerate(relation_list):
+            if None in relation:
+                del relation_list[i]
+        return relation_list
 
     def packmol_structure(self, number, side):
         """Make structure to be used in PACKMOL input script
@@ -239,38 +246,10 @@ class SphereGeometry(Geometry):
 class CubeGeometry(Geometry):
     """Cubic geometry.
 
-    :param center: Center of cube
+    :param center: center of cube
     :type center: array_like
     :param length: length of each side
     :type length: float
-    """
-
-    def __init__(self, center=None, length=None, lo_corner=None,
-                 hi_corner=None, **kwargs):
-        super().__init__(**kwargs)
-        self.ll_corner, self.ur_corner, self.length_half, self.center = self.extract_box_properties(center, length, lo_corner, hi_corner)
-        self.params = list(self.ll_corner) + list(self.ur_corner)
-
-    def __repr__(self):
-        return 'cube'
-
-    def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
-        positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
-        indices = np.all((np.abs(self.distance_point_plane(
-            np.eye(3), self.center, positions)) <= self.length_half), axis=1)
-        return indices
-
-
-class BoxGeometry(Geometry):
-    """Box geometry.
-
-    :param ll_corner: lower-left corner of box
-    :type center: array_like
-    :param length: Length of box in each direction
-    :type length: array_like
     """
 
     def __init__(self, center, length, **kwargs):
@@ -280,6 +259,39 @@ class BoxGeometry(Geometry):
         self.center = np.array(center)
         self.ll_corner = self.center - self.length_half
         self.ur_corner = self.center + self.length_half
+        self.params = list(self.ll_corner) + [self.length]
+
+    def __repr__(self):
+        return 'cube'
+
+    def __call__(self, atoms):
+        tmp_pbc = atoms.get_pbc()
+        atoms.set_pbc(self.periodic_boundary_condition)
+        positions = atoms.get_positions()
+        atoms.set_pbc(tmp_pbc)
+        dist = self.distance_point_plane(np.eye(3), self.center, positions)
+        indices = np.all((np.abs(dist) <= self.length_half), axis=1)
+        return indices
+
+
+class BoxGeometry(Geometry):
+    """Box geometry.
+
+    :param center: geometric center of box
+    :type center: array_like
+    :param length: length of box in all directions
+    :type length: array_like
+    :param lo_corner: lower corner
+    :type lo_corner: array_like
+    :param hi_corner: higher corner
+    :type hi_corner: array_like
+    """
+
+    def __init__(self, center=None, length=None, lo_corner=None,
+                 hi_corner=None, **kwargs):
+        super().__init__(**kwargs)
+        props = self.extract_box_properties(center, length, lo_corner, hi_corner)
+        self.ll_corner, self.ur_corner, self.length_half, self.center = props
         self.params = list(self.ll_corner) + list(self.ur_corner)
 
     def __repr__(self):
@@ -290,8 +302,8 @@ class BoxGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc)
-        indices = np.all((np.abs(self.distance_point_plane(
-            np.eye(3), self.center, positions)) <= self.length_half), axis=1)
+        dist = self.distance_point_plane(np.eye(3), self.center, positions)
+        indices = np.all((np.abs(dist) <= self.length_half), axis=1)
         return indices
 
     def volume(self):
@@ -624,5 +636,6 @@ class ProceduralSurfaceGeometry(Geometry):
         indices = np.all(dist < noises, axis=0)
         return indices
 
+
 if __name__ == "__main__":
-    geometry = CubeGeometry(center=(5,0,0), length=(10,10,10))
+    geometry = CubeGeometry(center=(5, 0, 0), length=(10, 10, 10))
