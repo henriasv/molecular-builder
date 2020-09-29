@@ -583,7 +583,7 @@ class ProceduralSurfaceGeometry(Geometry):
     """
 
     def __init__(self, point, normal, thickness, scale=100, method='simplex',
-                 f=lambda x, y, z: 0, **kwargs):
+                 f=lambda x, y, z: 0, threshold=None, **kwargs):
         assert len(point) == len(normal), \
             "Number of given points and normal vectors have to be equal"
         if method == "simplex":
@@ -597,6 +597,7 @@ class ProceduralSurfaceGeometry(Geometry):
         self.thickness_half = thickness / 2
         self.scale = scale
         self.f = f
+        self.threshold = threshold
         self.kwargs = kwargs
 
     def packmol_structure(self, number, side):
@@ -617,8 +618,11 @@ class ProceduralSurfaceGeometry(Geometry):
         noises = np.empty(dist.shape)
         for i in range(len(self.normal)):
             for j, point in enumerate(point_plane[i]):
-                noises[j] = self.noise(*(point/self.scale), **self.kwargs) + \
-                    self.f(*point)
+                noise_val = self.noise(*(point/self.scale), **self.kwargs)
+                if self.threshold is None:
+                    noises[j] = noise_val + self.f(*point)
+                else:
+                    noises[j] = noise_val > self.threshold + self.f(*point)
         # find distance from particles to noisy surface
         dist = np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions,
                          self.normal)
