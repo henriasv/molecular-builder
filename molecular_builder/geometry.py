@@ -591,11 +591,14 @@ class ProceduralSurfaceGeometry(Geometry):
         elif method == "perlin":
             self.noise = pnoise3
 
-        if pbc:
-            kwargs['repeatx'] = int(pbc[0]/scale)
-            kwargs['repeaty'] = int(pbc[1]/scale)
-            kwargs['repeatz'] = int(pbc[2]/scale)
-            if pbc[0] % scale > 0.01 or pbc[1] % scale > 0.01:
+        if type(scale) is list or type(scale) is tuple:
+            scale = np.asarray(scale)
+
+        if pbc is not None:
+            pbc = np.asarray(pbc)
+            repeat = np.rint(pbc/scale).astype(int)
+            kwargs['repeatx'], kwargs['repeatx'], kwargs['repeatx'] = repeat
+            if np.sum(np.remainder(pbc, scale)) > 0.01:
                 raise ValueError("Scale needs to be set such that length/scale=int")
 
         self.point = np.atleast_2d(point)
