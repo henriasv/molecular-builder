@@ -582,14 +582,21 @@ class ProceduralSurfaceGeometry(Geometry):
     :type f: func
     """
 
-    def __init__(self, point, normal, thickness, scale=100, method='simplex',
-                 f=lambda x, y, z: 0, threshold=None, **kwargs):
+    def __init__(self, point, normal, thickness, scale=100, method='perlin',
+                 f=lambda x, y, z: 0, threshold=None, pbc=None, **kwargs):
         assert len(point) == len(normal), \
             "Number of given points and normal vectors have to be equal"
         if method == "simplex":
             self.noise = snoise3
         elif method == "perlin":
             self.noise = pnoise3
+
+        if pbc:
+            kwargs['repeatx'] = int(pbc[0]/scale)
+            kwargs['repeaty'] = int(pbc[1]/scale)
+            kwargs['repeatz'] = int(pbc[2]/scale)
+            if pbc[0] % scale > 0.01 or pbc[1] % scale > 0.01:
+                raise ValueError("Scale needs to be set such that length/scale=int")
 
         self.point = np.atleast_2d(point)
         normal = np.atleast_2d(normal)
@@ -618,11 +625,12 @@ class ProceduralSurfaceGeometry(Geometry):
         noises = np.empty(dist.shape)
         for i in range(len(self.normal)):
             for j, point in enumerate(point_plane[i]):
+                noises[j] = self.f(*point)
                 noise_val = self.noise(*(point/self.scale), **self.kwargs)
                 if self.threshold is None:
-                    noises[j] = noise_val + self.f(*point)
+                    noises[j] += noise_val + 1
                 else:
-                    noises[j] = noise_val > self.threshold + self.f(*point)
+                    noises[j] += 2 * (noise_val > self.threshold)
         # find distance from particles to noisy surface
         dist = np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions,
                          self.normal)
