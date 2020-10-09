@@ -580,10 +580,16 @@ class ProceduralSurfaceGeometry(Geometry):
     :type method: str
     :param f: arbitrary R^3 => R function to be added to the noise
     :type f: func
+    :param threshold: define a threshold to define two-level surface by noise
+    :type threshold: float
+    :param pbc: define at what lengths the noise should repeat
+    :type pbc: array_like
+    :param angle: angle of triclinic surface given in degrees
+    :type angle: float
     """
 
     def __init__(self, point, normal, thickness, scale=100, method='perlin',
-                 f=lambda x, y, z: 0, threshold=None, pbc=None, **kwargs):
+                 f=lambda x, y, z: 0, threshold=None, pbc=None, angle=90, **kwargs):
         assert len(point) == len(normal), \
             "Number of given points and normal vectors have to be equal"
         if method == "simplex":
@@ -597,17 +603,18 @@ class ProceduralSurfaceGeometry(Geometry):
         if pbc is not None:
             pbc = np.asarray(pbc)
             repeat = np.rint(pbc/scale).astype(int)
-            kwargs['repeatx'], kwargs['repeatx'], kwargs['repeatx'] = repeat
+            kwargs['repeatx'], kwargs['repeaty'], kwargs['repeatz'] = repeat
             if np.sum(np.remainder(pbc, scale)) > 0.01:
                 raise ValueError("Scale needs to be set such that length/scale=int")
 
         self.point = np.atleast_2d(point)
         normal = np.atleast_2d(normal)
         self.normal = normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
-        self.thickness_half = thickness / 2
+        self.thickness = thickness
         self.scale = scale
         self.f = f
         self.threshold = threshold
+        self.angle = angle
         self.kwargs = kwargs
 
     def packmol_structure(self, number, side):
@@ -628,15 +635,17 @@ class ProceduralSurfaceGeometry(Geometry):
         noises = np.empty(dist.shape)
         for i in range(len(self.normal)):
             for j, point in enumerate(point_plane[i]):
+                # transform from rectangular to parallelogram shape if triclinic
+                point[0] += point[1] * np.cos(np.deg2rad(self.angle))
                 noises[j] = self.f(*point)
                 noise_val = self.noise(*(point/self.scale), **self.kwargs)
                 if self.threshold is None:
-                    noises[j] += noise_val + 1
+                    noises[j] += (noise_val + 1) / 2
                 else:
-                    noises[j] += 2 * (noise_val > self.threshold)
+                    noises[j] += noise_val > self.threshold
         # find distance from particles to noisy surface
         dist = np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions,
                          self.normal)
-        noises = noises.flatten() * self.thickness_half
+        noises = noises.flatten() * self.thickness
         indices = np.all(dist < noises, axis=0)
         return indices
