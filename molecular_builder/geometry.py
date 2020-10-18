@@ -122,9 +122,7 @@ class Geometry:
         are not given are expected to be 'None'.
         """
         # exactly two arguments have to be non-none
-        if [center, length, lo_corner, hi_corner].count(None) == 2:
-            pass
-        else:
+        if sum(x is None for x in [center, length, lo_corner, hi_corner]) != 2:
             raise ValueError("Exactly two arguments have to be given")
 
         # declare arrays to allow mathematical operations
