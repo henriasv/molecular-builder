@@ -219,7 +219,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
             if atoms is not None:
                 f.write(f"structure atoms.{format_s}\n")
                 f.write("  number 1\n")
-                f.write(f"  fixed 0 0 0 0 0 0\n")
+                f.write("  fixed 0 0 0 0 0 0\n")
                 f.write("end structure\n\n")
             f.write(geometry.packmol_structure(nummol, side))
 
@@ -234,16 +234,12 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
         water = ase.io.read(f"out.{format_s}", format=format_v)
 
     os.chdir(cwd)
-
-    if atoms is not None:
-        # Remove solid
+    if atoms is None:
+        water.set_cell(np.diag(box_length))
+    else:
+        # remove solid
         del water[:len(atoms)]
-
-    # Scale water box correctly
-    #print(water.cell)
-    #print(np.diag(box_length))
-    #water.set_cell(np.diag(box_length))
-    if atoms is not None:
+        water.set_cell(np.diag(box_length))
         atoms += water
 
     return water
