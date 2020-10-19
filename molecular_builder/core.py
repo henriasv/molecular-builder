@@ -1,7 +1,6 @@
 import ase.spacegroup
 from ase.calculators.lammps import Prism  # , convert
 import ase.io
-import ase.cell
 import sys
 import os
 import numpy as np

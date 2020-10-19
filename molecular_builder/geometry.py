@@ -539,7 +539,7 @@ class NotchGeometry(Geometry):
     :type entry: array_like
     :param vector_in: The length of the crack
     :type vector_in: array_like
-    :param vector_up: The thickness of the crack
+    :param vector_up: The thickness of the crack above and below the starting point
     :type vector_up: array_like
     """
 
@@ -571,14 +571,5 @@ class NotchGeometry(Geometry):
         is_inside3 = np.dot(dist, self.normal_lower) < 0
 
         indicies = np.logical_not(np.logical_and(np.logical_not(is_inside1), np.logical_or(is_inside2, is_inside3)))
-
-    # def __call__(self, position):
-    #     dist = self.entry-position
-    #     is_inside1 = np.dot(dist, self.vector_in) > 0 
-    #     dist = self.tip-position
-    #     is_inside2 = np.dot(dist, self.normal_upper) < 0
-    #     is_inside3 = np.dot(dist, self.normal_lower) < 0
-
-    #     indicies = np.logical_not(np.logical_and(np.logical_not(is_inside1), np.logical_or(is_inside2, is_inside3)))
 
         return indicies
