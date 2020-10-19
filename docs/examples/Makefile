@@ -1,5 +1,5 @@
 # Første linje
-examples: procedural_noise sodium_chlorate_hydrocarbon_blob_water brucite_in_water alpha_quartz_cylinder_hole/alpha_quartz_cylinder_hole.png alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.png wedges_and_indenters/indenter_over_silica.png silicon_carbide 
+examples: cracks procedural_noise sodium_chlorate_hydrocarbon_blob_water brucite_in_water alpha_quartz_cylinder_hole/alpha_quartz_cylinder_hole.png alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.png wedges_and_indenters/indenter_over_silica.png silicon_carbide 
 
 brucite_in_water: brucite_in_water/brucite_in_water_orthogonal.png brucite_in_water/brucite_in_water_perspective.png
 
@@ -36,7 +36,9 @@ procedural_noise: procedural_noise/block_with_procedural_surface.png procedural_
 procedural_noise/block_with_procedural_surface.png procedural_noise/block.png: procedural_noise/proceduralsurface.py
 	cd procedural_noise && python proceduralsurface.py && cd ..
 
-cracks/alpha_quartz_with_crack.png: crack/crack_in_quartz.py
+cracks: cracks/alpha_quartz_with_crack.png
+
+cracks/alpha_quartz_with_crack.png: cracks/crack_in_quartz.py
 	cd cracks && python crack_in_quartz.py && cd ..
 
 all: examples
