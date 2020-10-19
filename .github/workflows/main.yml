@@ -58,5 +58,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           force_orphan: true
           publish_dir: ./docs/_build/html
-          destination_dir: ${( steps.branch.outputs.BRANCH_NAME }}
+          destination_dir: ${{ steps.branch.outputs.BRANCH_NAME }}
 
