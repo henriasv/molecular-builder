@@ -36,5 +36,8 @@ procedural_noise: procedural_noise/block_with_procedural_surface.png procedural_
 procedural_noise/block_with_procedural_surface.png procedural_noise/block.png: procedural_noise/proceduralsurface.py
 	cd procedural_noise && python proceduralsurface.py && cd ..
 
+cracks/alpha_quartz_with_crack.png: crack/crack_in_quartz.py
+	cd cracks && python crack_in_quartz.py && cd ..
+
 all: examples
 
