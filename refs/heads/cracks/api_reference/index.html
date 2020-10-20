@@ -1,0 +1,611 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Reference &mdash; molecular-builder  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Cracks" href="../examples/cracks/cracks.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> molecular-builder
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-molecular_builder.core">Core functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry">Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">molecular-builder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>API Reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api_reference/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-molecular_builder.core">
+<span id="core-functions"></span><h2>Core functions<a class="headerlink" href="#module-molecular_builder.core" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molecular_builder.core.carve_geometry">
+<code class="sig-prename descclassname">molecular_builder.core.</code><code class="sig-name descname">carve_geometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em>, <em class="sig-param"><span class="n">geometry</span></em>, <em class="sig-param"><span class="n">side</span><span class="o">=</span><span class="default_value">'in'</span></em>, <em class="sig-param"><span class="n">return_carved</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.core.carve_geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete atoms according to geometry.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>atoms – The ase Atoms object containing the molecular system
+geometry – A molecular_builder.geometry.Geometry object defining the region to be carved
+side – Whether to carve out the inside or the outside of geometry</p>
+</dd>
+<dt>Returns:</dt><dd><p>Number of deleted atoms
+Optionally an atoms object containing the atoms that were carved away</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molecular_builder.core.create_bulk_crystal">
+<code class="sig-prename descclassname">molecular_builder.core.</code><code class="sig-name descname">create_bulk_crystal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">round</span><span class="o">=</span><span class="default_value">'up'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.core.create_bulk_crystal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a bulk crystal from a spacegroup description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – name of the crystal. A list can be found by &#64;TODO</p></li>
+<li><p><strong>size</strong> (<em>array_like with 3 elements</em>) – size of the bulk crystal. In the case of a triclinic cell, the dimensions are the ones along the diagonal of the cell matrix, and the crystal tilt decides the rest.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ase.Atoms object containing the crystal</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ase.Atoms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molecular_builder.core.fetch_prepared_system">
+<code class="sig-prename descclassname">molecular_builder.core.</code><code class="sig-name descname">fetch_prepared_system</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">type_mapping</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.core.fetch_prepared_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves molecular system from an online repository. Caches data locally with requests-cache, which creates a sqlite database locally.</p>
+<p>Arguments:
+Name – name of system to be retrieved
+type_mapping – List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>atoms – ase.Atoms object with the system</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molecular_builder.core.pack_water">
+<code class="sig-prename descclassname">molecular_builder.core.</code><code class="sig-name descname">pack_water</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nummol</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">volume</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">density</span><span class="o">=</span><span class="default_value">0.997</span></em>, <em class="sig-param"><span class="n">geometry</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">side</span><span class="o">=</span><span class="default_value">'in'</span></em>, <em class="sig-param"><span class="n">pbc</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.core.pack_water" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pack water molecules into voids at a given volume defined by a geometry.
+The packing is performed by packmol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<em>Atoms object</em>) – ase Atoms object that specifies particles that water is to be packed around. The packed water molecules will be added to this atoms object.</p></li>
+<li><p><strong>nummol</strong> (<em>int</em>) – Number of water molecules</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – Void volume in <span class="math notranslate nohighlight">\(Å^3\)</span> to be filled with water. Can only be used if <cite>nummol=None</cite>, since <cite>pack_water</cite> will compute the number of atoms based on the volume and density of water.</p></li>
+<li><p><strong>density</strong> (<em>float</em>) – Water density. Used to compute the number of water molecules to be packed if <cite>volume</cite> is provided.</p></li>
+<li><p><strong>geometry</strong> (<em>Geometry object</em>) – Geometry object specifying where to pack water</p></li>
+<li><p><strong>side</strong> (<em>str</em>) – Pack water inside/outside of geometry</p></li>
+<li><p><strong>pbc</strong> (<em>float</em><em> or </em><em>array_like</em>) – Inner margin to add to the simulation box to avoid overlapping atoms over periodic boundary conditions. This is necessary because packmol doesn’t support periodic boundary conditions.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – Minimum separation distance between molecules.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coordinates of the packed water</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molecular_builder.core.write">
+<code class="sig-prename descclassname">molecular_builder.core.</code><code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">bond_specs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">atom_style</span><span class="o">=</span><span class="default_value">'molecular'</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">640, 480</span></em>, <em class="sig-param"><span class="n">camera_dir</span><span class="o">=</span><span class="default_value">2, 1, - 1</span></em>, <em class="sig-param"><span class="n">viewport_type</span><span class="o">=</span><span class="default_value">'perspective'</span></em>, <em class="sig-param"><span class="n">atom_radii</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.core.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write atoms to lammps data file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<em>ase.Atoms</em>) – The atoms object to write to file</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – filename to write to. Can either have suffix <cite>.data</cite> or <cite>.png</cite>, in which case a Lammps data file or a png picture will be produced, respectively.</p></li>
+<li><p><strong>bonds_spec</strong> (<em>List of tuples</em>) – List of (element1, element2, cutoff)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="geometry">
+<h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h2>
+<p>The following geometries are available:</p>
+<span class="target" id="module-molecular_builder.geometry"></span><dl class="py class">
+<dt id="molecular_builder.geometry.BerkovichGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">BerkovichGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tip</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">[0, 0, - 1]</span></em>, <em class="sig-param"><span class="n">angle</span><span class="o">=</span><span class="default_value">1.1391764027766988</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.BerkovichGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="molecular_builder.geometry.BerkovichGeometry.packmol_structure">
+<code class="sig-name descname">packmol_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">side</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.BerkovichGeometry.packmol_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make structure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.BlockGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">BlockGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">length</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.BlockGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a more flexible box geometry, where the angle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<em>array_like</em>) – the center point of the block</p></li>
+<li><p><strong>length</strong> (<em>array_like</em>) – the spatial extent of the block in each direction.</p></li>
+<li><p><strong>orientation</strong> (<em>nested list / ndarray_like</em>) – orientation of block</p></li>
+</ul>
+</dd>
+</dl>
+<p>NB: Does not support pack_water and packmol
+NB: This geometry will be deprecated</p>
+<dl class="py method">
+<dt id="molecular_builder.geometry.BlockGeometry.packmol_structure">
+<code class="sig-name descname">packmol_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">side</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.BlockGeometry.packmol_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make structure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.BoxGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">BoxGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">length</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.BoxGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ll_corner</strong> – lower-left corner of box</p></li>
+<li><p><strong>length</strong> (<em>array_like</em>) – Length of box in each direction</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.CubeGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">CubeGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">length</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.CubeGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cubic geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<em>array_like</em>) – Center of cube</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – length of each side</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.CylinderGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">CylinderGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">length</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.CylinderGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cylinder object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<em>array_like</em>) – the center point of the cylinder</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – cylinder radius</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – cylinder length</p></li>
+<li><p><strong>orientation</strong> (<em>array_like</em>) – orientation of cylinder, given as a vector pointing along the cylinder. Pointing in x-direction by default.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.EllipsoidGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">EllipsoidGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">length_axes</span></em>, <em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.EllipsoidGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ellipsoid geometry, satisfies the equation</p>
+<p>(x - x0)^2   (y - y0)^2   (z - z0)^2
+———- + ———- + ———- = d</p>
+<blockquote>
+<div><p>a^2          b^2          c^2</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<em>array_like</em>) – center of ellipsoid (x0, y0, z0)</p></li>
+<li><p><strong>length_axes</strong> (<em>array_like</em>) – length of each axis (a, b, c)</p></li>
+<li><p><strong>d</strong> (<em>float</em>) – scaling</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.EllipticalCylinderGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">EllipticalCylinderGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">length</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.EllipticalCylinderGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elliptical Cylinder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<em>array_like</em>) – center of elliptical cylinder</p></li>
+<li><p><strong>a</strong> (<em>float</em>) – axes along x-axis</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – axes along y-axis</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – length of cylinder</p></li>
+<li><p><strong>orientation</strong> (<em>ndarray</em>) – which way the cylinder should point</p></li>
+</ul>
+</dd>
+</dl>
+<p>NB: This geometry is not supported by packmol or pack_water</p>
+<dl class="py method">
+<dt id="molecular_builder.geometry.EllipticalCylinderGeometry.packmol_structure">
+<code class="sig-name descname">packmol_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">side</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.EllipticalCylinderGeometry.packmol_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make structure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.Geometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">Geometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">periodic_boundary_condition</span><span class="o">=</span><span class="default_value">False, False, False</span></em>, <em class="sig-param"><span class="n">minimum_image_convention</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.Geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for geometries.</p>
+<dl class="py method">
+<dt id="molecular_builder.geometry.Geometry.distance_point_line">
+<em class="property">static </em><code class="sig-name descname">distance_point_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em>, <em class="sig-param"><span class="n">point_line</span></em>, <em class="sig-param"><span class="n">point_ext</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.Geometry.distance_point_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (shortest) distance between a line parallel to
+a normal vector ‘vec’ through point ‘point_line’ and an external
+point ‘point_ext’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>ndarray</em>) – unit vector parallel to line</p></li>
+<li><p><strong>point_line</strong> (<em>ndarray</em>) – point on line</p></li>
+<li><p><strong>point_ext</strong> (<em>ndarray</em>) – external points</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="molecular_builder.geometry.Geometry.distance_point_plane">
+<em class="property">static </em><code class="sig-name descname">distance_point_plane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em>, <em class="sig-param"><span class="n">point_plane</span></em>, <em class="sig-param"><span class="n">point_ext</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.Geometry.distance_point_plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (shortest) distance between a plane with normal vector
+‘vec’ through point ‘point_plane’ and a point ‘point_ext’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>ndarray</em>) – normal vector of plane</p></li>
+<li><p><strong>point_plane</strong> (<em>ndarray</em>) – point on line</p></li>
+<li><p><strong>point_ext</strong> (<em>ndarray</em>) – external point(s)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="molecular_builder.geometry.Geometry.packmol_structure">
+<code class="sig-name descname">packmol_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">side</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.Geometry.packmol_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> (<em>int</em>) – Number of water molecules</p></li>
+<li><p><strong>side</strong> (<em>str</em>) – Pack water inside/outside of geometry</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String with information about the structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="molecular_builder.geometry.Geometry.vec_and_point_to_plane">
+<em class="property">static </em><code class="sig-name descname">vec_and_point_to_plane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em>, <em class="sig-param"><span class="n">point</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.Geometry.vec_and_point_to_plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (unique) plane, given a normal vector ‘vec’ and a
+point ‘point’ in the plane. ax + by + cz - d = 0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>ndarray</em>) – normal vector of plane</p></li>
+<li><p><strong>point</strong> (<em>ndarray</em>) – point in plane</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.NotchGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">NotchGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entry</span></em>, <em class="sig-param"><span class="n">vector_in</span></em>, <em class="sig-param"><span class="n">vector_up</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.NotchGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Carve out a notch geometry in a structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<em>array_like</em>) – The starting poing of the crack</p></li>
+<li><p><strong>vector_in</strong> (<em>array_like</em>) – The length of the crack</p></li>
+<li><p><strong>vector_up</strong> (<em>array_like</em>) – The thickness of the crack above and below the starting point</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.PlaneBoundTriclinicGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">PlaneBoundTriclinicGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell</span></em>, <em class="sig-param"><span class="n">pbc</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.PlaneBoundTriclinicGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="molecular_builder.geometry.PlaneBoundTriclinicGeometry.packmol_structure">
+<code class="sig-name descname">packmol_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">side</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.PlaneBoundTriclinicGeometry.packmol_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> (<em>int</em>) – Number of water molecules</p></li>
+<li><p><strong>side</strong> (<em>str</em>) – Pack water inside/outside of geometry</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String with information about the structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.PlaneGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">PlaneGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point</span></em>, <em class="sig-param"><span class="n">normal</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.PlaneGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all particles on one side of one or more planes. Can be used to
+form any 3d polygon, among other geometries</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> (<em>array_like</em>) – point on plane</p></li>
+<li><p><strong>normal</strong> (<em>array_like</em>) – vector normal to plane</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="molecular_builder.geometry.PlaneGeometry.packmol_structure">
+<code class="sig-name descname">packmol_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">side</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.PlaneGeometry.packmol_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> (<em>int</em>) – Number of water molecules</p></li>
+<li><p><strong>side</strong> (<em>str</em>) – Pack water inside/outside of geometry</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String with information about the structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.ProceduralSurfaceGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">ProceduralSurfaceGeometry</code><span class="sig-paren">(</span><em class="sig-param">point</em>, <em class="sig-param">normal</em>, <em class="sig-param">thickness</em>, <em class="sig-param">scale=100</em>, <em class="sig-param">method='simplex'</em>, <em class="sig-param">f=&lt;function ProceduralSurfaceGeometry.&lt;lambda&gt;&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.ProceduralSurfaceGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates procedural noise on a surface defined by a point, a normal
+vector and a thickness.</p>
+<dl class="py method">
+<dt id="molecular_builder.geometry.ProceduralSurfaceGeometry.packmol_structure">
+<code class="sig-name descname">packmol_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">side</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.ProceduralSurfaceGeometry.packmol_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make structure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="molecular_builder.geometry.SphereGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">SphereGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.SphereGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spherical geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<em>array_like</em>) – Center of sphere</p></li>
+<li><p><strong>radius</strong> – radius of sphere</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="../py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="../search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../examples/cracks/cracks.html" class="btn btn-neutral float-left" title="Cracks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Henrik Andersen Sveinsson
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
