@@ -9,15 +9,15 @@ First, we import the necessary packages:
 .. literalinclude:: crack_in_quartz.py
     :lines: 1-3
 
-Then, we create our slab of :math:`\alpha`-quartz. We use block dimensions of (100Å, 100Å, 100Å)
+Then, we create our slab of :math:`\alpha`-quartz. We use block dimensions of (100Å, 50Å, 100Å)
 
 .. literalinclude:: crack_in_quartz.py
-    :lines: 5-7
+    :lines: 5-9
 
 The code below will create and carve out a crack in the :math:`\alpha`-quartz using the Notch geometry: 
 
 .. literalinclude:: crack_in_quartz.py
-    :lines: 9-10
+    :lines: 11-12
 
 The resulting system looks like this:
 
