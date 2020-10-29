@@ -105,25 +105,24 @@ def carve_geometry(atoms, geometry, side="in", return_carved=False):
         return np.sum(delete_indices), atoms_copy
 
 
-def fetch_prepared_system(name, type_mapping=None):
-    """Retrieves molecular system from an online repository. Caches data locally with requests-cache, which creates a sqlite database locally.
+def fetch_system_from_url(url, type_mapping=None):
+    """Retrieves molecular system from an online location. Caches data locally with requests-cache, which creates a sqlite database locally.
 
-    Arguments:
-    Name -- name of system to be retrieved
-    type_mapping -- List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
+    :param name: name of system to be retrieved
+    :type name: string
+    :param type_mapping: List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
+    :type type_mapping: List of pair-like of integers. 
+
 
     Returns
-        atoms -- ase.Atoms object with the system
+    :returns: ase.Atoms object with the system
     """
     requests_cache.install_cache('python_molecular_builder_cache')
     f = tempfile.TemporaryFile(mode="w+t")
-    url = f"https://zenodo.org/record/3994120/files/{secure_filename(name)}.data"
-    print("URI: ", url)
     r = requests.get(url, stream=True)
-    print(r.encoding)
     r.encoding = "utf-8"
     total_length = int(r.headers.get('content-length'))
-    print(f"Downloading data file {name}")
+    print(f"Downloading data file {url}")
     chunk_size = 4096
     for chunk in progress.bar(r.iter_content(chunk_size=chunk_size, decode_unicode=True), expected_size=(total_length/chunk_size) + 1):
         if chunk:
@@ -139,6 +138,41 @@ def fetch_prepared_system(name, type_mapping=None):
         atoms.set_atomic_numbers(type_copy)
     return atoms
 
+
+def fetch_prepared_system(name, type_mapping=None):
+    """Retrieves molecular system from a particular zenodo repository. Caches data locally with requests-cache, which creates a sqlite database locally.
+
+    :param name: name of system to be retrieved
+    :type name: string
+    :param type_mapping: List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
+    :type type_mapping: List of pair-like of integers. 
+
+
+    Returns
+    :returns: ase.Atoms object with the system
+    """
+    url = f"https://zenodo.org/record/3994120/files/{secure_filename(name)}.data"
+    return fetch_system_from_url(url, type_mapping=type_mapping)
+
+
+def read_data(filename, type_mapping=None, style="atomic"):
+    """Read a lammps data file into an ase atoms object.
+    
+    :param filename: path to the lammps data file 
+    :type filename: string 
+    :param type_mapping: List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
+    :type type_mapping: List of pair-like of integers. 
+
+    :returns: ase.Atoms object with the system
+    """
+    f = open(filename, "r")
+    atoms = ase.io.read(f, format="lammps-data", style=style)
+    if type_mapping is not None:
+        type_copy = atoms.get_atomic_numbers()
+        for pair in type_mapping:
+            type_copy[atoms.numbers == pair[0]] = pair[1]
+        atoms.set_atomic_numbers(type_copy)
+    return atoms
 
 def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
                geometry=None, side='in', pbc=0.0, tolerance=2.0):

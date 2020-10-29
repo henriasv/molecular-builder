@@ -7,5 +7,8 @@ python/alpha_quartz.png:
 python/beta_cristobalite.png:
 	cd python && python bulk_beta_cristobalite.py && cd ..
 
+python/amorphous_silica.png:
+	cd python && python fetch_prepared_system.py && cd ..
+
 all: getting_started
 
