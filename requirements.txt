@@ -1,6 +1,0 @@
-ase
-numpy 
-requests
-requests-cache
-clint
-werkzeug

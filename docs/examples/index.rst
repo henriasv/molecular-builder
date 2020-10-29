@@ -7,7 +7,10 @@ This section contains tutorials showing some usage examples for molecular-builde
 .. toctree:: 
     :maxdepth: 3
 
-    adding_water
     building_crystal_blocks 
-    wedges_and_indenters
+    silicon_carbide_nanoparticles/silicon_carbide_nanoparticles
+    brucite_in_water/brucite_in_water
+    wedges_and_indenters/wedges_and_indenters
+    sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water
+    procedural_noise/procedural_noise
     cracks 

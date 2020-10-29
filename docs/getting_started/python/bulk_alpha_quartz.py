@@ -1,4 +1,4 @@
-from molecular_builder import create_bulk_crystal
+from molecular_builder import create_bulk_crystal, write
 atoms = create_bulk_crystal("alpha_quartz", size=[20,20,20])
-atoms.write("system.data", format="lammps-data")
-
+write(atoms, "alpha_quartz.data")
+write(atoms, "alpha_quartz.png", viewport_type="orthogonal")
