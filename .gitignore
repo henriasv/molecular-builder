@@ -1,3 +1,4 @@
 *.data
 *.sqlite
 *.pyc
+docs/_build
