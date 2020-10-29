@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; molecular-builder  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="../examples/index.html" />
+    <link rel="prev" title="Installation" href="../installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> molecular-builder
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-bulk-crystal-structures">Creating bulk crystal structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loading-systems-from-the-prepared-systems-repository">Loading systems from the prepared systems repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#carving-out-a-sphere">Carving out a sphere</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#carving-out-a-block">Carving out a block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#carving-out-multiple-structures">Carving out multiple structures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">molecular-builder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Getting started</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/getting_started/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>This section gives a quick introduction to some of the things you can do with molecular-builder.</p>
+<div class="section" id="creating-bulk-crystal-structures">
+<h2>Creating bulk crystal structures<a class="headerlink" href="#creating-bulk-crystal-structures" title="Permalink to this headline">¶</a></h2>
+<p>The perhaps simples use case is to create a bulk structure of a given size. In this way, you leverage the database of crystsal structure specifications provided by molecular-builder. Creating a block of <span class="math notranslate nohighlight">\(\beta\)</span>-cristobalite and saving it as a lammps data file may be done as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">molecular_builder</span> <span class="kn">import</span> <span class="n">create_bulk_crystal</span><span class="p">,</span> <span class="n">write</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">create_bulk_crystal</span><span class="p">(</span><span class="s2">&quot;beta_cristobalite&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">])</span>
+<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;beta_cristobalite.data&quot;</span><span class="p">)</span>
+<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;beta_cristobalite.png&quot;</span><span class="p">,</span> <span class="n">viewport_type</span><span class="o">=</span><span class="s2">&quot;orthogonal&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The atoms variable now contains an <cite>ase.Atoms</cite> object, and the writing is the write method of that object.</p>
+<img alt="../_images/beta_cristobalite.png" src="../_images/beta_cristobalite.png" />
+<p>Similarly, one may create a block of <span class="math notranslate nohighlight">\(\alpha\)</span>-quartz:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">molecular_builder</span> <span class="kn">import</span> <span class="n">create_bulk_crystal</span><span class="p">,</span> <span class="n">write</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">create_bulk_crystal</span><span class="p">(</span><span class="s2">&quot;alpha_quartz&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">])</span>
+<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;alpha_quartz.data&quot;</span><span class="p">)</span>
+<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;alpha_quartz.png&quot;</span><span class="p">,</span> <span class="n">viewport_type</span><span class="o">=</span><span class="s2">&quot;orthogonal&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Since the unit cell of <span class="math notranslate nohighlight">\(\alpha\)</span>-quartz is triclinic, the resulting structure may be triclinic, depending on whether the structure can be represented in an orhogonal cell.</p>
+<img alt="../_images/alpha_quartz.png" src="../_images/alpha_quartz.png" />
+<p>The functionality for creating bulk structures uses the <cite>ase.spacegroup</cite> module, and simplifies the process by providing the parameters for the spacegroup command simply by providing a string with the name of the structure. A complete list of available structures can be found here &#64;TODO.</p>
+</div>
+<div class="section" id="loading-systems-from-the-prepared-systems-repository">
+<h2>Loading systems from the prepared systems repository<a class="headerlink" href="#loading-systems-from-the-prepared-systems-repository" title="Permalink to this headline">¶</a></h2>
+<p>We provide some prepared systems on a zenodo repository. In the example below, we fetch a nanoporous silica sample.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">molecular_builder</span> <span class="kn">import</span> <span class="n">fetch_prepared_system</span><span class="p">,</span> <span class="n">write</span>
+
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">fetch_prepared_system</span><span class="p">(</span><span class="s2">&quot;vashishta_1990_like_amorphous_silica_quench_300K&quot;</span><span class="p">,</span> <span class="n">type_mapping</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>
+<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;amorphous_silica.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id1">
+<img alt="getting_started/python/amorphous_silica.png" src="getting_started/python/amorphous_silica.png" />
+<p class="caption"><span class="caption-text">A slab of amorphous silica</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>You can find the list of available data files on zenodo: <a class="reference external" href="https://doi.org/10.5281/zenodo.3769669">https://doi.org/10.5281/zenodo.3769669</a></p>
+</div>
+<div class="section" id="carving-out-a-sphere">
+<h2>Carving out a sphere<a class="headerlink" href="#carving-out-a-sphere" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="carving-out-a-block">
+<h2>Carving out a block<a class="headerlink" href="#carving-out-a-block" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="carving-out-multiple-structures">
+<h2>Carving out multiple structures<a class="headerlink" href="#carving-out-multiple-structures" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../examples/index.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Henrik Andersen Sveinsson
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

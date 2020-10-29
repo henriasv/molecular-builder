@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Generating procedural surfaces &mdash; molecular-builder  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Cracks" href="../cracks.html" />
+    <link rel="prev" title="Soduim chlorate crystal lying on a hydrocarbon blob" href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> molecular-builder
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/index.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../building_crystal_blocks.html">Building crystal blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../silicon_carbide_nanoparticles/silicon_carbide_nanoparticles.html">Silicon carbide nanoparticles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../brucite_in_water/brucite_in_water.html">Brucite block in water</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../wedges_and_indenters/wedges_and_indenters.html">Wedges and indenters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html">Soduim chlorate crystal lying on a hydrocarbon blob</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Generating procedural surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cracks.html">Cracks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">molecular-builder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Examples</a> &raquo;</li>
+        
+      <li>Generating procedural surfaces</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/examples/procedural_noise/procedural_noise.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="generating-procedural-surfaces">
+<h1>Generating procedural surfaces<a class="headerlink" href="#generating-procedural-surfaces" title="Permalink to this headline">¶</a></h1>
+<p>“_Perlin noise is a type of gradient noise developed by Ken Perlin in 1983 as a result of his frustration with the “machine-like” look of computer-generated imagery (CGI) at the time._” The main purpose was to generate realistic landscape for the Disney movie “Tron”. After that, Perlin noise has been ubiquitous in CGI. In 2001, Ken Perlin introduced a improved procedural noise, named simplex noise, based on a simplex grid instead of a square grid. Our implementation of the procedural surface geometry relies on the noise library in Python. There, all the expensive operations are written in C++, making the function extremely fast despite a double loop.</p>
+<p>The <cite>ProceduralSurfaceGeometry</cite>-class is a child of the <cite>Geometry</cite> class, and carves out a procedural surface of a already existing object. We will here present a basic example where we carve out a procedural surface from a block of beta-cristobalite.</p>
+<p>First, we need to import the necessary stuff:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">molecular_builder</span> <span class="kn">import</span> <span class="n">create_bulk_crystal</span><span class="p">,</span> <span class="n">carve_geometry</span><span class="p">,</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">molecular_builder.geometry</span> <span class="kn">import</span> <span class="n">ProceduralSurfaceGeometry</span>
+</pre></div>
+</div>
+<p>Second, a block of beta-cristobalite needs to be generated. We go with a block of dimensions (50Å, 200Å, 200Å).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">atoms</span> <span class="o">=</span> <span class="n">create_bulk_crystal</span><span class="p">(</span><span class="s2">&quot;beta_cristobalite&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id1">
+<img alt="../../_images/block.png" src="../../_images/block.png" />
+<p class="caption"><span class="caption-text">A block of <span class="math notranslate nohighlight">\(\beta\)</span>-cristobalite.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>Before we carve out the procedural surface, we will list the arguments to the <cite>ProceduralSurfaceGeometry</cite>-class with a short explanation. The class takes the arguments <cite>point</cite>, <cite>normal</cite>, <cite>thickness</cite>, <cite>scale</cite>, <cite>method</cite> and <cite>f</cite>, in addition to all arguments that can be passed to the <cite>pnoise3</cite> and <cite>snoise3</cite> functions of the <cite>noise</cite> library. <cite>point</cite> is an equilibrium point of the noise, <cite>normal</cite> is the normal vector of the plane defining all the equilibrium points, <cite>thickness</cite> is the thickness of the noise, <cite>scale</cite> is the scale of the noise, <cite>method</cite> is either ‘<cite>perlin</cite>’ or ‘<cite>simplex</cite>’ and <cite>f</cite> is an arbitrary 3d function that is added to the noise.</p>
+<p>The code below will carve out the desired surface:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+                                     <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                     <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is</p>
+<div class="figure align-default" id="id2">
+<img alt="../../_images/block_with_procedural_surface.png" src="../../_images/block_with_procedural_surface.png" />
+<p class="caption"><span class="caption-text">Procedurally generated surface</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>If the result is not satisfying, there are several parameters that can be changed. <cite>octaves</cite> is the level of details and <cite>scale</cite> is the scale of the structures. You should also consider changing the seed. See <a class="reference external" href="https://pypi.org/project/noise/">the noise documentation</a>. for more options.</p>
+<p>Full code of this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">molecular_builder</span> <span class="kn">import</span> <span class="n">create_bulk_crystal</span><span class="p">,</span> <span class="n">carve_geometry</span><span class="p">,</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">molecular_builder.geometry</span> <span class="kn">import</span> <span class="n">ProceduralSurfaceGeometry</span>
+
+<span class="c1"># Create bulk of beta-cristobalite</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">create_bulk_crystal</span><span class="p">(</span><span class="s2">&quot;beta_cristobalite&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
+<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;block.png&quot;</span><span class="p">)</span>
+
+<span class="c1"># Carve out geometry from beta-cristobalite</span>
+<span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+                                     <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                     <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="p">)</span>
+<span class="n">num_carved</span><span class="p">,</span> <span class="n">carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="n">return_carved</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;block_with_procedural_surface.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../cracks.html" class="btn btn-neutral float-right" title="Cracks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html" class="btn btn-neutral float-left" title="Soduim chlorate crystal lying on a hydrocarbon blob" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Henrik Andersen Sveinsson
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
