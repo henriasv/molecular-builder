@@ -531,3 +531,61 @@ class ProceduralSurfaceGeometry(Geometry):
         noises = noises.flatten() * self.thickness_half
         indices = np.all(dist > noises, axis=0)
         return indices
+
+
+class ProceduralSlabGeometry(Geometry):
+    """Creates procedural noise inside a structure defined by a point, a normal
+    vector and a thickness.
+    """
+
+    def __init__(self,
+                 point,
+                 normal,
+                 thickness,
+                 scale=100,
+                 method='simplex',
+                 f=lambda x, y, z: 0,
+                 **kwargs):
+
+        assert len(point) == len(normal), \
+            "Number of given points and normal vectors have to be equal"
+
+        from noise import snoise3, pnoise3
+        if method == "simplex":
+            self.noise = snoise3
+        elif method == "perlin":
+            self.noise = pnoise3
+
+        self.point = np.atleast_2d(point)
+        normal = np.atleast_2d(normal)
+        self.normal = normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
+        self.thickness_half = thickness / 2
+        self.scale = scale
+        self.f = f
+        self.kwargs = kwargs
+
+    def packmol_structure(self, number, side):
+        """ Make structure.
+        """
+        raise NotImplementedError(
+            "ProceduralSlabGeometry is not supported by pack_water")
+
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        # calculate distance from particles to plane defined by normal and center
+        distances = self.distance_point_plane(self.normal, self.point, positions)
+        # find the points on plane
+        point_plane = positions + np.einsum('ij,kl->jkl', distances, self.normal)
+        # a loop is actually faster than an all-numpy implementation
+        # since pnoise3/snoise3 are written in C++
+        noises = np.empty(distances.shape)
+        for i in range(len(self.normal)):
+            for j, point in enumerate(point_plane[i]):
+                noises[j] = self.noise(*(point/self.scale), **self.kwargs) + \
+                            self.f(*point)
+
+        noises = noises.flatten() * self.thickness_half
+        # for each atom, check if the assigned noise value is greater than
+        # the atom's distance from the plane
+        indices = np.all(distances.T < noises, axis=0)
+        return indices

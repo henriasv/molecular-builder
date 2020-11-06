@@ -1,0 +1,14 @@
+MANIFEST.in
+README.md
+setup.py
+molecular_builder/__init__.py
+molecular_builder/core.py
+molecular_builder/crystals.py
+molecular_builder/geometry.py
+molecular_builder.egg-info/PKG-INFO
+molecular_builder.egg-info/SOURCES.txt
+molecular_builder.egg-info/dependency_links.txt
+molecular_builder.egg-info/requires.txt
+molecular_builder.egg-info/top_level.txt
+molecular_builder/data_files/water.pdb
+molecular_builder/data_files/water.xyz

@@ -1,0 +1,9 @@
+ase
+requests
+requests-cache
+clint
+werkzeug
+cython
+recommonmark
+ovito
+noise
