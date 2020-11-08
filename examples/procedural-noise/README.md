@@ -25,11 +25,40 @@ geometry = ProceduralSurfaceGeometry(point=(40, 100, 100),
                                      thickness=20,
                                      octaves=1,
                                      method='simplex')
-num_carved carve_geometry(atoms, geometry, side="in")
+num_carved = carve_geometry(atoms, geometry, side="in")
 ```
 
 The result is
 
 ![Procedural surface](procedural_surface.png)
 
-If the result is not satisfying, there are several parameters that can be changed. ```octaves``` is the level of details and ```scale``` is the scale of the structures. You should also consider changing the seed. See [the ```noise``` documentation](https://pypi.org/project/noise/) for more options. 
+If the result is not satisfying, there are several parameters that can be changed. ```octaves``` is the level of details and ```scale``` is the scale of the structures. You should also consider changing the seed. See [the ```noise``` documentation](https://pypi.org/project/noise/) for more options.
+
+# Generating procedural slabs
+The ```ProceduralSlabGeometry```-class is functionally very similar to ```ProceduralSurfaceGeometry```. The difference is that ```ProceduralSlabGeometry``` can be used to carve out atoms inside a material while leaving the surface of the material intact.
+
+The class takes the same input parameters as ```ProceduralSurfaceGeometry```. Below is an example demonstrating how to carve out procedural structures inside a block of beta-cristobalite:
+
+``` python
+from molecular_builder import create_bulk_crystal, carve_geometry
+from molecular_builder.geometry import ProceduralSlabGeometry
+
+atoms = create_bulk_crystal("beta_cristobalite", [100, 100, 50])
+
+# Geometry-object for carving out a structure using Simplex/Perlin noise
+geometry = ProceduralSlabGeometry(point=(50, 50, 25),
+                         normal=(0, 0, 1),
+                         thickness=50,
+                         octaves=1,
+                         method='simplex',
+                         )
+
+num_carved, carved = carve_geometry(atoms, geometry, side="in", return_carved=True)
+
+atoms.write("block_with_procedural_slab.data", format='lammps-data')
+carved.write("carved_slab.data", format='lammps-data')
+```
+
+Result:
+
+![Procedural slab](procedural_slab.png)
