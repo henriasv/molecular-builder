@@ -291,6 +291,7 @@ class BoxGeometry(Geometry):
         props = self.extract_box_properties(center, length, lo_corner, hi_corner)
         self.ll_corner, self.ur_corner, self.length_half, self.center = props
         self.params = list(self.ll_corner) + list(self.ur_corner)
+        self.length = self.length_half*2
 
     def __repr__(self):
         return 'box'
