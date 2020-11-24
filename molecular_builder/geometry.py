@@ -654,8 +654,10 @@ class OctahedronGeometry(PlaneGeometry):
     All sides are assumed to have a normal vector pointing where are components
     have the same magnitude (ex. (1, 1, 1))
 
-    :param d: (shortest) length from tetrahedron center to sides
+    :param d: (shortest) length from octahedron center to sides
     :type d: float
+    :param center: center of octahedron
+    :type center: array_like
     """
     def __init__(self, d, center=[0, 0, 0]):
         # make list of normal vectors
@@ -676,8 +678,10 @@ class DodecahedronGeometry(PlaneGeometry):
     """A convex rectangular dodecahedron geometry to be used for silicon
     carbide (SiC).
 
-    :param d: (shortest) length from tetrahedron center to sides
+    :param d: (shortest) length from dodecahedron center to sides
     :type d: float
+    :param center: center of dodecahedron
+    :type center: array_like
     """
     def __init__(self, d, center=[0, 0, 0]):
         # make list of normal vectors
