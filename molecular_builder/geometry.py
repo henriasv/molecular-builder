@@ -647,3 +647,46 @@ class ProceduralSurfaceGeometry(Geometry):
         noises = noises.flatten() * self.thickness
         indices = np.all(dist < noises, axis=0)
         return indices
+
+
+class OctahedronGeometry(PlaneGeometry):
+    """A rectangular octahedron geometry to be used for silicon carbide (SiC)
+    All sides are assumed to have a normal vector pointing where are components
+    have the same magnitude (ex. (1, 1, 1))
+
+    :param d: (shortest) length from tetrahedron center to sides
+    :type d: float
+    """
+    def __init__(self, d, center=[0, 0, 0]):
+        # make list of normal vectors
+        bin_list = []
+        for i in range(8):
+            binary = format(i, '#05b')
+            bin_list.append(list(binary[2:]))
+        normals = np.asarray(bin_list, dtype=int)
+        normals[normals == 0] = -1
+        normals = normals / np.linalg.norm(normals, axis=1)[:, np.newaxis]
+
+        # find points in planes
+        points = d * normals + np.asarray(center)
+        super().__init__(points, normals)
+
+
+class DodecahedronGeometry(PlaneGeometry):
+    """A convex rectangular dodecahedron geometry to be used for silicon
+    carbide (SiC).
+
+    :param d: (shortest) length from tetrahedron center to sides
+    :type d: float
+    """
+    def __init__(self, d, center=[0, 0, 0]):
+        # make list of normal vectors
+        lst = [[+1, +1, 0], [+1, 0, +1], [0, +1, +1], [+1, -1, 0],
+               [+1, 0, -1], [+0, 1, -1], [-1, +1, 0], [-1, 0, +1],
+               [0, -1, +1], [-1, -1, 0], [-1, 0, -1], [0, -1, -1]]
+        normals = np.asarray(lst, dtype=int)
+        normals = normals / np.linalg.norm(normals, axis=1)[:, np.newaxis]
+
+        # find points in planes
+        points = d * normals + np.asarray(center)
+        super().__init__(points, normals)
