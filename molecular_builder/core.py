@@ -222,7 +222,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
             ur_corner = atoms.cell.lengths()
             box_center = (ur_corner + ll_corner) / 2
             box_length = ur_corner - ll_corner
-            geometry = BoxGeometry(box_center, box_length - pbc)
+            geometry = BoxGeometry(center=box_center, length=box_length - pbc)
         else:
             geometry = PlaneBoundTriclinicGeometry(atoms.cell, pbc=pbc)
     else:
