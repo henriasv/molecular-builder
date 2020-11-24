@@ -15,3 +15,11 @@ Creating input structures like in the paper linked above can be done by the foll
 .. literalinclude:: box.py
 
 .. figure:: box.png
+
+.. literalinclude:: octahedron.py
+
+.. figure:: octahedron.png
+
+.. literalinclude:: dodecahedron.py
+
+.. figure:: dodecahedron.png
