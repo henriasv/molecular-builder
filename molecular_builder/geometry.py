@@ -396,7 +396,7 @@ class PlaneGeometry(Geometry):
     def __call__(self, atoms):
         positions = atoms.get_positions()
         dist = self.point[:, np.newaxis] - positions
-        indices = np.all(np.einsum('ijk,ik->ij', dist, self.normal) < 0, axis=0)
+        indices = np.all(np.einsum('ijk,ik->ij', dist, self.normal) > 0, axis=0)
         return indices
 
 
