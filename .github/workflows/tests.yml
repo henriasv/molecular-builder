@@ -4,7 +4,6 @@ name: build docs
 on: 
   push:
     branches: 
-      - master
       - cracks
   
 jobs:
@@ -22,7 +21,6 @@ jobs:
         run: |
           # install pip=>20.1 to use "pip cache dir"
           python3 -m pip install --upgrade pip
-
       - name: Get pip cache dir
         id: pip-cache
         run: echo "::set-output name=dir::$(pip cache dir)"
@@ -34,7 +32,6 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-
       - name: Install dependencies
         run: | 
           python3 -m pip install -r ./docs/requirements.txt
@@ -47,16 +44,5 @@ jobs:
           mv tmp.txt Makefile 
           make 
           sudo cp packmol /usr/local/bin/
-
-
       - run: |
           cd docs && make examples && make html 
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/_build/html
-          destination_dir: ${{ github.ref }}
-
-

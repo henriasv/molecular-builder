@@ -23,6 +23,19 @@ Since the unit cell of :math:`\alpha`-quartz is triclinic, the resulting structu
 
 The functionality for creating bulk structures uses the `ase.spacegroup` module, and simplifies the process by providing the parameters for the spacegroup command simply by providing a string with the name of the structure. A complete list of available structures can be found here @TODO. 
 
+Loading systems from the prepared systems repository
+----------------------------------------------------
+We provide some prepared systems on a zenodo repository. In the example below, we fetch a nanoporous silica sample. 
+
+.. literalinclude:: python/fetch_prepared_system.py
+
+.. figure:: python/amorphous_silica.png
+    
+    A slab of amorphous silica
+
+You can find the list of available data files on zenodo: https://doi.org/10.5281/zenodo.3769669
+
+
 Carving out a sphere 
 ---------------------------------------
 
