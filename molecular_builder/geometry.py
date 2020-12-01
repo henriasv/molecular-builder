@@ -1,15 +1,33 @@
 import numpy as np
 from ase import Atom
+from noise import snoise3, pnoise3
+
 
 class Geometry:
-    """Base class for geometries."""
-    def __init__(self, periodic_boundary_condition = (False, False, False), minimum_image_convention=True):
+    """Base class for geometries.
+
+    :param periodic_boundary_condition: self-explanatory
+    :type periodic_boundary_condition: array_like
+    :param minimum_image_convention: use the minimum image convention for
+                                     bookkeeping how the particles interact
+    :type minimum_image_convention: bool
+    """
+
+    def __init__(self, periodic_boundary_condition=(False, False, False),
+                 minimum_image_convention=True):
         self.minimum_image_convention = minimum_image_convention
         self.periodic_boundary_condition = periodic_boundary_condition
         pass
 
     def __call__(self, atoms):
-        """The empty geometry. False because we define no particle to be in the dummy geometry"""
+        """The empty geometry. False because we define no particle to be
+        in the dummy geometry.
+
+        :param atoms: atoms object from ase.Atom that is being modified
+        :type atoms: ase.Atom obj
+        :returns: ndarray of bools telling which atoms to remove
+        :rtype: ndarray of bool
+        """
         return np.zeros(len(atoms), dtype=np.bool)
 
     @staticmethod
@@ -24,7 +42,8 @@ class Geometry:
         :type point_line: ndarray
         :param point_ext: external points
         :type point_ext: ndarray
-
+        :return: distance between line and external point(s)
+        :rtype: ndarray
         """
         return np.linalg.norm(np.cross(vec, point_ext - point_line), axis=1)
 
@@ -39,6 +58,8 @@ class Geometry:
         :type point_plane: ndarray
         :param point_ext: external point(s)
         :type point_ext: ndarray
+        :return: distance between plane and external point(s)
+        :rtype: ndarray
         """
         vec = np.atleast_2d(vec)    # Ensure n is 2d
         return np.abs(np.einsum('ik,jk->ij', point_ext - point_plane, vec))
@@ -52,12 +73,24 @@ class Geometry:
         :type vec: ndarray
         :param point: point in plane
         :type point: ndarray
+        :returns: parameterization of plane
+        :rtype: ndarray
         """
-        return np.array((*vec, np.dot(vec,point)))
+        return np.array((*vec, np.dot(vec, point)))
 
     @staticmethod
     def cell2planes(cell, pbc):
-        # 3 planes intersect the origin by ase design.
+        """Get the parameterization of the sizes of a ase.Atom cell
+
+        :param cell: ase.Atom cell
+        :type cell: obj
+        :param pbc: shift of boundaries to be used with periodic boundary condition
+        :type pbc: float
+        :returns: parameterization of cell plane sides
+        :rtype: list of ndarray
+
+        3 planes intersect the origin by ase design.
+        """
         a = cell[0]
         b = cell[1]
         c = cell[2]
@@ -66,12 +99,12 @@ class Geometry:
         n2 = np.cross(c, a)
         n3 = np.cross(b, c)
 
-        #n1 = n1/np.dot(n1, n1)
-        #n2 = n2/np.dot(n2, n2)
-        #n3 = n3/np.dot(n3, n3)
+        # n1 = n1/np.dot(n1, n1)
+        # n2 = n2/np.dot(n2, n2)
+        # n3 = n3/np.dot(n3, n3)
 
-        origin = np.array([0,0,0])+pbc/2
-        top = (a+b+c)-pbc/2
+        origin = np.array([0, 0, 0]) + pbc / 2
+        top = (a + b + c) - pbc / 2
 
         plane1 = Geometry.vec_and_point_to_plane(n1, origin)
         plane2 = Geometry.vec_and_point_to_plane(n2, origin)
@@ -82,16 +115,57 @@ class Geometry:
 
         return [plane1, plane2, plane3, plane4, plane5, plane6]
 
-    def packmol_structure(self, number, side):
-        """ Make structure.
-
-        :param number: Number of water molecules
-        :type number: int
-        :param side: Pack water inside/outside of geometry
-        :type side: str
-        :returns: String with information about the structure
+    @staticmethod
+    def extract_box_properties(center, length, lo_corner, hi_corner):
+        """Given two of the properties 'center', 'length', 'lo_corner',
+        'hi_corner', return all the properties. The properties that
+        are not given are expected to be 'None'.
         """
-        structure = f"structure water.pdb\n"
+        # exactly two arguments have to be non-none
+        my_list = [center, length, lo_corner, hi_corner]
+        if sum(element is None for element in my_list) == 2:
+            pass
+        else:
+            raise ValueError("Exactly two arguments have to be given")
+
+        # declare arrays to allow mathematical operations
+        center, length = np.asarray(center), np.asarray(length)
+        lo_corner, hi_corner = np.asarray(lo_corner), np.asarray(hi_corner)
+        relations = [["lo_corner",              "hi_corner - length",
+                      "center - length / 2",    "2 * center - hi_corner"],
+                     ["hi_corner",              "lo_corner + length",
+                      "center + length / 2",    "2 * center - lo_corner"],
+                     ["length / 2",             "(hi_corner - lo_corner) / 2",
+                      "hi_corner - center",     "center - lo_corner"],
+                     ["center",                 "(hi_corner + lo_corner) / 2",
+                      "hi_corner - length / 2", "lo_corner + length / 2"]]
+
+        # compute all relations
+        relation_list = []
+        for relation in relations:
+            for i in relation:
+                try:
+                    relation_list.append(eval(i))
+                except TypeError:
+                    continue
+
+        # keep the non-None relations
+        for i, relation in enumerate(relation_list):
+            if None in relation:
+                del relation_list[i]
+        return relation_list
+
+    def packmol_structure(self, number, side):
+        """Make structure to be used in PACKMOL input script
+
+        :param number: number of water molecules
+        :type number: int
+        :param side: pack water inside/outside of geometry
+        :type side: str
+        :returns: string with information about the structure
+        :rtype: str
+        """
+        structure = "structure water.pdb\n"
         structure += f"  number {number}\n"
         structure += f"  {side} {self.__repr__()} "
         for param in self.params:
@@ -99,29 +173,31 @@ class Geometry:
         structure += "\nend structure\n"
         return structure
 
+
 class PlaneBoundTriclinicGeometry(Geometry):
+    """Triclinic crystal geometry based on ase.Atom cell
+
+    :param cell: ase.Atom cell
+    :type cell: obj
+    :param pbc: shift of boundaries to be used with periodic boundary condition
+    :type pbc: float
+    """
     def __init__(self, cell, pbc=0.0):
         self.planes = self.cell2planes(cell, pbc)
-        self.ll_corner = [0,0,0]
-        a = cell[0,:]
-        b = cell[1,:]
-        c = cell[2,:]
-        self.ur_corner = a+b+c
+        self.ll_corner = [0, 0, 0]
+        a = cell[0, :]
+        b = cell[1, :]
+        c = cell[2, :]
+        self.ur_corner = a + b + c
 
     def packmol_structure(self, number, side):
-        """ Make structure.
-
-        :param number: Number of water molecules
-        :type number: int
-        :param side: Pack water inside/outside of geometry
-        :type side: str
-        :returns: String with information about the structure
+        """Make structure to be used in PACKMOL input script
         """
         if side == "inside":
             side = "over"
         elif side == "outside":
             side = "below"
-        structure = f"structure water.pdb\n"
+        structure = "structure water.pdb\n"
         structure += f"  number {number}\n"
         for plane in self.planes:
             structure += f"  {side} plane "
@@ -134,6 +210,7 @@ class PlaneBoundTriclinicGeometry(Geometry):
     def __call__(self, position):
         raise NotImplementedError
 
+
 class SphereGeometry(Geometry):
     """Spherical geometry.
 
@@ -142,6 +219,7 @@ class SphereGeometry(Geometry):
     :param radius: radius of sphere
     :type length: float
     """
+
     def __init__(self, center, radius, **kwargs):
         super().__init__(**kwargs)
         self.center = center
@@ -158,69 +236,75 @@ class SphereGeometry(Geometry):
         atoms.append(Atom(position=self.center))
         tmp_pbc = atoms.get_pbc()
         atoms.set_pbc(self.periodic_boundary_condition)
-        distances = atoms.get_distances(-1, list(range(len(atoms)-1)), mic=self.minimum_image_convention)
+        distances = atoms.get_distances(-1, list(range(len(atoms)-1)),
+                                        mic=self.minimum_image_convention)
         atoms.pop()
         atoms.set_pbc(tmp_pbc)
         indices = distances**2 < self.radius_squared
         return indices
 
+
 class CubeGeometry(Geometry):
     """Cubic geometry.
 
-    :param center: Center of cube
+    :param center: center of cube
     :type center: array_like
     :param length: length of each side
     :type length: float
     """
-    def __init__(self, center, length, **kwargs):
-        super().__init__(**kwargs)
-        self.center = np.array(center)
-        self.length_half = length / 2
-        self.params = list(self.center - self.length_half) + [length]
-        self.ll_corner = self.center - self.length_half
-        self.ur_corner = self.center + self.length_half
 
-    def __repr__(self):
-        return 'cube'
-
-    def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
-        positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
-        indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
-        return indices
-
-class BoxGeometry(Geometry):
-    """Box geometry.
-
-    :param ll_corner: lower-left corner of box
-    :type center: array_like
-    :param length: Length of box in each direction
-    :type length: array_like
-    """
     def __init__(self, center, length, **kwargs):
         super().__init__(**kwargs)
         self.length = length
         self.length_half = np.array(length) / 2
         self.center = np.array(center)
-        self.ll_corner = self.center-self.length_half
-        self.ur_corner = self.center+self.length_half
+        self.ll_corner = self.center - self.length_half
+        self.ur_corner = self.center + self.length_half
+        self.params = list(self.ll_corner) + [self.length]
+
+    def __repr__(self):
+        return 'cube'
+
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        dist = self.distance_point_plane(np.eye(3), self.center, positions)
+        indices = np.all((np.abs(dist) <= self.length_half), axis=1)
+        return indices
+
+
+class BoxGeometry(Geometry):
+    """Box geometry.
+
+    :param center: geometric center of box
+    :type center: array_like
+    :param length: length of box in all directions
+    :type length: array_like
+    :param lo_corner: lower corner
+    :type lo_corner: array_like
+    :param hi_corner: higher corner
+    :type hi_corner: array_like
+    """
+
+    def __init__(self, center=None, length=None, lo_corner=None,
+                 hi_corner=None, **kwargs):
+        super().__init__(**kwargs)
+        props = self.extract_box_properties(center, length, lo_corner, hi_corner)
+        self.ll_corner, self.ur_corner, self.length_half, self.center = props
         self.params = list(self.ll_corner) + list(self.ur_corner)
+        self.length = self.length_half*2
 
     def __repr__(self):
         return 'box'
 
     def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
-        indices = np.all((np.abs(self.distance_point_plane(np.eye(3), self.center, positions)) <= self.length_half), axis=1)
+        dist = self.distance_point_plane(np.eye(3), self.center, positions)
+        indices = np.all((np.abs(dist) <= self.length_half), axis=1)
         return indices
 
     def volume(self):
         return np.prod(self.length)
+
 
 class BlockGeometry(Geometry):
     """This is a more flexible box geometry, where the angle
@@ -239,13 +323,13 @@ class BlockGeometry(Geometry):
     def __init__(self, center, length, orientation=[], **kwargs):
         super().__init__(**kwargs)
         assert len(center) == len(length), \
-                 ("center and length need to have equal shapes")
+            ("center and length need to have equal shapes")
         self.center = np.array(center)
         self.length = np.array(length) / 2
 
         # Set coordinate according to orientation
         if len(orientation) == 0:
-            #orientation.append(np.random.randn(len(center)))
+            # orientation.append(np.random.randn(len(center)))
             orientation = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         if len(orientation) == 1:
             n_x = np.array(orientation[0])
@@ -261,7 +345,7 @@ class BlockGeometry(Geometry):
         return 'block'
 
     def packmol_structure(self, number, side):
-        """ Make structure.
+        """Make structure to be used in PACKMOL input script
         """
         raise NotImplementedError("BlockGeometry does not support pack_water")
 
@@ -270,8 +354,10 @@ class BlockGeometry(Geometry):
         atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
         atoms.set_pbc(tmp_pbc)
-        indices = np.all((np.abs(self.distance_point_plane(self.orientation, self.center, positions)) <= self.length), axis=1)
+        indices = np.all((np.abs(self.distance_point_plane(
+            self.orientation, self.center, positions)) <= self.length), axis=1)
         return indices
+
 
 class PlaneGeometry(Geometry):
     """Remove all particles on one side of one or more planes. Can be used to
@@ -282,22 +368,18 @@ class PlaneGeometry(Geometry):
     :param normal: vector normal to plane
     :type normal: array_like
     """
+
     def __init__(self, point, normal, **kwargs):
         super().__init__(**kwargs)
-        assert len(point) == len(normal), "Number of given points and normal vectors have to be equal"
+        assert len(point) == len(normal), \
+            "Number of given points and normal vectors have to be equal"
 
         self.point = np.atleast_2d(point)
         normal = np.atleast_2d(normal)
         self.normal = normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
 
     def packmol_structure(self, number, side):
-        """ Make structure.
-
-        :param number: Number of water molecules
-        :type number: int
-        :param side: Pack water inside/outside of geometry
-        :type side: str
-        :returns: String with information about the structure
+        """Make structure to be used in PACKMOL input script
         """
         if side == "inside":
             side = "over"
@@ -306,7 +388,7 @@ class PlaneGeometry(Geometry):
 
         ds = np.einsum('ij,ij->j', self.point, self.normal)
 
-        structure += f"structure water.pdb\n"
+        structure = "structure water.pdb\n"
         structure += f"  number {number}\n"
         for plane in range(len(self.normal)):
             a, b, c = self.normal[side]
@@ -317,7 +399,8 @@ class PlaneGeometry(Geometry):
 
     def __call__(self, atoms):
         positions = atoms.get_positions()
-        indices = np.all(np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions, self.normal) > 0, axis=0)
+        dist = self.point[:, np.newaxis] - positions
+        indices = np.all(np.einsum('ijk,ik->ij', dist, self.normal) < 0, axis=0)
         return indices
 
 
@@ -330,7 +413,8 @@ class CylinderGeometry(Geometry):
     :type radius: float
     :param length: cylinder length
     :type length: float
-    :param orientation: orientation of cylinder, given as a vector pointing along the cylinder. Pointing in x-direction by default.
+    :param orientation: orientation of cylinder, given as a vector pointing
+                        along the cylinder. Pointing in x-direction by default.
     :type orientation: array_like
     """
 
@@ -338,7 +422,7 @@ class CylinderGeometry(Geometry):
         super().__init__(**kwargs)
         self.center = np.array(center)
         self.radius = radius
-        self.length = length / 2
+        self.length_half = length / 2
         if orientation is None:
             self.orientation = np.zeros_like(center)
             self.orientation[0] = 1
@@ -351,18 +435,17 @@ class CylinderGeometry(Geometry):
         return 'cylinder'
 
     def __call__(self, atoms):
-        tmp_pbc = atoms.get_pbc()
-        atoms.set_pbc(self.periodic_boundary_condition)
         positions = atoms.get_positions()
-        atoms.set_pbc(tmp_pbc)
-
-        indices = (self.distance_point_line(self.orientation, self.center, positions) <= self.radius) & \
-                  (self.distance_point_plane(self.orientation, self.center, positions).flatten() <= self.length)
+        dist_inp = (self.orientation, self.center, positions)
+        dist_line = self.distance_point_line(*dist_inp)
+        dist_plane = self.distance_point_plane(*dist_inp).flatten()
+        indices = (dist_line <= self.radius) & (dist_plane <= self.length_half)
         return indices
+
 
 class BerkovichGeometry(Geometry):
     # TODO: Implement support for packmol through plane geometry
-    def __init__(self, tip, axis=[0,0,-1], angle=np.radians(65.27)):
+    def __init__(self, tip, axis=[0, 0, -1], angle=np.radians(65.27)):
         self.indenter_angle = angle
         self.tip = np.asarray(tip)
         self.axis = np.asarray(axis)
@@ -372,18 +455,19 @@ class BerkovichGeometry(Geometry):
     def _create_plane_directions(self):
         xy_angles = [0, np.radians(120), np.radians(240)]
         for xy_angle in xy_angles:
-            z_component = np.cos(np.pi/2-self.indenter_angle)
-            xy_component = np.sin(np.pi/2-self.indenter_angle)
+            z_component = np.cos(np.pi / 2 - self.indenter_angle)
+            xy_component = np.sin(np.pi / 2 - self.indenter_angle)
             self.plane_directions.append(np.asarray([
-                                          xy_component*np.cos(xy_angle),
-                                          xy_component*np.sin(xy_angle),
-                                          z_component
-                                          ]))
+                xy_component * np.cos(xy_angle),
+                xy_component * np.sin(xy_angle),
+                z_component
+            ]))
 
     def packmol_structure(self, number, side):
-        """ Make structure.
+        """Make structure to be used in PACKMOL input script
         """
-        raise NotImplementedError("BerkovichGeometry is not yet supported by pack_water")
+        raise NotImplementedError(
+            "BerkovichGeometry is not yet supported by pack_water")
 
     def __call__(self, atoms):
         positions = atoms.get_positions()
@@ -391,11 +475,13 @@ class BerkovichGeometry(Geometry):
         is_inside_candidate1 = np.dot(rel_pos, self.plane_directions[0]) > 0
         is_inside_candidate2 = np.dot(rel_pos, self.plane_directions[1]) > 0
         is_inside_candidate3 = np.dot(rel_pos, self.plane_directions[2]) > 0
-        is_inside = np.logical_and(np.logical_and(is_inside_candidate1, is_inside_candidate2), is_inside_candidate3)
+        is_inside = np.logical_and(np.logical_and(
+            is_inside_candidate1, is_inside_candidate2), is_inside_candidate3)
         return is_inside
 
+
 class EllipsoidGeometry(Geometry):
-    """ Ellipsoid geometry, satisfies the equation
+    """Ellipsoid geometry, satisfies the equation
 
     (x - x0)^2   (y - y0)^2   (z - z0)^2
     ---------- + ---------- + ---------- = d
@@ -414,8 +500,7 @@ class EllipsoidGeometry(Geometry):
     def __init__(self, center, length_axes, d, **kwargs):
         super().__init__(**kwargs)
         self.center = np.asarray(center)
-        self.length = np.asarray(length_axes)
-        self.length_sqrd = self.length**2
+        self.axes_sqrd = np.asarray(length_axes)**2
         self.d = d
         self.params = list(self.center) + list(self.length) + [self.d]
         self.ll_corner = self.center - self.length
@@ -427,12 +512,13 @@ class EllipsoidGeometry(Geometry):
     def __call__(self, atoms):
         positions = atoms.get_positions()
         positions_shifted_sqrd = (positions - self.center)**2
-        LHS = np.divide(positions_shifted_sqrd, self.length_sqrd).sum(axis=1)
+        LHS = np.sum(positions_shifted_sqrd / self.axes_sqrd, axis=1)
         indices = (LHS <= self.d)
         return indices
 
+
 class EllipticalCylinderGeometry(Geometry):
-    """ Elliptical Cylinder
+    """Elliptical Cylinder
 
     :param center: center of elliptical cylinder
     :type center: array_like
@@ -453,7 +539,7 @@ class EllipticalCylinderGeometry(Geometry):
     def __init__(self, center, a, b, length, orientation=None, **kwargs):
         super().__init__(**kwargs)
         self.center = np.asarray(center)
-        self.a_sqrd, self.b_sqrd = a**2, b**2
+        self.axes_sqrd = np.asarray([a**2, b**2])
         self.length_half = np.asarray(length) / 2
 
         if orientation is None:
@@ -464,72 +550,106 @@ class EllipticalCylinderGeometry(Geometry):
             self.orientation = orientation / np.linalg.norm(orientation)
 
     def packmol_structure(self, number, side):
-        """ Make structure.
+        """Make structure to be used in PACKMOL input script
         """
-        raise NotImplementedError("EllipticalCylinderGeometry is not supported by pack_water")
+        raise NotImplementedError(
+            "EllipticalCylinderGeometry is not supported by pack_water")
 
     def __call__(self, atoms):
         positions = atoms.get_positions()
         positions_shifted_sqrd = (positions - self.center)**2
-        ellipse = positions_shifted_sqrd[:,0]/self.a_sqrd + positions_shifted_sqrd[:,1]/self.b_sqrd
-        indices = (ellipse <= 1) & (self.distance_point_plane(self.orientation, self.center, positions).flatten() <= self.length_half)
+        dist_inp = (self.orientation, self.center, positions)
+        dist_plane = self.distance_point_plane(*dist_inp).flatten()
+        ellipse = np.sum(positions_shifted_sqrd / self.axes_sqrd, axis=1)
+        indices = (dist_plane <= self.length_half) & (ellipse <= 1)
         return indices
-
 
 
 class ProceduralSurfaceGeometry(Geometry):
     """Creates procedural noise on a surface defined by a point, a normal
     vector and a thickness.
+
+    :param point: an equilibrium point of noisy surface
+    :type point: array_like
+    :param normal: normal vector of noisy surface, surface is carved out
+                   in the poiting direction
+    :type normal: array_like
+    :param thickness: thickness of noise area
+    :type thickness: float
+    :param scale: scale of noise structures
+    :type scale: float
+    :param method: noise method, either 'simplex' or 'perlin'
+    :type method: str
+    :param f: arbitrary R^3 => R function to be added to the noise
+    :type f: func
+    :param threshold: define a threshold to define two-level surface by noise
+    :type threshold: float
+    :param pbc: define at what lengths the noise should repeat
+    :type pbc: array_like
+    :param angle: angle of triclinic surface given in degrees
+    :type angle: float
     """
 
-    def __init__(self,
-                 point,
-                 normal,
-                 thickness,
-                 scale=100,
-                 method='simplex',
-                 f=lambda x, y, z: 0,
-                 **kwargs):
+    def __init__(self, point, normal, thickness, scale=100, method='perlin',
+                 f=lambda x, y, z: 0, threshold=None, pbc=None, angle=90, **kwargs):
         assert len(point) == len(normal), \
             "Number of given points and normal vectors have to be equal"
-
-        from noise import snoise3, pnoise3
         if method == "simplex":
             self.noise = snoise3
         elif method == "perlin":
             self.noise = pnoise3
 
+        if type(scale) is list or type(scale) is tuple:
+            scale = np.asarray(scale)
+
+        if pbc is not None:
+            pbc = np.asarray(pbc)
+            repeat = np.rint(pbc/scale).astype(int)
+            kwargs['repeatx'], kwargs['repeaty'], kwargs['repeatz'] = repeat
+            if np.sum(np.remainder(pbc, scale)) > 0.01:
+                raise ValueError("Scale needs to be set such that length/scale=int")
+
         self.point = np.atleast_2d(point)
         normal = np.atleast_2d(normal)
         self.normal = normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
-        self.thickness_half = thickness / 2
+        self.thickness = thickness
         self.scale = scale
         self.f = f
+        self.threshold = threshold
+        self.angle = angle
         self.kwargs = kwargs
 
     def packmol_structure(self, number, side):
-        """ Make structure.
+        """Make structure to be used in PACKMOL input script
         """
         raise NotImplementedError(
             "ProceduralNoiseSurface is not supported by pack_water")
 
     def __call__(self, atoms):
         positions = atoms.get_positions()
-        # calculate distance from particles to plane defined by normal and center
-        distances = self.distance_point_plane(self.normal, self.point, positions)
+        # calculate distance from particles to the plane defined by
+        # the normal vector and the point
+        dist = self.distance_point_plane(self.normal, self.point, positions)
         # find the points on plane
-        point_plane = positions + np.einsum('ij,kl->jkl', distances, self.normal)
+        point_plane = positions + np.einsum('ij,kl->jkl', dist, self.normal)
         # a loop is actually faster than an all-numpy implementation
         # since pnoise3/snoise3 are written in C++
-        noises = np.empty(distances.shape)
+        noises = np.empty(dist.shape)
         for i in range(len(self.normal)):
             for j, point in enumerate(point_plane[i]):
-                noises[j] = self.noise(*(point/self.scale), **self.kwargs) + \
-                            self.f(*point)
-
-        dist = np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions, self.normal)
-        noises = noises.flatten() * self.thickness_half
-        indices = np.all(dist > noises, axis=0)
+                # transform from rectangular to parallelogram shape if triclinic
+                point[0] += point[1] * np.cos(np.deg2rad(self.angle))
+                noises[j] = self.f(*point)
+                noise_val = self.noise(*(point/self.scale), **self.kwargs)
+                if self.threshold is None:
+                    noises[j] += (noise_val + 1) / 2
+                else:
+                    noises[j] += noise_val > self.threshold
+        # find distance from particles to noisy surface
+        dist = np.einsum('ijk,ik->ij', self.point[:, np.newaxis] - positions,
+                         self.normal)
+        noises = noises.flatten() * self.thickness
+        indices = np.all(dist < noises, axis=0)
         return indices
 
 class NotchGeometry(Geometry):

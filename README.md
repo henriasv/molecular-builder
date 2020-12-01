@@ -19,7 +19,7 @@ pip install molecular-builder
 ## Usage
 Simple use case for creating a bulk alpha-quartz crystal. 
 ```python 
-from molecular_builder import create_bulk_crystal
+from molecular_builder import create_bulk_crystal, write
 atoms = create_bulk_crystal("alpha_quartz", [50,100,200])
 write(atoms, "alpha_quartz.data)
 ```
