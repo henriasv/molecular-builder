@@ -38,7 +38,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Cracks" href="../examples/cracks.html" /> 
+    <link rel="prev" title="Cracks" href="../examples/cracks/cracks.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -546,6 +546,21 @@ point ‘point’ in the plane. ax + by + cz - d = 0</p>
 </dd></dl>
 
 <dl class="py class">
+<dt id="molecular_builder.geometry.NotchGeometry">
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">NotchGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entry</span></em>, <em class="sig-param"><span class="n">vector_in</span></em>, <em class="sig-param"><span class="n">vector_up</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.NotchGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Carve out a notch geometry in a structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<em>array_like</em>) – The starting poing of the crack</p></li>
+<li><p><strong>vector_in</strong> (<em>array_like</em>) – The length of the crack</p></li>
+<li><p><strong>vector_up</strong> (<em>array_like</em>) – The thickness of the crack above and below the starting point</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
 <dt id="molecular_builder.geometry.PlaneBoundTriclinicGeometry">
 <em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">PlaneBoundTriclinicGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell</span></em>, <em class="sig-param"><span class="n">pbc</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.PlaneBoundTriclinicGeometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Triclinic crystal geometry based on ase.Atom cell</p>
@@ -649,7 +664,7 @@ in the poiting direction</p></li>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="../examples/cracks.html" class="btn btn-neutral float-left" title="Cracks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../examples/cracks/cracks.html" class="btn btn-neutral float-left" title="Cracks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
