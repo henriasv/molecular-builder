@@ -13,4 +13,4 @@ This section contains tutorials showing some usage examples for molecular-builde
     wedges_and_indenters/wedges_and_indenters
     sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water
     procedural_noise/procedural_noise
-    cracks 
+    cracks/cracks
