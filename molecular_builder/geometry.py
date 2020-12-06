@@ -1,6 +1,6 @@
 import numpy as np
 from ase import Atom
-from noise import snoise3, pnoise3
+from noise import snoise2, pnoise2
 
 
 class Geometry:
@@ -567,52 +567,50 @@ class ProceduralSurfaceGeometry(Geometry):
 
     :param point: an equilibrium point of noisy surface
     :type point: array_like
-    :param normal: normal vector of noisy surface, surface is carved out
-                   in the poiting direction
+    :param normal: normal vector of noisy surface, surface is carved out in the poiting direction
     :type normal: array_like
     :param thickness: thickness of noise area
     :type thickness: float
     :param scale: scale of noise structures
-    :type scale: float
+    :type scale: int
     :param method: noise method, either 'simplex' or 'perlin'
     :type method: str
-    :param f: arbitrary R^3 => R function to be added to the noise
+    :param f: arbitrary R^2 => R function to be added to the noise
     :type f: func
     :param threshold: define a threshold to define two-level surface by noise
     :type threshold: float
-    :param pbc: define at what lengths the noise should repeat
-    :type pbc: array_like
+    :param repeat: define at what lengths the noise should repeat, default is surface length (if repeat=True)
+    :type repeat: array_like or bool or float
     :param angle: angle of triclinic surface given in degrees
     :type angle: float
+    :param seed: seed used in procedural noise
+    :type seed: int
     """
 
-    def __init__(self, point, normal, thickness, scale=100, method='perlin',
-                 f=lambda x, y, z: 0, threshold=None, pbc=None, angle=90, **kwargs):
+    def __init__(self, point, normal, thickness, scale=1, method='perlin',
+                 f=lambda x, y: 0, threshold=None, repeat=False, angle=90,
+                 seed=45617, **kwargs):
         assert len(point) == len(normal), \
             "Number of given points and normal vectors have to be equal"
+
         if method == "simplex":
-            self.noise = snoise3
+            self.noise = snoise2
         elif method == "perlin":
-            self.noise = pnoise3
-
-        if type(scale) is list or type(scale) is tuple:
-            scale = np.asarray(scale)
-
-        if pbc is not None:
-            pbc = np.asarray(pbc)
-            repeat = np.rint(pbc/scale).astype(int)
-            kwargs['repeatx'], kwargs['repeaty'], kwargs['repeatz'] = repeat
-            if np.sum(np.remainder(pbc, scale)) > 0.01:
-                raise ValueError("Scale needs to be set such that length/scale=int")
+            self.noise = pnoise2
 
         self.point = np.atleast_2d(point)
         normal = np.atleast_2d(normal)
         self.normal = normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
         self.thickness = thickness
-        self.scale = scale
+        self.scale = int(scale)
+        self.repeat = repeat
         self.f = f
         self.threshold = threshold
         self.angle = angle
+
+        if repeat:
+            kwargs['repeatx'], kwargs['repeaty'] = self.scale, self.scale
+        kwargs['base'] = seed
         self.kwargs = kwargs
 
     def packmol_structure(self, number, side):
@@ -628,15 +626,37 @@ class ProceduralSurfaceGeometry(Geometry):
         dist = self.distance_point_plane(self.normal, self.point, positions)
         # find the points on plane
         point_plane = positions + np.einsum('ij,kl->jkl', dist, self.normal)
+        # coordinate indices
+        ind = [0, 1, 2]
         # a loop is actually faster than an all-numpy implementation
         # since pnoise3/snoise3 are written in C++
         noises = np.empty(dist.shape)
-        for i in range(len(self.normal)):
+        for i, normal in enumerate(self.normal):
+            # choose indices to be used in coordinate transformation
+            k, l = np.delete(ind, np.argmax(normal))
+            # transform space coordinates onto structure surface
+            xs = point_plane[i, :, k]*(1-normal[k]**2)**(-1/2)
+            ys = point_plane[i, :, l]*(1-normal[l]**2)**(-1/2)
+            if isinstance(self.repeat, bool):
+                # find length of surface
+                lx = np.max(xs) - np.min(xs)
+                ly = np.max(ys) - np.min(ys)
+            elif hasattr(self.repeat, "__len__"):
+                # self.repeat is array-like
+                lx, ly = self.repeat
+            else:
+                # self.repeat is float
+                lx = ly = self.repeat
+            # scale coordinates with length of surface
+            xs_scale = self.scale * xs/lx
+            ys_scale = self.scale * ys/ly
+            # transform from orthorhombic cell to triclinic cell
+            xs_scale += ys_scale * np.cos(np.deg2rad(self.angle))
             for j, point in enumerate(point_plane[i]):
-                # transform from rectangular to parallelogram shape if triclinic
-                point[0] += point[1] * np.cos(np.deg2rad(self.angle))
-                noises[j] = self.f(*point)
-                noise_val = self.noise(*(point/self.scale), **self.kwargs)
+                # add function values to noise array
+                noises[j] = self.f(xs_scale[j], ys_scale[j])
+                # add noise value to noise array
+                noise_val = self.noise(xs_scale[j], ys_scale[j], **self.kwargs)
                 if self.threshold is None:
                     noises[j] += (noise_val + 1) / 2
                 else:
