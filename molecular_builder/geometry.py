@@ -122,10 +122,7 @@ class Geometry:
         are not given are expected to be 'None'.
         """
         # exactly two arguments have to be non-none
-        my_list = [center, length, lo_corner, hi_corner]
-        if sum(element is None for element in my_list) == 2:
-            pass
-        else:
+        if sum(x is None for x in [center, length, lo_corner, hi_corner]) != 2:
             raise ValueError("Exactly two arguments have to be given")
 
         # declare arrays to allow mathematical operations
@@ -400,7 +397,7 @@ class PlaneGeometry(Geometry):
     def __call__(self, atoms):
         positions = atoms.get_positions()
         dist = self.point[:, np.newaxis] - positions
-        indices = np.all(np.einsum('ijk,ik->ij', dist, self.normal) < 0, axis=0)
+        indices = np.all(np.einsum('ijk,ik->ij', dist, self.normal) > 0, axis=0)
         return indices
 
 
@@ -652,6 +649,52 @@ class ProceduralSurfaceGeometry(Geometry):
         indices = np.all(dist < noises, axis=0)
         return indices
 
+class OctahedronGeometry(PlaneGeometry):
+    """A rectangular octahedron geometry to be used for silicon carbide (SiC)
+    All sides are assumed to have a normal vector pointing where are components
+    have the same magnitude (ex. (1, 1, 1))
+
+    :param d: (shortest) length from octahedron center to sides
+    :type d: float
+    :param center: center of octahedron
+    :type center: array_like
+    """
+    def __init__(self, d, center=[0, 0, 0]):
+        # make list of normal vectors
+        bin_list = []
+        for i in range(8):
+            binary = format(i, '#05b')
+            bin_list.append(list(binary[2:]))
+        normals = np.asarray(bin_list, dtype=int)
+        normals[normals == 0] = -1
+        normals = normals / np.linalg.norm(normals, axis=1)[:, np.newaxis]
+
+        # find points in planes
+        points = d * normals + np.asarray(center)
+        super().__init__(points, normals)
+
+
+class DodecahedronGeometry(PlaneGeometry):
+    """A convex rectangular dodecahedron geometry to be used for silicon
+    carbide (SiC).
+
+    :param d: (shortest) length from dodecahedron center to sides
+    :type d: float
+    :param center: center of dodecahedron
+    :type center: array_like
+    """
+    def __init__(self, d, center=[0, 0, 0]):
+        # make list of normal vectors
+        lst = [[+1, +1, 0], [+1, 0, +1], [0, +1, +1], [+1, -1, 0],
+               [+1, 0, -1], [+0, 1, -1], [-1, +1, 0], [-1, 0, +1],
+               [0, -1, +1], [-1, -1, 0], [-1, 0, -1], [0, -1, -1]]
+        normals = np.asarray(lst, dtype=int)
+        normals = normals / np.linalg.norm(normals, axis=1)[:, np.newaxis]
+
+        # find points in planes
+        points = d * normals + np.asarray(center)
+        super().__init__(points, normals)
+
 class NotchGeometry(Geometry):
     """Carve out a notch geometry in a structure
 
@@ -693,3 +736,4 @@ class NotchGeometry(Geometry):
         indicies = np.logical_not(np.logical_and(np.logical_not(is_inside1), np.logical_or(is_inside2, is_inside3)))
 
         return indicies
+
