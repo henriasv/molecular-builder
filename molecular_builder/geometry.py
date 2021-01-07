@@ -181,6 +181,7 @@ class PlaneBoundTriclinicGeometry(Geometry):
     """
     def __init__(self, cell, pbc=0.0):
         self.planes = self.cell2planes(cell, pbc)
+        self.cell = cell
         self.ll_corner = [0, 0, 0]
         a = cell[0, :]
         b = cell[1, :]
@@ -712,23 +713,23 @@ class NotchGeometry(Geometry):
         self.vector_up = np.asarray(vector_up)
         self.tip = self.entry+self.vector_in
 
-        p1 = self.entry + self.vector_up 
+        p1 = self.entry + self.vector_up
         p2 = self.entry + self.vector_in
         p3 = p2 + np.cross(self.vector_in, self.vector_up)
         self.normal_upper = np.cross(p3-p1, p2-p1)
 
-        p1 = self.entry - self.vector_up 
+        p1 = self.entry - self.vector_up
         p2 = self.entry + self.vector_in
         p3 = p2 + np.cross(self.vector_in, -self.vector_up)
         self.normal_lower  = np.cross(p3-p1, p2-p1)
-    
+
     def __repr__(self):
         return 'crack'
-    
+
     def __call__(self, atoms):
         position = atoms.get_positions()
         dist = self.entry-position
-        is_inside1 = np.dot(dist, self.vector_in) > 0 
+        is_inside1 = np.dot(dist, self.vector_in) > 0
         dist = self.tip-position
         is_inside2 = np.dot(dist, self.normal_upper) < 0
         is_inside3 = np.dot(dist, self.normal_lower) < 0
@@ -736,4 +737,3 @@ class NotchGeometry(Geometry):
         indicies = np.logical_not(np.logical_and(np.logical_not(is_inside1), np.logical_or(is_inside2, is_inside3)))
 
         return indicies
-
