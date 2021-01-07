@@ -111,7 +111,7 @@ def fetch_system_from_url(url, type_mapping=None):
     :param name: name of system to be retrieved
     :type name: string
     :param type_mapping: List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
-    :type type_mapping: List of pair-like of integers. 
+    :type type_mapping: List of pair-like of integers.
 
 
     Returns
@@ -145,7 +145,7 @@ def fetch_prepared_system(name, type_mapping=None):
     :param name: name of system to be retrieved
     :type name: string
     :param type_mapping: List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
-    :type type_mapping: List of pair-like of integers. 
+    :type type_mapping: List of pair-like of integers.
 
 
     Returns
@@ -157,11 +157,11 @@ def fetch_prepared_system(name, type_mapping=None):
 
 def read_data(filename, type_mapping=None, style="atomic"):
     """Read a lammps data file into an ase atoms object.
-    
-    :param filename: path to the lammps data file 
-    :type filename: string 
+
+    :param filename: path to the lammps data file
+    :type filename: string
     :param type_mapping: List of pairs of numbers mapping the atom type in the file from the online repository to an atom number. For example silica from an online repository of lammps data files will have Si and O as type 1 and 2, whereas the correct atomic numbers are 14 and 8
-    :type type_mapping: List of pair-like of integers. 
+    :type type_mapping: List of pair-like of integers.
 
     :returns: ase.Atoms object with the system
     """
@@ -217,19 +217,17 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
         if type(pbc) is list or type(pbc) is tuple:
             pbc = np.array(pbc)
 
-        if atoms.cell.orthorhombic:
-            ll_corner = np.array([0,0,0])
-            ur_corner = atoms.cell.lengths()
-            box_center = (ur_corner + ll_corner) / 2
-            box_length = ur_corner - ll_corner
-            geometry = BoxGeometry(center=box_center, length=box_length - pbc)
+        cell = atoms.cell
+        if cell.orthorhombic:
+            box_length = cell.lengths()
+            geometry = BoxGeometry(center=box_length/2, length=box_length - pbc)
         else:
-            geometry = PlaneBoundTriclinicGeometry(atoms.cell, pbc=pbc)
+            geometry = PlaneBoundTriclinicGeometry(cell, pbc=pbc)
     else:
-        ll_corner = geometry.ll_corner
-        ur_corner = geometry.ur_corner
-        box_center = (ur_corner + ll_corner) / 2
-        box_length = ur_corner - ll_corner
+        if geometry.__class__.__name__ == "PlaneBoundTriclinicGeometry":
+            cell = geometry.cell
+        else:
+            cell = np.diag(geometry.ur_corner - geometry.ll_corner)
 
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -269,11 +267,11 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
 
     os.chdir(cwd)
     if atoms is None:
-        water.set_cell(np.diag(box_length))
+        water.set_cell(cell)
     else:
         # remove solid
         del water[:len(atoms)]
-        water.set_cell(np.diag(box_length))
+        water.set_cell(cell)
         atoms += water
 
     return water
