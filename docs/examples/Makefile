@@ -20,7 +20,7 @@ sodium_chlorate_hydrocarbon_blob_water: sodium_chlorate_hydrocarbon_blob_water/s
 sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.png: sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.py
 	cd sodium_chlorate_hydrocarbon_blob_water && python sodium_chlorate_hydrocarbon_blob_water.py && cd ..
 
-silicon_carbide: silicon_carbide_nanoparticles/box.png silicon_carbide_nanoparticles/cylinder.png silicon_carbide_nanoparticles/sphere.png
+silicon_carbide: silicon_carbide_nanoparticles/box.png silicon_carbide_nanoparticles/cylinder.png silicon_carbide_nanoparticles/sphere.png silicon_carbide_nanoparticles/dodecahedron.png silicon_carbide_nanoparticles/octahedron.png
 
 silicon_carbide_nanoparticles/box.png: silicon_carbide_nanoparticles/box.py
 	cd silicon_carbide_nanoparticles && python box.py && cd ..
@@ -31,7 +31,13 @@ silicon_carbide_nanoparticles/sphere.png: silicon_carbide_nanoparticles/sphere.p
 silicon_carbide_nanoparticles/cylinder.png: silicon_carbide_nanoparticles/cylinder.py
 	cd silicon_carbide_nanoparticles && python cylinder.py && cd ..
 
-procedural_noise: procedural_noise/block_with_procedural_surface.png procedural_noise/block.png
+silicon_carbide_nanoparticles/octahedron.png: silicon_carbide_nanoparticles/octahedron.py
+	cd silicon_carbide_nanoparticles && python box.py && cd ..
+
+silicon_carbide_nanoparticles/dodecahedron.png: silicon_carbide_nanoparticles/dodecahedron.py
+	cd silicon_carbide_nanoparticles && python box.py && cd ..
+
+procedural_noise: procedural_noise/block_with_procedural_surface.png procedural_noise/block.png 
 
 procedural_noise/block_with_procedural_surface.png procedural_noise/block.png: procedural_noise/proceduralsurface.py
 	cd procedural_noise && python proceduralsurface.py && cd ..
