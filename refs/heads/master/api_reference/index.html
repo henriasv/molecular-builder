@@ -638,22 +638,22 @@ form any 3d polygon, among other geometries</p>
 
 <dl class="py class">
 <dt id="molecular_builder.geometry.ProceduralSurfaceGeometry">
-<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">ProceduralSurfaceGeometry</code><span class="sig-paren">(</span><em class="sig-param">point</em>, <em class="sig-param">normal</em>, <em class="sig-param">thickness</em>, <em class="sig-param">scale=100</em>, <em class="sig-param">method='perlin'</em>, <em class="sig-param">f=&lt;function ProceduralSurfaceGeometry.&lt;lambda&gt;&gt;</em>, <em class="sig-param">threshold=None</em>, <em class="sig-param">pbc=None</em>, <em class="sig-param">angle=90</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.ProceduralSurfaceGeometry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">molecular_builder.geometry.</code><code class="sig-name descname">ProceduralSurfaceGeometry</code><span class="sig-paren">(</span><em class="sig-param">point</em>, <em class="sig-param">normal</em>, <em class="sig-param">thickness</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">method='perlin'</em>, <em class="sig-param">f=&lt;function ProceduralSurfaceGeometry.&lt;lambda&gt;&gt;</em>, <em class="sig-param">threshold=None</em>, <em class="sig-param">repeat=False</em>, <em class="sig-param">angle=90</em>, <em class="sig-param">seed=45617</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.ProceduralSurfaceGeometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates procedural noise on a surface defined by a point, a normal
 vector and a thickness.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>point</strong> (<em>array_like</em>) – an equilibrium point of noisy surface</p></li>
-<li><p><strong>normal</strong> (<em>array_like</em>) – normal vector of noisy surface, surface is carved out
-in the poiting direction</p></li>
+<li><p><strong>normal</strong> (<em>array_like</em>) – normal vector of noisy surface, surface is carved out in the poiting direction</p></li>
 <li><p><strong>thickness</strong> (<em>float</em>) – thickness of noise area</p></li>
-<li><p><strong>scale</strong> (<em>float</em>) – scale of noise structures</p></li>
+<li><p><strong>scale</strong> (<em>int</em>) – scale of noise structures</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – noise method, either ‘simplex’ or ‘perlin’</p></li>
-<li><p><strong>f</strong> (<em>func</em>) – arbitrary R^3 =&gt; R function to be added to the noise</p></li>
+<li><p><strong>f</strong> (<em>func</em>) – arbitrary R^2 =&gt; R function to be added to the noise</p></li>
 <li><p><strong>threshold</strong> (<em>float</em>) – define a threshold to define two-level surface by noise</p></li>
-<li><p><strong>pbc</strong> (<em>array_like</em>) – define at what lengths the noise should repeat</p></li>
+<li><p><strong>repeat</strong> (<em>array_like</em><em> or </em><em>bool</em><em> or </em><em>float</em>) – define at what lengths the noise should repeat, default is surface length (if repeat=True)</p></li>
 <li><p><strong>angle</strong> (<em>float</em>) – angle of triclinic surface given in degrees</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – seed used in procedural noise</p></li>
 </ul>
 </dd>
 </dl>
