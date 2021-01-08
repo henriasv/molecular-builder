@@ -32,10 +32,10 @@ silicon_carbide_nanoparticles/cylinder.png: silicon_carbide_nanoparticles/cylind
 	cd silicon_carbide_nanoparticles && python cylinder.py && cd ..
 
 silicon_carbide_nanoparticles/octahedron.png: silicon_carbide_nanoparticles/octahedron.py
-	cd silicon_carbide_nanoparticles && python box.py && cd ..
+	cd silicon_carbide_nanoparticles && python octahedron.py && cd ..
 
 silicon_carbide_nanoparticles/dodecahedron.png: silicon_carbide_nanoparticles/dodecahedron.py
-	cd silicon_carbide_nanoparticles && python box.py && cd ..
+	cd silicon_carbide_nanoparticles && python dodecahedron.py && cd ..
 
 procedural_noise: procedural_noise/block_with_procedural_surface.png procedural_noise/block.png 
 
