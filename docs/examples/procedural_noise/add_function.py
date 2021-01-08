@@ -1,21 +1,20 @@
-from math import exp
-from molecular_builder import create_bulk_crystal, carve_geometry, write
+from ase.io import read
+from molecular_builder import carve_geometry, write
 from molecular_builder.geometry import ProceduralSurfaceGeometry
 
-# Create bulk of beta-cristobalite
-atoms = create_bulk_crystal("beta_cristobalite", [200, 200, 50])
-write(atoms, "block.png")
+atoms = read("block.data", format="lammps-data", style="molecular")
 
 
 # Define function to add
 def f(x, y):
-    val = exp(-((x-100)**2 + (y-100)**2)/1000)
-    print(x, y, val)
-    return val
+    if x < 100:
+        return - x/100
+    else:
+        return -1 + (x-100)/100
 
 
 # Carve out geometry from beta-cristobalite
-geometry = ProceduralSurfaceGeometry(point=(100, 100, 30),
+geometry = ProceduralSurfaceGeometry(point=(100, 100, 40),
                                      normal=(0, 0, 1),
                                      thickness=20,
                                      method='simplex',
@@ -29,4 +28,4 @@ geometry = ProceduralSurfaceGeometry(point=(100, 100, 30),
 num_carved = carve_geometry(atoms, geometry, side="in")
 
 write(atoms, "add_function.data")
-write(atoms, "add_function.png", camera_dir=[0, 0, -1])
+write(atoms, "add_function.png", camera_dir=[0, 1, -1])

@@ -93,3 +93,21 @@ The result is
 .. figure:: screwed.png
 
     Surface with periodic, screwed two-level structures. Scale is 3, octaves is 2.
+
+Add function
+------------
+A function can be added to the noise. Here, we add a fucntion that is lineary increasing when x<100 and a lineary decreasing when x>100:
+
+.. literalinclude:: add_function.py
+    :lines: 9-13
+
+Then, we set `f=f`:
+
+.. literalinclude:: add_function.py
+    :lines: 17-28
+
+The result is
+
+.. figure:: add_function.png
+
+    Surface with periodic two-level structures and an added function. Scale is 3, octaves is 2.

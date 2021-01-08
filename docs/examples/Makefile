@@ -1,5 +1,5 @@
 # Første linje
-examples: cracks procedural_noise sodium_chlorate_hydrocarbon_blob_water brucite_in_water alpha_quartz_cylinder_hole/alpha_quartz_cylinder_hole.png alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.png wedges_and_indenters/indenter_over_silica.png silicon_carbide 
+examples: cracks procedural_noise sodium_chlorate_hydrocarbon_blob_water brucite_in_water alpha_quartz_cylinder_hole/alpha_quartz_cylinder_hole.png alpha_quartz_cylinder_hole_water/alpha_quartz_cylinder_hole_water.png wedges_and_indenters/indenter_over_silica.png silicon_carbide
 
 brucite_in_water: brucite_in_water/brucite_in_water_orthogonal.png brucite_in_water/brucite_in_water_perspective.png
 
@@ -37,10 +37,29 @@ silicon_carbide_nanoparticles/octahedron.png: silicon_carbide_nanoparticles/octa
 silicon_carbide_nanoparticles/dodecahedron.png: silicon_carbide_nanoparticles/dodecahedron.py
 	cd silicon_carbide_nanoparticles && python dodecahedron.py && cd ..
 
-procedural_noise: procedural_noise/block_with_procedural_surface.png procedural_noise/block.png 
+procedural_noise/block.png: procedural_noise/generate.py
+	cd procedural_noise && python generate.py && cd ..
 
-procedural_noise/block_with_procedural_surface.png procedural_noise/block.png: procedural_noise/proceduralsurface.py
-	cd procedural_noise && python proceduralsurface.py && cd ..
+procedural_noise/basic.png: procedural_noise/basic.py
+	cd procedural_noise && python basic.py && cd ..
+
+procedural_noise/parameters.png: procedural_noise/parameters.py
+	cd procedural_noise && python parameters.py && cd ..
+
+procedural_noise/two_level.png: procedural_noise/two_level.py
+	cd procedural_noise && python two_level.py && cd ..
+
+procedural_noise/periodic.png: procedural_noise/periodic.py
+	cd procedural_noise && python periodic.py && cd ..
+
+procedural_noise/periodic2.png: procedural_noise/periodic2.py
+	cd procedural_noise && python periodic2.py && cd ..
+
+procedural_noise/screwed.png: procedural_noise/screwed.py
+	cd procedural_noise && python screwed.py && cd ..
+
+procedural_noise/add_function.png: procedural_noise/add_function.py
+	cd procedural_noise && python add_function.py && cd ..
 
 cracks: cracks/alpha_quartz_with_crack.png
 
@@ -48,4 +67,3 @@ cracks/alpha_quartz_with_crack.png: cracks/crack_in_quartz.py
 	cd cracks && python crack_in_quartz.py && cd ..
 
 all: examples
-
