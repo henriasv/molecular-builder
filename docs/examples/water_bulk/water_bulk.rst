@@ -12,6 +12,7 @@ First, a geometry where the water should be packed has to be defined. Most of th
 - `EllipsoidGeometry`
 - `OctahedronGeometry`
 - `DodecahedronGeometry`
+- `TriclinicCellGeometry`
 
 Then, the geometry is sent into `pack_water` using the `geometry` argument. Below, an example where 2000 water molecules are packed into a box of dimensions (100Å, 50Å, 50Å) is given.
 

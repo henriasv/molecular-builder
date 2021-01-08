@@ -66,4 +66,7 @@ cracks: cracks/alpha_quartz_with_crack.png
 cracks/alpha_quartz_with_crack.png: cracks/crack_in_quartz.py
 	cd cracks && python crack_in_quartz.py && cd ..
 
+water_bulk/box.png: water_bulk/box.py
+	cd water_bulk && python box.py && cd ..
+
 all: examples
