@@ -15,7 +15,7 @@ geometry = ProceduralSurfaceGeometry(point=(100, 100, 40),
                                      threshold=0,
                                      repeat=True
                                      )
-num_carved = carve_geometry(atoms, geometry, side="in")
+num_carved = carve_geometry(atoms, geometry, side="out")
 
 write(atoms, "periodic.data")
 write(atoms, "periodic.png", camera_dir=[0, 0, -1])

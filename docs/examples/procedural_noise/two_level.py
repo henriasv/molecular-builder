@@ -14,7 +14,7 @@ geometry = ProceduralSurfaceGeometry(point=(100, 100, 40),
                                      seed=16591,
                                      threshold=0
                                      )
-num_carved = carve_geometry(atoms, geometry, side="in")
+num_carved = carve_geometry(atoms, geometry, side="out")
 
 write(atoms, "two_level.data")
 write(atoms, "two_level.png", camera_dir=[0, 0, -1])
