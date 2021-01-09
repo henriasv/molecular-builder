@@ -24,4 +24,4 @@ atoms = create_bulk_crystal("alpha_quartz", [50,100,200])
 write(atoms, "alpha_quartz.data)
 ```
 
-Please refer to the [documentation](https://henriasv.github.io/molecular-builder) for more usage examples. 
+Please refer to the [documentation](https://henriasv.github.io/molecular-builder/refs/heads/master/) for more usage examples. 
