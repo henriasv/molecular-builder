@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Generating procedural surfaces &mdash; molecular-builder  documentation</title>
+  <title>Generating surfaces with procedural noise &mdash; molecular-builder  documentation</title>
   
 
   
@@ -41,7 +41,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Cracks" href="../cracks/cracks.html" />
-    <link rel="prev" title="Soduim chlorate crystal lying on a hydrocarbon blob" href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html" /> 
+    <link rel="prev" title="Sodium chlorate crystal lying on a hydrocarbon blob" href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,10 +93,19 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../building_crystal_blocks.html">Building crystal blocks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../silicon_carbide_nanoparticles/silicon_carbide_nanoparticles.html">Silicon carbide nanoparticles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../water_bulk/water_bulk.html">Water bulk</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../brucite_in_water/brucite_in_water.html">Brucite block in water</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../wedges_and_indenters/wedges_and_indenters.html">Wedges and indenters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html">Soduim chlorate crystal lying on a hydrocarbon blob</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Generating procedural surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html">Sodium chlorate crystal lying on a hydrocarbon blob</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Generating surfaces with procedural noise</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-example">Basic example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#noise-parameters">Noise parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#two-level-surface">Two-level surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#periodic-structures">Periodic structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#screwed-noise">Screwed noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-function">Add function</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../cracks/cracks.html">Cracks</a></li>
 </ul>
 </li>
@@ -151,7 +160,7 @@
         
           <li><a href="../index.html">Examples</a> &raquo;</li>
         
-      <li>Generating procedural surfaces</li>
+      <li>Generating surfaces with procedural noise</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -170,58 +179,173 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="generating-procedural-surfaces">
-<h1>Generating procedural surfaces<a class="headerlink" href="#generating-procedural-surfaces" title="Permalink to this headline">¶</a></h1>
-<p>“_Perlin noise is a type of gradient noise developed by Ken Perlin in 1983 as a result of his frustration with the “machine-like” look of computer-generated imagery (CGI) at the time._” The main purpose was to generate realistic landscape for the Disney movie “Tron”. After that, Perlin noise has been ubiquitous in CGI. In 2001, Ken Perlin introduced a improved procedural noise, named simplex noise, based on a simplex grid instead of a square grid. Our implementation of the procedural surface geometry relies on the noise library in Python. There, all the expensive operations are written in C++, making the function extremely fast despite a double loop.</p>
+  <div class="section" id="generating-surfaces-with-procedural-noise">
+<h1>Generating surfaces with procedural noise<a class="headerlink" href="#generating-surfaces-with-procedural-noise" title="Permalink to this headline">¶</a></h1>
 <p>The <cite>ProceduralSurfaceGeometry</cite>-class is a child of the <cite>Geometry</cite> class, and carves out a procedural surface of a already existing object. We will here present a basic example where we carve out a procedural surface from a block of beta-cristobalite.</p>
-<p>First, we need to import the necessary stuff:</p>
+<p>First, we need to import necessary functionality:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">molecular_builder</span> <span class="kn">import</span> <span class="n">create_bulk_crystal</span><span class="p">,</span> <span class="n">carve_geometry</span><span class="p">,</span> <span class="n">write</span>
 <span class="kn">from</span> <span class="nn">molecular_builder.geometry</span> <span class="kn">import</span> <span class="n">ProceduralSurfaceGeometry</span>
 </pre></div>
 </div>
-<p>Second, a block of beta-cristobalite needs to be generated. We go with a block of dimensions (50Å, 200Å, 200Å).</p>
+<p>Second, a block of beta-cristobalite is generated. We go with a block of dimensions (50Å, 200Å, 200Å).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">atoms</span> <span class="o">=</span> <span class="n">create_bulk_crystal</span><span class="p">(</span><span class="s2">&quot;beta_cristobalite&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
 </pre></div>
 </div>
 <div class="figure align-default" id="id1">
-<img alt="../../_images/block.png" src="../../_images/block.png" />
+<img alt="examples/procedural_noise/block.png" src="examples/procedural_noise/block.png" />
 <p class="caption"><span class="caption-text">A block of <span class="math notranslate nohighlight">\(\beta\)</span>-cristobalite.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
-<p>Before we carve out the procedural surface, we will list the arguments to the <cite>ProceduralSurfaceGeometry</cite>-class with a short explanation. The class takes the arguments <cite>point</cite>, <cite>normal</cite>, <cite>thickness</cite>, <cite>scale</cite>, <cite>method</cite> and <cite>f</cite>, in addition to all arguments that can be passed to the <cite>pnoise3</cite> and <cite>snoise3</cite> functions of the <cite>noise</cite> library. <cite>point</cite> is an equilibrium point of the noise, <cite>normal</cite> is the normal vector of the plane defining all the equilibrium points, <cite>thickness</cite> is the thickness of the noise, <cite>scale</cite> is the scale of the noise, <cite>method</cite> is either ‘<cite>perlin</cite>’ or ‘<cite>simplex</cite>’ and <cite>f</cite> is an arbitrary 3d function that is added to the noise.</p>
-<p>The code below will carve out the desired surface:</p>
+<div class="section" id="basic-example">
+<h2>Basic example<a class="headerlink" href="#basic-example" title="Permalink to this headline">¶</a></h2>
+<p>To get a basic surface with structures generated by procedural noise, we need to define a point on the surface, its normal vector and the thickness of the noise:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
                                      <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                                      <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="n">seed</span><span class="o">=</span><span class="mi">97455</span>
                                      <span class="p">)</span>
 </pre></div>
 </div>
 <p>The result is</p>
 <div class="figure align-default" id="id2">
-<img alt="../../_images/block_with_procedural_surface.png" src="../../_images/block_with_procedural_surface.png" />
-<p class="caption"><span class="caption-text">Procedurally generated surface</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<img alt="examples/procedural_noise/basic.png" src="examples/procedural_noise/basic.png" />
+<p class="caption"><span class="caption-text">Surface with procedural structures generated using Perlin noise. Scale is 1, octaves is 1.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
-<p>If the result is not satisfying, there are several parameters that can be changed. <cite>octaves</cite> is the level of details and <cite>scale</cite> is the scale of the structures. You should also consider changing the seed. See <a class="reference external" href="https://pypi.org/project/noise/">the noise documentation</a>. for more options.</p>
-<p>Full code of this example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">molecular_builder</span> <span class="kn">import</span> <span class="n">create_bulk_crystal</span><span class="p">,</span> <span class="n">carve_geometry</span><span class="p">,</span> <span class="n">write</span>
-<span class="kn">from</span> <span class="nn">molecular_builder.geometry</span> <span class="kn">import</span> <span class="n">ProceduralSurfaceGeometry</span>
-
-<span class="c1"># Create bulk of beta-cristobalite</span>
-<span class="n">atoms</span> <span class="o">=</span> <span class="n">create_bulk_crystal</span><span class="p">(</span><span class="s2">&quot;beta_cristobalite&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
-<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;block.png&quot;</span><span class="p">)</span>
-
-<span class="c1"># Carve out geometry from beta-cristobalite</span>
-<span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+</div>
+<div class="section" id="noise-parameters">
+<h2>Noise parameters<a class="headerlink" href="#noise-parameters" title="Permalink to this headline">¶</a></h2>
+<p>There is a bunch of parameters associated with the procedural noise. The scale of the noise structures is given by the <cite>scale</cite>-parameters, and the number of octaves (levels of details) is given by <cite>octaves</cite>. To generate different surfaces with the same parameters, change <cite>seed</cite>. See &lt;<a class="reference external" href="https://pypi.org/project/noise/">https://pypi.org/project/noise/</a>&gt;`_. for more options.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
                                      <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                                      <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                                      <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="n">seed</span><span class="o">=</span><span class="mi">16591</span>
                                      <span class="p">)</span>
-<span class="n">num_carved</span><span class="p">,</span> <span class="n">carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="n">return_carved</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s2">&quot;block_with_procedural_surface.png&quot;</span><span class="p">)</span>
+<span class="n">num_carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
 </pre></div>
+</div>
+<p>The result is</p>
+<div class="figure align-default" id="id3">
+<img alt="examples/procedural_noise/parameters.png" src="examples/procedural_noise/parameters.png" />
+<p class="caption"><span class="caption-text">Surface with procedural structures generated using Simplex noise. Scale is 3, octaves is 2.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="two-level-surface">
+<h2>Two-level surface<a class="headerlink" href="#two-level-surface" title="Permalink to this headline">¶</a></h2>
+<p>Instead of having continuous surfaces, one may wants to set a threshold and create a two-level surface. As the expectation value of the noise is zero, setting <cite>threshold=0</cite> gives a surface where the surface area of the two levels is approximately the same.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+                                     <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                     <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="n">seed</span><span class="o">=</span><span class="mi">16591</span><span class="p">,</span>
+                                     <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span>
+                                     <span class="p">)</span>
+<span class="n">num_carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is</p>
+<div class="figure align-default" id="id4">
+<img alt="examples/procedural_noise/two_level.png" src="examples/procedural_noise/two_level.png" />
+<p class="caption"><span class="caption-text">Surface with two-level structures generated using Simplex noise. Scale is 3, octaves is 2.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="periodic-structures">
+<h2>Periodic structures<a class="headerlink" href="#periodic-structures" title="Permalink to this headline">¶</a></h2>
+<p>Often it is convenient to have periodic structures. By setting <cite>repeat=True</cite>, the structures are repeated once in each direction:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+                                     <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                     <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="n">seed</span><span class="o">=</span><span class="mi">16591</span><span class="p">,</span>
+                                     <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                     <span class="n">repeat</span><span class="o">=</span><span class="kc">True</span>
+                                     <span class="p">)</span>
+<span class="n">num_carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is</p>
+<div class="figure align-default" id="id5">
+<img alt="examples/procedural_noise/periodic.png" src="examples/procedural_noise/periodic.png" />
+<p class="caption"><span class="caption-text">Surface with periodic two-level structures. Scale is 3, octaves is 2.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+<p>One can also set how often the structures should repeat. By setting <cite>repeat=(100, 200)</cite>, the structures are repeated twice in x-direction and once in y-direction:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+                                     <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                     <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="n">seed</span><span class="o">=</span><span class="mi">16591</span><span class="p">,</span>
+                                     <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                     <span class="n">repeat</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+                                     <span class="p">)</span>
+<span class="n">num_carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is</p>
+<div class="figure align-default" id="id6">
+<img alt="examples/procedural_noise/periodic2.png" src="examples/procedural_noise/periodic2.png" />
+<p class="caption"><span class="caption-text">Surface with periodic two-level structures. Scale is 3, octaves is 2.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="screwed-noise">
+<h2>Screwed noise<a class="headerlink" href="#screwed-noise" title="Permalink to this headline">¶</a></h2>
+<p>Another possibility is to make the noise screwed. This is done by setting the relative angle between the x-axis and the noise axis, which by default in 90 degrees. This can be useful when dealing with triclinic systems:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+                                     <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                     <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="n">seed</span><span class="o">=</span><span class="mi">16591</span><span class="p">,</span>
+                                     <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                     <span class="n">repeat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">angle</span><span class="o">=</span><span class="mi">45</span>
+                                     <span class="p">)</span>
+<span class="n">num_carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is</p>
+<div class="figure align-default" id="id7">
+<img alt="examples/procedural_noise/screwed.png" src="examples/procedural_noise/screwed.png" />
+<p class="caption"><span class="caption-text">Surface with periodic, screwed two-level structures. Scale is 3, octaves is 2.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="add-function">
+<h2>Add function<a class="headerlink" href="#add-function" title="Permalink to this headline">¶</a></h2>
+<p>A function can be added to the noise. Here, we add a fucntion that is lineary increasing when x&lt;100 and a lineary decreasing when x&gt;100:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">/</span><span class="mi">100</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">100</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
+</pre></div>
+</div>
+<p>Then, we set <cite>f=f</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span> <span class="o">=</span> <span class="n">ProceduralSurfaceGeometry</span><span class="p">(</span><span class="n">point</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+                                     <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                     <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span>
+                                     <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">octaves</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="n">seed</span><span class="o">=</span><span class="mi">16591</span><span class="p">,</span>
+                                     <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                     <span class="n">repeat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">f</span><span class="o">=</span><span class="n">f</span>
+                                     <span class="p">)</span>
+<span class="n">num_carved</span> <span class="o">=</span> <span class="n">carve_geometry</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is</p>
+<div class="figure align-default" id="id8">
+<img alt="examples/procedural_noise/add_function.png" src="examples/procedural_noise/add_function.png" />
+<p class="caption"><span class="caption-text">Surface with periodic two-level structures and an added function. Scale is 3, octaves is 2.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
 </div>
 </div>
 
@@ -232,7 +356,7 @@
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="../cracks/cracks.html" class="btn btn-neutral float-right" title="Cracks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html" class="btn btn-neutral float-left" title="Soduim chlorate crystal lying on a hydrocarbon blob" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../sodium_chlorate_hydrocarbon_blob_water/sodium_chlorate_hydrocarbon_blob_water.html" class="btn btn-neutral float-left" title="Sodium chlorate crystal lying on a hydrocarbon blob" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
