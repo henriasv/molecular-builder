@@ -656,7 +656,7 @@ class ProceduralSurfaceGeometry(Geometry):
             xs_scale += ys_scale * np.cos(np.deg2rad(self.angle))
             for j, point in enumerate(point_plane[i]):
                 # add function values to noise array
-                noises[j] = self.f(xs_scale[j], ys_scale[j])
+                noises[j] = - self.f(xs[j], ys[j])
                 # add noise value to noise array
                 noise_val = self.noise(xs_scale[j], ys_scale[j], **self.kwargs)
                 if self.threshold is None:
@@ -668,7 +668,7 @@ class ProceduralSurfaceGeometry(Geometry):
                          self.normal)
         noises = noises.flatten() * self.thickness
         indices = np.all(dist < noises, axis=0)
-        return indices
+        return ~indices
 
 class OctahedronGeometry(PlaneGeometry):
     """A rectangular octahedron geometry to be used for silicon carbide (SiC)
