@@ -757,3 +757,128 @@ class NotchGeometry(Geometry):
         indicies = np.logical_not(np.logical_and(np.logical_not(is_inside1), np.logical_or(is_inside2, is_inside3)))
 
         return indicies
+
+
+class Matrix2DGeometry(Geometry):
+    """Carve out holes defined by a two-dimensional matrix. This can be useful
+    for instance when carving out a surface structure, but can also be used to
+    carve out holes inside a structure.
+
+    :param matrix: matrix defining which atoms to remove. Might be binary
+    :type matrix: ndarray
+    :param point: point in region
+    :type point: array_like
+    :param dir: direction of matrix normal vector. In the future this should be superseeded by giving the normal vector, but this requires support for angle.
+    :type dir: str
+    :param extentx: extent in x-direction. Spanning the entire structure by default
+    :type extentx: tuple, None
+    :param extenty: extent in y-direction. Spanning the entire structure by default
+    :type extenty: tuple, None
+    :param thickness: thickness of region that is carved out
+    :type thickness: float
+    :param dtype: matrix type
+    :type dtype: type
+    """
+    def __init__(self, matrix, point, dir="x", extentx=None, extenty=None,
+                 thickness=1, dtype=float):
+        assert len(matrix.shape) == 2, "Expected a matrix of exactly 2 dimensions"
+        self.matrix = np.asarray(matrix, dtype)
+        self.extentx, self.extenty = extentx, extenty
+        self.point = point
+        self.thickness = thickness
+        if dir == "x":
+            normal = [1, 0, 0]
+        elif dir == "y":
+            normal = [0, 1, 0]
+        elif dir == "z":
+            normal = [0, 0, 1]
+        self.normal = np.asarray(normal)
+
+    def __repr__(self):
+        return 'matrix-2d'
+
+    def __call__(self, atoms):
+        position = atoms.get_positions()
+        (k, l) = np.delete(range(3), np.argmax(self.normal))
+        if self.extentx is None:
+            maxx = np.max(position[:, k])
+            minx = np.min(position[:, k])
+            self.extentx = (maxx, minx)
+        if self.extenty is None:
+            maxy = np.max(position[:, l])
+            miny = np.min(position[:, l])
+            self.extenty = (maxy, miny)
+        # calculate distance from particles to the plane defined by
+        # the normal vector and the point
+        dist = self.distance_point_plane(self.normal, self.point, position)
+        # find the closest points on plane
+        point_plane = position + np.einsum('ij,k->jk', dist, self.normal)
+        # transform space coordinates onto structure surface
+        xs = point_plane[:, k]*(1-self.normal[k]**2)**(-1/2)
+        ys = point_plane[:, l]*(1-self.normal[l]**2)**(-1/2)
+        # find length of system, adding small tolerance to avoid index o.o.b.
+        tol = 1e-8
+        lenx = self.extentx[0] - self.extentx[1] + tol
+        leny = self.extenty[0] - self.extenty[1] + tol
+        # system length per matrix index
+        nlenx = lenx / self.matrix.shape[0]
+        nleny = leny / self.matrix.shape[1]
+        # link particles to matrix indices
+        indexx = np.int_(xs // nlenx)
+        indexy = np.int_(ys // nleny)
+        # evaluate matrix for all particles
+        values = self.matrix[np.ix_(indexx, indexy)]
+        # detect particles that should be removed
+        indices = np.all(dist < self.thickness * values, axis=0)
+        return indices
+
+
+
+
+class Matrix3DGeometry(Geometry):
+    """Carve out holes defined by a three-dimensional matrix. This can be useful
+    for instance when carving out a surface structure, but can also be used to
+    carve out holes inside a structure.
+
+    :param matrix: binary matrix defining which atoms to remove
+    :type matrix: ndarray
+    :param extentx: extent in x-direction. Spanning the entire structure by default
+    :type extentx: tuple, None
+    :param extenty: extent in y-direction. Spanning the entire structure by default
+    :type extenty: tuple, None
+    :param extentz: extent in z-direction. Spanning the entire structure by default
+    :type extentz: tuple, None
+    """
+    def __init__(self, matrix, extentx=None, extenty=None, extentz=None):
+        assert len(matrix.shape) == 3, "Expected a matrix of exactly 3 dimensions"
+        self.matrix = np.asarray(matrix, dtype=bool)
+        self.extentx, self.extenty, self.extentz = extentx, extenty, extentz
+
+    def __repr__(self):
+        return 'matrix-3d'
+
+    def __call__(self, atoms):
+        position = atoms.get_positions()
+        if self.extentx is None:
+            maxx = np.max(position[:, 0])
+            minx = np.min(position[:, 0])
+            self.extentx = (maxx, minx)
+        if self.extenty is None:
+            maxy = np.max(position[:, 1])
+            miny = np.min(position[:, 1])
+            self.extenty = (maxy, miny)
+        if self.extentz is None:
+            maxz = np.max(position[:, 2])
+            minz = np.min(position[:, 2])
+            self.extentz = (maxz, minz)
+
+
+if __name__ == "__main__":
+    from molecular_builder import create_bulk_crystal, carve_geometry
+
+    atoms = create_bulk_crystal("silicon_carbide_3c", (100, 100, 50))
+
+    matrix = np.asarray([[1, 0], [0, 1]], dtype=bool)
+    geometry = Matrix2DGeometry(matrix, point=95, thickness=10)
+
+    carve_geometry(atoms, geometry)
