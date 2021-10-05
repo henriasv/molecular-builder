@@ -310,7 +310,7 @@ def write(atoms, filename, bond_specs=None, atom_style="molecular", size=(640, 4
 
         pipeline = import_file(os.path.join(tmp_dir, "tmp.data"))
 
-        types = pipeline.source.data.particles.particle_types
+        types = pipeline.source.data.particles_.particle_types
         for symbol, i in symbols_dict.items():
             types.type_by_id(i).name = symbol
             types.type_by_id(i).load_defaults()
