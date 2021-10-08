@@ -858,4 +858,6 @@ class ProceduralSurfaceGridGeometry(Geometry):
         # Assign particles to grid cells
         noises = self.noise_grid[x_i, y_i]
 
-        return noises.flatten()
+        indices = np.logical_not(noises.flatten())
+
+        return indices
