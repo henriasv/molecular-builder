@@ -578,6 +578,40 @@ vector and a thickness.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="molecular_builder.geometry.ProceduralSurfaceGridGeometry">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">molecular_builder.geometry.</span></span><span class="sig-name descname"><span class="pre">ProceduralSurfaceGridGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(50,</span> <span class="pre">100)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.ProceduralSurfaceGridGeometry" title="Permalink to this definition"></a></dt>
+<dd><p>Creates tileable procedural noise on a surface defined by a grid and a
+normal vector. Noise is applied throughout the direction of the normal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normal</strong> (<em>array_like</em>) – normal vector of noisy surface, surface is carved out
+in the poiting direction</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – scale of noise structures</p></li>
+<li><p><strong>grid</strong> (<em>array_like</em>) – Number of grid cells in each direction perpendicular to the
+normal vector.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Threshold for Simplex values to create a two-level
+surface.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Seed for procedural noise.</p></li>
+<li><p><strong>period</strong> (<em>int</em>) – Period for randomization of Simplex permutation matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ndarray of bools stating which atoms to remove.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="molecular_builder.geometry.ProceduralSurfaceGridGeometry.packmol_structure">
+<span class="sig-name descname"><span class="pre">packmol_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.ProceduralSurfaceGridGeometry.packmol_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Make structure to be used in PACKMOL input script</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="molecular_builder.geometry.SphereGeometry">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">molecular_builder.geometry.</span></span><span class="sig-name descname"><span class="pre">SphereGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#molecular_builder.geometry.SphereGeometry" title="Permalink to this definition"></a></dt>
 <dd><p>Spherical geometry.</p>
