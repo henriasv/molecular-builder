@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="molecular_builder",
-    version="0.3.0",
+    version="0.3.1",
     author="Henrik Andersen Sveinsson",
     author_email="henriasv@fys.uio.no",
     description="Package for building molecular systems",
