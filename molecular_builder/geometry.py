@@ -1,6 +1,8 @@
 import numpy as np
 from ase import Atom
 from noise import snoise2, pnoise2
+from noise_randomized import snoise2 as snoise2r, randomize
+import warnings
 
 
 class Geometry:
@@ -844,55 +846,104 @@ class MatrixGeometry(Geometry):
         indices = dist.flat < self.thickness * np.array(values)
         return indices
 
+      
+class ProceduralSurfaceGridGeometry(Geometry):
+    """Creates tileable procedural noise on a surface defined by a grid and a
+    normal vector. Noise is applied throughout the direction of the normal.
 
-
-
-class Matrix3DGeometry(Geometry):
-    """Carve out holes defined by a three-dimensional matrix. This can be useful
-    for instance when carving out a surface structure, but can also be used to
-    carve out holes inside a structure.
-
-    :param matrix: binary matrix defining which atoms to remove
-    :type matrix: ndarray
-    :param extentx: extent in x-direction. Spanning the entire structure by default
-    :type extentx: tuple, None
-    :param extenty: extent in y-direction. Spanning the entire structure by default
-    :type extenty: tuple, None
-    :param extentz: extent in z-direction. Spanning the entire structure by default
-    :type extentz: tuple, None
+    :param normal: normal vector of noisy surface, surface is carved out
+                   in the poiting direction
+    :type normal: array_like
+    :param scale: scale of noise structures
+    :type scale: float
+    :param grid: Number of grid cells in each direction perpendicular to the
+                 normal vector.
+    :type grid: array_like
+    :param threshold: Threshold for Simplex values to create a two-level
+                      surface.
+    :type threshold: float
+    :param seed: Seed for procedural noise.
+    :type seed: int
+    :param period: Period for randomization of Simplex permutation matrix.
+    :type period: int
+    :returns: ndarray of bools stating which atoms to remove.
+    :rtype: ndarray
     """
-    def __init__(self, matrix, extentx=None, extenty=None, extentz=None):
-        assert len(matrix.shape) == 3, "Expected a matrix of exactly 3 dimensions"
-        self.matrix = np.asarray(matrix, dtype=bool)
-        self.extentx, self.extenty, self.extentz = extentx, extenty, extentz
 
-    def __repr__(self):
-        return 'matrix-3d'
+    def __init__(self, normal, scale=10, threshold=0, seed=1,
+                 grid=(50, 100), period=4096, **kwargs):
+        assert len(grid) == 2, \
+            "Method only supports two-dimensional grid structure"
+        assert (np.asarray(normal) == 0).sum() == 2, \
+            "Implementation of grid only supports surface normal in one dimension"
+        assert len(np.asarray(normal).shape) == 1, \
+            "Only single surface normal is supported"
+        if seed == 0:
+            warnings.warn(
+                "Seed 0 and 1 produces the same noise")
+
+        # Randomize permutation matrix for Simplex noise
+        randomize(seed=seed, period=period)
+
+        normal = np.atleast_2d(normal)
+        self.normal = normal / np.linalg.norm(normal, axis=1)
+        self.noise = snoise2r
+        self.scale = scale
+        self.threshold = threshold
+        self.n1, self.n2 = grid
+        self.kwargs = kwargs
+
+        # Noise grid can be used to create images by accessing
+        # geometry.noise_grid after carving
+        self.noise_grid = np.zeros((self.n1, self.n2), dtype=int)
+
+    def packmol_structure(self, number, side):
+        """Make structure to be used in PACKMOL input script
+        """
+        raise NotImplementedError(
+            "ProceduralSurfaceGridGeometry is not supported by pack_water")
 
     def __call__(self, atoms):
-        position = atoms.get_positions()
-        if self.extentx is None:
-            minx = np.min(position[:, 0])
-            maxx = np.max(position[:, 0])
-            self.extentx = (minx, maxx)
-        if self.extenty is None:
-            miny = np.min(position[:, 1])
-            maxy = np.max(position[:, 1])
-            self.extenty = (miny, maxy)
-        if self.extentz is None:
-            minz = np.min(position[:, 2])
-            maxz = np.max(position[:, 2])
-            self.extentz = (minz, maxz)
+        positions = atoms.get_positions()
+        lens = atoms.cell.cellpar()[:3]
 
+        ind = [0, 1, 2]
+        k, l = np.delete(ind, np.argmax(self.normal))
 
-if __name__ == "__main__":
-    from molecular_builder import create_bulk_crystal, carve_geometry
+        lx, ly = lens[k], lens[l]
 
-    atoms = create_bulk_crystal("silicon_carbide_3c", (50, 50, 5))
+        # Create grid lengths
+        gridx = np.linspace(0, lx, self.n1)
+        gridy = np.linspace(0, ly, self.n2)
 
-    matrix = np.asarray([[1, 0, 0, 1], [0, 1, 1, 0], [1, 0, 0, 1]], dtype=bool)
-    matrix = np.ones((1000, 1000))
-    geometry = MatrixGeometry(matrix, point=5, thickness=4.05, extentx=(10, 40))
+        self.kwargs['repeatx'] = lx / self.scale
+        self.kwargs['repeaty'] = ly / self.scale
 
-    carve_geometry(atoms, geometry)
-    atoms.write("atoms.data", format="lammps-data")
+        # Nested double for loop to create noise values for all points on the
+        # grid
+        noise_vals = np.array([
+            self.noise(x / self.scale, y / self.scale, **self.kwargs)
+            for x in gridx for y in gridy
+        ]).reshape(self.n1, self.n2)
+
+        # Set values to two-step by threshold
+        self.noise_grid += noise_vals > self.threshold
+
+        x = positions[:, k]
+        y = positions[:, l]
+
+        # (1 / grid cell lengths) for faster computations for x_i and y_i below
+        gcell_lenx_inv = self.n1 / lx
+        gcell_leny_inv = self.n2 / ly
+
+        # Mapping positions to grid. Pairs x_i and y_i gives position of
+        # particle on grid
+        x_i = (positions[:, k] * gcell_lenx_inv).astype(int)
+        y_i = (positions[:, l] * gcell_leny_inv).astype(int)
+
+        # Assign particles to grid cells
+        noises = self.noise_grid[x_i, y_i]
+
+        indices = np.logical_not(noises.flatten())
+
+        return indices
