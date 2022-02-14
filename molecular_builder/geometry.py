@@ -762,9 +762,10 @@ class NotchGeometry(Geometry):
 
 
 class MatrixGeometry(Geometry):
-    """Carve out holes defined by a two-dimensional matrix. This can be useful
-    for instance when carving out a surface structure, but can also be used to
-    carve out holes inside a structure.
+    """Geometry defined by a two-dimensional matrix. This can be useful
+    when carving out a surface structure, but can also be used to carve out
+    holes inside a structure. The matrix values define the depth to be 
+    carved in length units, but can be scaled with the thickness-argument.
 
     :param matrix: matrix defining which atoms to remove. Might be binary
     :type matrix: ndarray
