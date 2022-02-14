@@ -781,12 +781,12 @@ class MatrixGeometry(Geometry):
     :param dtype: matrix type
     :type dtype: type
     """
-    def __init__(self, matrix, point, dir="z", extentx=None, extenty=None,
+    def __init__(self, matrix, height, dir="z", extentx=None, extenty=None,
                  thickness=1., dtype=float):
         assert len(matrix.shape) == 2, "Expected a matrix of exactly 2 dimensions"
         self.matrix = np.asarray(matrix, dtype)
         self.extentx, self.extenty = extentx, extenty
-        self.point = point
+        self.height = height
         self.thickness = thickness
         if dir == "x":
             normal = [1, 0, 0]
@@ -831,7 +831,7 @@ class MatrixGeometry(Geometry):
         matrix_pad[ixxmin:ixxmin+self.matrix.shape[0], ixymin:ixymin+self.matrix.shape[1]] = self.matrix
         # calculate distance from particles to the plane defined by
         # the normal vector and the point
-        dist = self.distance_point_plane(self.normal, self.point, position)
+        dist = self.distance_point_plane(self.normal, self.height, position)
         # find the closest points on plane, 'dir'-direction might be wrong, but not important
         point_plane = position + np.einsum('ij,k->ik', dist, self.normal)
         # transform space coordinates onto structure surface
