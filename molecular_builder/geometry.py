@@ -785,6 +785,7 @@ class MatrixGeometry(Geometry):
                  thickness=1., dtype=float):
         assert len(matrix.shape) == 2, "Expected a matrix of exactly 2 dimensions"
         self.matrix = np.asarray(matrix, dtype)
+        self.matrix = np.rot90(self.matrix, 1) # rotate 90 to make x axis=0
         self.extentx, self.extenty = extentx, extenty
         self.height = height
         self.thickness = thickness
