@@ -827,7 +827,6 @@ class MatrixGeometry(Geometry):
         nidxy = np.int_(ly//dy) + 1
         # create potentially padded matrix
         matrix_pad = np.zeros((nidxx, nidxy))
-        print(matrix_pad.shape)
         matrix_pad[ixxmin:ixxmin+self.matrix.shape[0], ixymin:ixymin+self.matrix.shape[1]] = self.matrix
         # calculate distance from particles to the plane defined by
         # the normal vector and the point
