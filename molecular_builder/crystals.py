@@ -112,6 +112,30 @@ crystals = {
         "elements" : ["Si", "C"],
         "positions" : [(0.25, 0.25, 0.25), (0.,0.,0.)]
     },
+    "silicon_carbide_3c_110" : 
+    {
+        "a" : 6.1654,
+        "b" : 6.1654,
+        "c" : 4.3596,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 90,
+        "spacegroup" : 216,
+        "elements" : ["Si", "C"],
+        "positions" : [(0.00, 0.25, 0.25), (0.00, 0.00, 0.00)]
+    },
+    "silicon_carbide_3c_111" : 
+    {
+        "a" : 6.1654,
+        "b" : 6.1654,
+        "c" : 4.3596,
+        "alpha" : 90,
+        "beta" : 90,
+        "gamma" : 90,
+        "spacegroup" : 216,
+        "elements" : ["Si", "C"],
+        "positions" : [(0.25, 0.00, 0.25), (0.00, 0.00, 0.00)]
+    },
     "calcite" :
     {
         "a" : 4.9900,
