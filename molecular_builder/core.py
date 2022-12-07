@@ -277,7 +277,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
     return water
 
 
-def write(atoms, filename, bond_specs=None, atom_style="molecular", size=(640, 480), camera_dir=(2, 1, -1), viewport_type="perspective", atom_radii=None):
+def write(atoms, filename, bond_specs=None, atom_style="molecular", size=(640, 480), camera_dir=(2, 1, -1), viewport_type="perspective", atom_radii=None, specorder=None):
     """Write atoms to lammps data file
 
     :param atoms: The atoms object to write to file
@@ -299,10 +299,16 @@ def write(atoms, filename, bond_specs=None, atom_style="molecular", size=(640, 4
     # Using tempfile and write + read rather than ovito's ase_to_ovito and back because the
     # ordering of particle types for some (bug) reason becomes unpredictable
     with tempfile.TemporaryDirectory() as tmp_dir:
-        symbols = list(Formula(atoms.get_chemical_formula()).count().keys())
-        symbols_dict = {}
-        for i, symbol in enumerate(symbols):
-            symbols_dict[symbol] = i+1
+        if specorder is None: 
+            symbols = list(Formula(atoms.get_chemical_formula()).count().keys())
+            symbols_dict = {}
+            for i, symbol in enumerate(symbols):
+                symbols_dict[symbol] = i+1
+        else: 
+            symbols = specorder
+            symbols_dict = {}
+            for i, symbol in enumerate(symbols):
+                symbols_dict[symbol] = i+1
         atoms.write(os.path.join(tmp_dir, "tmp.data"), format="lammps-data", specorder = symbols)
 
         from ovito.io import import_file, export_file
