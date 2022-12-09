@@ -20,6 +20,6 @@ setuptools.setup(
     ],
     install_requires=["ase", "requests", "requests-cache", "clint", "werkzeug",
                       "cython", "recommonmark", "ovito", "noise",
-                      "noise_randomized @ git+https://git@github.com/chdre/noise-randomized@master#egg=noise_randomized"],
+                      "noise_randomized"],
     python_requires='>=3.7',
 )

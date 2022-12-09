@@ -780,18 +780,26 @@ class ProceduralSurfaceGridGeometry(Geometry):
     :type seed: int
     :param period: Period for randomization of Simplex permutation matrix.
     :type period: int
+    :param roll: Number of pixels to roll the noise grid along axes 0 and 1.
+                 Defaults to 0. Used to offset the Simplex noise coordinates.
+    :type roll: int or tuple of ints
+    :param roll_dims: Dimension to apply rolling. Defaults to 0.
+    :type roll_dims: int or tuple of ints
     :returns: ndarray of bools stating which atoms to remove.
     :rtype: ndarray
     """
 
-    def __init__(self, normal, scale=10, threshold=0, seed=1,
-                 grid=(50, 100), period=4096, **kwargs):
+    def __init__(self, normal, scale, threshold, seed,
+                 grid, period=4096, roll=(0, 0), roll_dims=(0, 1), **kwargs):
         assert len(grid) == 2, \
             "Method only supports two-dimensional grid structure"
         assert (np.asarray(normal) == 0).sum() == 2, \
             "Implementation of grid only supports surface normal in one dimension"
         assert len(np.asarray(normal).shape) == 1, \
             "Only single surface normal is supported"
+        if isinstance(roll, tuple):
+            assert len(roll) == len(roll_dims), \
+            ('Length of argument roll must match the length of argument roll_dim')
         if seed == 0:
             warnings.warn(
                 "Seed 0 and 1 produces the same noise")
@@ -805,7 +813,10 @@ class ProceduralSurfaceGridGeometry(Geometry):
         self.scale = scale
         self.threshold = threshold
         self.n1, self.n2 = grid
+        self.roll = roll
+        self.roll_dims = roll_dims
         self.kwargs = kwargs
+
 
         # Noise grid can be used to create images by accessing
         # geometry.noise_grid after carving
@@ -820,9 +831,16 @@ class ProceduralSurfaceGridGeometry(Geometry):
     def __call__(self, atoms):
         positions = atoms.get_positions()
         lens = atoms.cell.cellpar()[:3]
+        angles = atoms.cell.cellpar()[3:]
+        angle = angles[angles != 90.]
+
+        assert (angles != 90.).sum() < 2 , \
+            ('Method only supports orthogonal or triclinic systems')
 
         ind = [0, 1, 2]
         k, l = np.delete(ind, np.argmax(self.normal))
+        if np.any(angles != 90.):
+            m, n = np.delete(ind, np.argwhere(angles != 90.)[:, 0])
 
         lx, ly = lens[k], lens[l]
 
@@ -843,12 +861,25 @@ class ProceduralSurfaceGridGeometry(Geometry):
         # Set values to two-step by threshold
         self.noise_grid += noise_vals > self.threshold
 
+        # Rolling the noise grid
+        self.noise_grid = np.roll(self.noise_grid, self.roll, self.roll_dims)
+
         x = positions[:, k]
         y = positions[:, l]
 
         # (1 / grid cell lengths) for faster computations for x_i and y_i below
         gcell_lenx_inv = self.n1 / lx
         gcell_leny_inv = self.n2 / ly
+
+
+        # Shifting positions if box is triclinic, shifting is done such that
+        # the particles positions mimic an orthogonal system. Allows for using
+        # the fast method below for assigning particles to grid cells
+        try:
+            # If m and n does not exist, angle = 90 and we will be subtracting 90
+            positions[:, m] -= positions[:, n] * np.tan(np.deg2rad(90 - angle))
+        except:
+            pass
 
         # Mapping positions to grid. Pairs x_i and y_i gives position of
         # particle on grid
