@@ -71,6 +71,35 @@ def create_bulk_crystal(name, size, round="up"):
     return myCrystal
 
 
+def create_bulk_ice(name, n_reps, density=0.9):
+    cwd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        os.chdir(tmp_dir)
+        sys.path.append(tmp_dir)
+
+        # Run genice input script
+        try:
+            genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format g --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.gro"
+            print(genice_string)
+            os.system(genice_string)
+        except:
+            raise OSError("packmol is not found. For installation instructions, \
+                           see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
+
+        # Read packmol outfile
+        water = ase.io.read(f"ice.gro", format="gromacs")
+
+    os.chdir(cwd)
+    #if atoms is None:
+    #    water.set_cell(cell)
+    #else:
+    #    # remove solid
+    #    del water[:len(atoms)]
+    #    water.set_cell(cell)
+    #    atoms += water
+
+    return water
+
 def carve_geometry(atoms, geometry, side="in", return_carved=False):
     """Delete atoms according to geometry.
 

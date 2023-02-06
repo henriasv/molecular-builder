@@ -358,6 +358,21 @@ class BlockGeometry(Geometry):
             self.orientation, self.center, positions)) <= self.length), axis=1)
         return indices
 
+class ConeGeometry(Geometry):
+    """Geometry of a cone with its axis in the z direction"""
+
+    def __init__(self, point, height, radius, **kwargs):
+        super().__init__(**kwargs)
+        self.point = np.asarray(point)
+        self.radius = radius
+        self.height = height
+    
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        dist = self.distance_point_line(np.array([0,0,1]), self.point, positions)
+        indices = dist < (self.radius - self.radius*(positions[:,2]-self.point[2])/self.height)
+        return indices
+
 
 class PlaneGeometry(Geometry):
     """Remove all particles on one side of one or more planes. Can be used to
