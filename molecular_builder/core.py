@@ -75,7 +75,7 @@ def create_bulk_ice(name, n_reps, density=0.9):
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
-        sys.path.append(tmp_dir)
+        #sys.path.append(tmp_dir)
 
         # Run genice input script
         try:
@@ -85,20 +85,12 @@ def create_bulk_ice(name, n_reps, density=0.9):
         except:
             raise OSError("packmol is not found. For installation instructions, \
                            see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
-
+        
         # Read packmol outfile
-        water = ase.io.read(f"ice.gro", format="gromacs")
-
-    os.chdir(cwd)
-    #if atoms is None:
-    #    water.set_cell(cell)
-    #else:
-    #    # remove solid
-    #    del water[:len(atoms)]
-    #    water.set_cell(cell)
-    #    atoms += water
-
-    return water
+        os.chdir(cwd)
+        ice = ase.io.read(f"{tmp_dir}/ice.gro", format="gromacs")
+        
+    return ice
 
 def carve_geometry(atoms, geometry, side="in", return_carved=False):
     """Delete atoms according to geometry.
@@ -261,7 +253,6 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
-        sys.path.append(tmp_dir)
 
         if atoms is not None:
             # Write solid structure to pdb-file
@@ -292,7 +283,8 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
                            see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
 
         # Read packmol outfile
-        water = ase.io.read(f"out.{format_s}", format=format_v)
+        os.chdir(cwd)
+        water = ase.io.read(f"{tmp_dir}/out.{format_s}", format=format_v)
 
     os.chdir(cwd)
     if atoms is None:
