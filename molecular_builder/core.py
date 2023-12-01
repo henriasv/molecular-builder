@@ -79,8 +79,7 @@ def create_bulk_ice(name, n_reps, density=0.9):
 
         # Run genice input script
         try:
-            genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format g --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.gro"
-            print(genice_string)
+            genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
             os.system(genice_string)
         except:
             raise OSError("packmol is not found. For installation instructions, \
@@ -88,7 +87,7 @@ def create_bulk_ice(name, n_reps, density=0.9):
         
         # Read packmol outfile
         os.chdir(cwd)
-        ice = ase.io.read(f"{tmp_dir}/ice.gro", format="gromacs")
+        ice = ase.io.read(f"{tmp_dir}/ice.pdb", format="proteindatabank")
         
     return ice
 
@@ -227,6 +226,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
     if volume is not None:
         V_per_water = 29.9796/density
         nummol = int(volume/V_per_water)
+        print(f"creating {nummol} molecules")
 
     format_s, format_v = "pdb", "proteindatabank"
     side += "side"
