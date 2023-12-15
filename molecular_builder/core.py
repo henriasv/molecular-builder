@@ -2,6 +2,7 @@ import ase.spacegroup
 from ase.calculators.lammps import Prism  # , convert
 import ase.io
 import sys
+import subprocess
 import os
 import numpy as np
 from .crystals import crystals
@@ -75,20 +76,14 @@ def create_bulk_ice(name, n_reps, density=0.9):
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
-        #sys.path.append(tmp_dir)
+        sys.path.append(tmp_dir)
 
         # Run genice input script
-        try:
-            genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
-            os.system(genice_string)
-        except:
-            raise OSError("packmol is not found. For installation instructions, \
-                           see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
-        
-        # Read packmol outfile
+        genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
+        ps = subprocess.Popen(genice_string, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        ps.communicate()
         os.chdir(cwd)
         ice = ase.io.read(f"{tmp_dir}/ice.pdb", format="proteindatabank")
-        
     return ice
 
 def carve_geometry(atoms, geometry, side="in", return_carved=False):
@@ -226,7 +221,6 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
     if volume is not None:
         V_per_water = 29.9796/density
         nummol = int(volume/V_per_water)
-        print(f"creating {nummol} molecules")
 
     format_s, format_v = "pdb", "proteindatabank"
     side += "side"
@@ -254,11 +248,11 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
 
-        if atoms is not None:
+        if atoms is not None and len(atoms) > 0:
             # Write solid structure to pdb-file
             atoms.write(f"atoms.{format_s}", format=format_v)
 
-        # Copy water.pdb to templorary directory
+        # Copy water.pdb to temporary directory
         this_dir, this_filename = os.path.split(__file__)
         water_data = this_dir + f"/data_files/water.{format_s}"
         copyfile(water_data, f"water.{format_s}")
@@ -268,7 +262,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
             f.write(f"tolerance {tolerance}\n")
             f.write(f"filetype {format_s}\n")
             f.write(f"output out.{format_s}\n")
-            if atoms is not None:
+            if atoms is not None and len(atoms) > 0:
                 f.write(f"structure atoms.{format_s}\n")
                 f.write("  number 1\n")
                 f.write("  fixed 0 0 0 0 0 0\n")
@@ -277,21 +271,26 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
 
         # Run packmol input script
         try:
-            os.system("packmol < input.inp")
+            ps = subprocess.Popen("packmol < input.inp", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = ps.communicate()
         except:
             raise OSError("packmol is not found. For installation instructions, \
                            see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
 
         # Read packmol outfile
         os.chdir(cwd)
-        water = ase.io.read(f"{tmp_dir}/out.{format_s}", format=format_v)
+        try:
+            water = ase.io.read(f"{tmp_dir}/out.{format_s}", format=format_v)
+        except FileNotFoundError as e: 
+            raise FileNotFoundError(f"Packmol output not found\nOutput from Packmol: {out}\nError from Packmol: {err}\n{e}")
 
     os.chdir(cwd)
     if atoms is None:
         water.set_cell(cell)
     else:
         # remove solid
-        del water[:len(atoms)]
+        if len(atoms) > 0:
+            del water[:len(atoms)]
         water.set_cell(cell)
         atoms += water
 
