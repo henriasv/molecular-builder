@@ -281,6 +281,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
         os.chdir(cwd)
         try:
             water = ase.io.read(f"{tmp_dir}/out.{format_s}", format=format_v)
+            water.set_pbc(True)
         except FileNotFoundError as e: 
             raise FileNotFoundError(f"Packmol output not found\nOutput from Packmol: {out}\nError from Packmol: {err}\n{e}")
 
