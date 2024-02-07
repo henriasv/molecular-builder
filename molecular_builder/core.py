@@ -72,14 +72,14 @@ def create_bulk_crystal(name, size, round="up"):
     return myCrystal
 
 
-def create_bulk_ice(name, n_reps, density=0.9):
+def create_bulk_ice(name, n_reps, density=0.9, launcher=""):
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
         sys.path.append(tmp_dir)
 
         # Run genice input script
-        genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
+        genice_string = f"{launcher} genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
         ps = subprocess.Popen(genice_string, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         ps.communicate()
         os.chdir(cwd)
