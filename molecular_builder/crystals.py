@@ -15,6 +15,21 @@ crystals = {
                     (0.2522,  0.3139,  0.2729)],
     "citation" : "Lee S, Xu H. Acta Crystallographica B75 (2019) https://doi.org/10.1107/S2052520619000933 Using powder XRD and pair distribution function to determine anisotropic atomic displacement parameters of orthorhombic tridymite and tetragonal cristobalite"
     },
+    "beta_tridymite" : 
+    {
+    "a" : 5.047, 
+    "b" : 5.047,
+    "c" : 8.262,
+    "alpha" : 90,
+    "beta" : 90,
+    "gamma" : 120,
+    "spacegroup" : "P63/mmc",
+    "elements" : ["Si", "O", "O"],
+    "positions" : [ (0.33333, 0.66667, 0.43790), 
+                    (0.33333, 0.66667, 0.25000), 
+                    (0.00000, 0.50000, 0.00000)],
+    "citation" : "Kihara K, Matsumoto T, Imamura M. Zeitschrift fur Kristallographie (1986) Structural change of orthorhombic-I tridymite with temperature: A study based on second-order thermal-vibrational parameters (Note: hexagonal Gibbs model, T = 693 K)"
+    },
     "alpha_quartz" :
     {
         "a" : 5.02778179,
