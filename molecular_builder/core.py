@@ -79,9 +79,11 @@ def create_bulk_ice(name, n_reps, density=0.9, launcher=""):
         sys.path.append(tmp_dir)
 
         # Run genice input script
-        genice_string = f"{launcher} genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
-        ps = subprocess.Popen(genice_string, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        ps.communicate()
+        genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
+        ps = subprocess.Popen(genice_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = ps.communicate()
+        if "Nonexistent module: mdanalysis" in str(stderr):
+            raise Exception("genice2-mdanalysis not installed. Please install with pip install genice2-mdanalysis")
         os.chdir(cwd)
         ice = ase.io.read(f"{tmp_dir}/ice.pdb", format="proteindatabank")
     return ice
