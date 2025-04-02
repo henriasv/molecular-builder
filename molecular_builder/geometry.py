@@ -876,3 +876,77 @@ class ProceduralSurfaceGridGeometry(Geometry):
         indices = np.logical_not(noises.flatten())
 
         return indices
+
+class ImageToSurfaceGeometry(Geometry):
+    """Creates a surface based on an input images consisting of 0's and 1's.
+    Particles are removed according to the 1's in the image, and all particles
+    in the direction of the surface normal are removed.
+
+    :param normal: normal vector of noisy surface, surface is carved out
+                   in the poiting direction.
+    :type normal: array_like
+    :param image: image consisting of 0's and 1's.
+    :type image: ndarray
+    :returns: ndarray of bools stating which atoms to remove.
+    :rtype: ndarray
+    """
+
+    def __init__(self, normal, image):
+        assert len(image.shape) == 2, \
+            "Method only supports single channel images"
+        assert (np.asarray(normal) == 0).sum() == 2, \
+            "Implementation of grid only supports surface normal in one dimension"
+        assert len(np.asarray(normal).shape) == 1, \
+            "Only single surface normal is supported"
+        assert len(np.unique(image)) < 3, \
+            "method only supports boolean type images"
+
+        normal = np.atleast_2d(normal)
+        self.normal = normal / np.linalg.norm(normal, axis=1)
+        self.image = image
+        self.n1, self.n2 = image.shape
+
+
+    def __call__(self, atoms):
+        positions = atoms.get_positions()
+        lens = atoms.cell.cellpar()[:3]
+        angles = atoms.cell.cellpar()[3:]
+        angle = angles[angles != 90.]
+
+        ind = [0, 1, 2]
+        k, l = np.delete(ind, np.argmax(self.normal))
+        if np.any(angles != 90.):
+            m, n = np.delete(ind, np.argwhere(angles != 90.)[:, 0])
+
+        lx, ly = lens[k], lens[l]
+
+        gridx = np.linspace(0, lx, self.n1)
+        gridy = np.linspace(0, ly, self.n2)
+
+        x = positions[:, k]
+        y = positions[:, l]
+
+        # (1 / grid cell lengths) for faster computations for x_i and y_i below
+        gcell_lenx_inv = self.n1 / lx
+        gcell_leny_inv = self.n2 / ly
+
+        # Shifting positions if box is triclinic, shifting is done such that
+        # the particles positions mimic an orthogonal system. Allows for using
+        # the fast method below for assigning particles to grid cells
+        try:
+            # If m and n does not exist, angle = 90 and we will be subtracting 90
+            positions[:, m] -= positions[:, n] * np.tan(np.deg2rad(90 - angle))
+        except:
+            pass
+
+        # Mapping positions to grid. Pairs x_i and y_i gives position of
+        # particle on grid
+        x_i = (positions[:, k] * gcell_lenx_inv).astype(int)
+        y_i = (positions[:, l] * gcell_leny_inv).astype(int)
+
+        # Assign particles to grid cells
+        noises = self.image[x_i, y_i]
+
+        indices = np.logical_not(noises.flatten())
+
+        return indices
