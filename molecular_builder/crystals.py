@@ -65,8 +65,8 @@ crystals = {
         "gamma" : 90,
         "spacegroup" : 164,
         "elements" : ["Mg", "O", "H"],
-        "positions" : [(0.0, 0.0, 0.0), (1./3, 2./3, 0.2216), (1./3, 2./3, 0.4303)],
-        "citation" : "Zigan F, Rothbauer R, Neues Jahrbuch fur Mineralogie, Monatshefte 1967 (1967) 137-143, Neutronenbeugungsmessungen am Brucit"
+        "positions" : [(0.0, 0.0, 0.5), (1./3, 2./3, 0.7216), (1./3, 2./3, 0.9303)],
+        "citation" : "Zigan F, Rothbauer R, Neues Jahrbuch fur Mineralogie, Monatshefte 1967 (1967) 137-143, Neutronenbeugungsmessungen am Brucit (z-coords shifted +0.5 for slab symmetry)"
     },
     "coesite" :
     {
