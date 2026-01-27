@@ -192,13 +192,13 @@ def read_data(filename, type_mapping=None, style="atomic"):
     return atoms
 
 def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
-               geometry=None, side='in', pbc=0.0, tolerance=2.0, method="packmol",
+               geometry=None, side='in', pbc=0.0, tolerance=2.0, method="native",
                seed=None, pairwise_distances=None):
     """Pack water molecules into voids at a given volume defined by a geometry.
     
     Supports two packing methods:
-    - "packmol": External packmol binary (default, original behavior)
-    - "native": Pure-Python water_packer (no external dependencies)
+    - "native": Pure-Python water_packer (default, no external dependencies)
+    - "packmol": External packmol binary (legacy behavior)
 
     :param atoms: ase Atoms object that specifies particles that water is to be packed around. The packed water molecules will be added to this atoms object.
     :type atoms: Atoms object
@@ -216,7 +216,7 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
     :type pbc: float or array_like
     :param tolerance: Minimum separation distance between molecules.
     :type tolerance: float
-    :param method: Packing method - "packmol" (default) or "native" (pure-Python)
+    :param method: Packing method - "native" (default) or "packmol" (legacy)
     :type method: str
     :param seed: Random seed for reproducibility (native method only)
     :type seed: int, optional
