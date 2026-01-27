@@ -137,5 +137,17 @@ crystals = {
         "elements" : ["Na", "Cl", "O"],
         "positions" : [(0.064, 0.064, 0.064), (0.417, 0.417, 0.417), (0.303, 0.592, 0.5)],
         "citation" : "Zeitschrift fuer Kristallographie, Kristallgeometrie, Kristallphysik, Kristallchemie (-144,1977) (1929) 71, 517-529"
+    },
+    "periclase": {
+        "a": 4.212,
+        "b": 4.212,
+        "c": 4.212,
+        "alpha": 90,
+        "beta": 90,
+        "gamma": 90,
+        "spacegroup": 225,
+        "elements": ["Mg", "O"],
+        "positions": [(0, 0, 0), (0.5, 0.5, 0.5)],
+        "citation": "Standard rocksalt structure for MgO"
     }
 }
