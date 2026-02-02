@@ -55,9 +55,9 @@ crystals = {
         "positions" : [(0.0,  0.0,  0.0), (0.125,  0.125,  0.125)],
         "citation" : "Wyckoff R, Zeitschrift fur Kristallographie 62 (1925) 189-200 Die Kristallstruktur von $-beta-Crystobalit Si O2 (bei hohen Temperaturen stabile Form)."
     },
-    "brucite" :
-    {
-        "a" : 3.142,
+    "brucite" : 
+    { 
+        "a" : 3.142, 
         "b" : 3.142,
         "c" : 4.766,
         "alpha" : 90,
@@ -66,7 +66,6 @@ crystals = {
         "spacegroup" : 164,
         "elements" : ["Mg", "O", "H"],
         "positions" : [(0.0, 0.0, 0.0), (1./3, 2./3, 0.2216), (1./3, 2./3, 0.4303)],
-        "shift" : [0.5, 0.0, 0.5],  # Center in x and z for clean slab cuts
         "citation" : "Zigan F, Rothbauer R, Neues Jahrbuch fur Mineralogie, Monatshefte 1967 (1967) 137-143, Neutronenbeugungsmessungen am Brucit"
     },
     "coesite" :
@@ -138,17 +137,5 @@ crystals = {
         "elements" : ["Na", "Cl", "O"],
         "positions" : [(0.064, 0.064, 0.064), (0.417, 0.417, 0.417), (0.303, 0.592, 0.5)],
         "citation" : "Zeitschrift fuer Kristallographie, Kristallgeometrie, Kristallphysik, Kristallchemie (-144,1977) (1929) 71, 517-529"
-    },
-    "periclase": {
-        "a": 4.212,
-        "b": 4.212,
-        "c": 4.212,
-        "alpha": 90,
-        "beta": 90,
-        "gamma": 90,
-        "spacegroup": 225,
-        "elements": ["Mg", "O"],
-        "positions": [(0, 0, 0), (0.5, 0.5, 0.5)],
-        "citation": "Standard rocksalt structure for MgO"
     }
 }

@@ -2,3 +2,4 @@
 *.sqlite
 *.pyc
 docs/_build
+.venv/

@@ -8,9 +8,11 @@ import numpy as np
 from .crystals import crystals
 from .geometry import BoxGeometry, PlaneBoundTriclinicGeometry
 import requests
+import requests_cache
 import tempfile
 from shutil import copyfile
-
+from clint.textui import progress
+from werkzeug.utils import secure_filename
 
 
 def create_bulk_crystal(name, size, round="up"):
@@ -45,14 +47,6 @@ def create_bulk_crystal(name, size, round="up"):
                     cellpar = [crystal[i] for i in ["a", "b", "c", "alpha", "beta", "gamma"]],
                     size=repeats)
 
-    # Apply fractional shift if specified (for centering layered structures etc.)
-    if "shift" in crystal:
-        shift = np.array(crystal["shift"])
-        scaled_pos = myCrystal.get_scaled_positions()
-        scaled_pos += shift
-        myCrystal.set_scaled_positions(scaled_pos)
-        myCrystal.wrap()
-
     ###############################################################################
     # Creating a Lammps prism and then recreating the ase cell is necessary
     # to avoid flipping of the simulation cell when outputing the lammps data file
@@ -78,7 +72,7 @@ def create_bulk_crystal(name, size, round="up"):
     return myCrystal
 
 
-def create_bulk_ice(name, n_reps, density=0.9, launcher=""):
+def create_bulk_ice(name, n_reps, density=0.9):
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
@@ -86,10 +80,8 @@ def create_bulk_ice(name, n_reps, density=0.9, launcher=""):
 
         # Run genice input script
         genice_string = f"genice2 --rep {n_reps[0]} {n_reps[1]} {n_reps[2]} --dens {density} --format 'mdanalysis[ice.pdb]' --water physical_water --depol optimal {name} | sed '$d' | sed '$d' > ice.pdb"
-        ps = subprocess.Popen(genice_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = ps.communicate()
-        if "Nonexistent module: mdanalysis" in str(stderr):
-            raise Exception("genice2-mdanalysis not installed. Please install with pip install genice2-mdanalysis")
+        ps = subprocess.Popen(genice_string, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        ps.communicate()
         os.chdir(cwd)
         ice = ase.io.read(f"{tmp_dir}/ice.pdb", format="proteindatabank")
     return ice
@@ -140,15 +132,14 @@ def fetch_system_from_url(url, type_mapping=None):
     Returns
     :returns: ase.Atoms object with the system
     """
-    requests_cache_installed = False # cache disabled
+    requests_cache.install_cache('python_molecular_builder_cache')
     f = tempfile.TemporaryFile(mode="w+t")
     r = requests.get(url, stream=True)
     r.encoding = "utf-8"
     total_length = int(r.headers.get('content-length'))
     print(f"Downloading data file {url}")
     chunk_size = 4096
-    print("Downloading...")
-    for chunk in r.iter_content(chunk_size=chunk_size, decode_unicode=True):
+    for chunk in progress.bar(r.iter_content(chunk_size=chunk_size, decode_unicode=True), expected_size=(total_length/chunk_size) + 1):
         if chunk:
             f.write(chunk)
             f.flush()
@@ -175,7 +166,7 @@ def fetch_prepared_system(name, type_mapping=None):
     Returns
     :returns: ase.Atoms object with the system
     """
-    url = f"https://zenodo.org/record/3994120/files/{name}.data"
+    url = f"https://zenodo.org/record/3994120/files/{secure_filename(name)}.data"
     return fetch_system_from_url(url, type_mapping=type_mapping)
 
 
@@ -199,13 +190,9 @@ def read_data(filename, type_mapping=None, style="atomic"):
     return atoms
 
 def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
-               geometry=None, side='in', pbc=0.0, tolerance=2.0, method="native",
-               seed=None, pairwise_distances=None):
+               geometry=None, side='in', pbc=0.0, tolerance=2.0):
     """Pack water molecules into voids at a given volume defined by a geometry.
-    
-    Supports two packing methods:
-    - "native": Pure-Python water_packer (default, no external dependencies)
-    - "packmol": External packmol binary (legacy behavior)
+    The packing is performed by packmol.
 
     :param atoms: ase Atoms object that specifies particles that water is to be packed around. The packed water molecules will be added to this atoms object.
     :type atoms: Atoms object
@@ -223,71 +210,9 @@ def pack_water(atoms=None, nummol=None, volume=None, density=0.997,
     :type pbc: float or array_like
     :param tolerance: Minimum separation distance between molecules.
     :type tolerance: float
-    :param method: Packing method - "native" (default) or "packmol" (legacy)
-    :type method: str
-    :param seed: Random seed for reproducibility (native method only)
-    :type seed: int, optional
-    :param pairwise_distances: Species-specific minimum distances (native method only)
-    :type pairwise_distances: dict, optional
 
     :returns: Coordinates of the packed water
     """
-    if method == "native":
-        # Use pure-Python water_packer (no packmol binary required)
-        from water_packer import WaterPacker
-        
-        # Only validate that BOTH aren't specified (ambiguous)
-        # Allow both to be None - packer will auto-calculate from available volume
-        if (volume is not None) and (nummol is not None):
-            raise ValueError("Cannot specify both volume and nummol - choose one or neither")
-        
-        # Create the system to pack into
-        if atoms is None:
-            if geometry is None:
-                raise ValueError("Either atoms or geometry has to be given")
-            # Create empty box from geometry
-            if geometry.__class__.__name__ == "PlaneBoundTriclinicGeometry":
-                cell = geometry.cell
-            else:
-                cell = np.diag(geometry.ur_corner - geometry.ll_corner)
-            system = ase.Atoms(cell=cell, pbc=True)
-        else:
-            system = atoms.copy()
-        
-        # Initialize packer
-        packer = WaterPacker(
-            min_distance=tolerance,
-            water_density=density,
-            seed=seed,
-            pairwise_distances=pairwise_distances,
-        )
-        
-        # Pack water
-        result = packer.pack(system, n_waters=nummol)
-        
-        # Extract just the water molecules
-        if atoms is None:
-            water = result
-        else:
-            # Remove original atoms, keep only water
-            n_original = len(atoms)
-            water_positions = result.get_positions()[n_original:]
-            water_symbols = result.get_chemical_symbols()[n_original:]
-            water = ase.Atoms(
-                symbols=water_symbols,
-                positions=water_positions,
-                cell=result.get_cell(),
-                pbc=True
-            )
-            # Add water to original atoms
-            atoms += water
-        
-        return water
-    
-    elif method != "packmol":
-        raise ValueError(f"Unknown method '{method}'. Choose 'packmol' or 'native'.")
-    
-    # Original packmol implementation follows
     if (volume is None and nummol is None):
         raise ValueError("Either volume or the number of molecules needed")
     elif (volume is not None) and (nummol is not None):
