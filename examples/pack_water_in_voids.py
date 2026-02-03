@@ -13,7 +13,7 @@ for sphere in range(num_spheres):
     tmp_carved = carve_geometry(amorph, geometry, side="in")
     print(f"tmp carved: {tmp_carved}")
 
-water = pack_water(2000, atoms=amorph) #, geometry=CubeGeometry([60,60,60], 130))
+water = pack_water(atoms=amorph, nummol=2000) #, geometry=CubeGeometry([60,60,60], 130))
 
 system = water + amorph
 

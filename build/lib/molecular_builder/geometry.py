@@ -1,13 +1,7 @@
 import numpy as np
 from ase import Atom
-try:
-    from noise import snoise2, pnoise2
-    from noise_randomized import snoise2 as snoise2r, randomize
-except ImportError:
-    import warnings
-    warnings.warn("The 'noise' package is not installed. Procedural geometries will fail if used.")
-    snoise2, pnoise2, snoise2r, randomize = None, None, None, None
-
+from noise import snoise2, pnoise2
+from noise_randomized import snoise2 as snoise2r, randomize
 import warnings
 
 

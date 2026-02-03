@@ -18,7 +18,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    install_requires=["numpy", "ase", "requests", "requests-cache", "clint", "werkzeug",
+    install_requires=["numpy", "ase", "scipy", "water_packer", "requests", "requests-cache", "clint", "werkzeug",
                       "cython", "recommonmark", "ovito", "noise", "genice2", "genice2-mdanalysis",
                       "noise_randomized @ git+https://git@github.com/chdre/noise-randomized@master#egg=noise_randomized"],
     python_requires='>=3.7',
